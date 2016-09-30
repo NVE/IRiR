@@ -10,7 +10,7 @@ getwd()
 #the address can be copied from the address bar in Windows Explorer
 #remember to change "\" to "/" or "\\" 
 #my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
-my.path = "\\\\nve\\fil\\etø\\Ansatte\\mohh\\IRiR"
+my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
 setwd(my.path)
 #load benchmarking package of Bogetoft & Otto
 library(Benchmarking)
