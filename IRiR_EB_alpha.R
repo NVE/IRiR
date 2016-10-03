@@ -109,6 +109,21 @@ rho = 0.6
 d_grs_pris = 1
 
 
+#### Beregner pensjonskostnader i faste priser ved hjelp av kpia####
+
+dat.id$fp_d_pensj = dat.id$d_pensj*dat.id$kpia
+dat.id$fp_d_pensjek = dat.id$d_pensjek * dat.id$kpia
+dat.id$fp_d_impl = dat.id$d_impl * dat.id$kpia
+dat.id$fp_r_pensj = dat.id$r_pensj*dat.id$kpia
+dat.id$fp_r_pensjek = dat.id$r_pensjek * dat.id$kpia
+dat.id$fp_r_impl = dat.id$r_impl * dat.id$kpia
+dat.id$fp_s_pensj = dat.id$s_pensj*dat.id$kpia
+dat.id$fp_s_pensjek = dat.id$s_pensjek * dat.id$kpia
+dat.id$fp_s_impl = dat.id$s_impl * dat.id$kpia
+
+
+
+
 #### TOTEX Beregninger ####
 
 #compute totex for D-nett
@@ -127,6 +142,9 @@ r_totco = r_DV-dat.id$r_utred-dat.id$r_391+r_AKG*nve.rente.t2+r_AVS+dat.id$r_kil
 #nytt datasett som inneholder alle variabler
 dat = cbind(dat.id,r_DV,r_AKG,r_AVS,r_totco,d_DV,d_AKG,d_AVS,d_totco)
 rm (dat.id)
+
+
+
 
 #beregner snitt av kostnader og output 
 #legger snitt-tallet inn i rad for faktisk år for hvert selskap, men oppretter ny kolonne
