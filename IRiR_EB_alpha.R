@@ -192,8 +192,8 @@ names(kap.faktisk.r) = eval.r
 
 #### Beregner snitt for selskapene som skal evalueres ####
 #snittdata for selskaper som skal evalueres
-x.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,"r_totco_snitt"]
-y.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("r_vluft_snitt","r_vjord_snitt","r_vsjo_snitt","r_vgrs_snitt")]
+x.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,"av_r_totco"]
+y.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("av_r_vluft","av_r_vjord","av_r_vsjo","av_r_vgrs")]
 z.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("rr_he","rr_s12")]
 names(x.snitt.r) = eval.r
 rownames(y.snitt.r) = eval.r
