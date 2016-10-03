@@ -136,19 +136,22 @@ for(i in which(dat.id$aar %in% snitt.aar))
         dat.id[i,"av_s_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_pensjek"], na.rm = T)
         dat.id[i,"av_s_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_impl"], na.rm = T)
         }
+#### Pensjonskostnadsgrunnlaget etablers for alle nettnivåer
 
-
+dat.id$d_pensjkostgrlag = dat.id$av_d_pensj + dat.id$av_d_pensjek + dat.id$av_d_impl
+dat.id$r_pensjkostgrlag = dat.id$av_r_pensj + dat.id$av_r_pensjek + dat.id$av_r_impl
+dat.id$s_pensjkostgrlag = dat.id$av_s_pensj + dat.id$av_s_pensjek + dat.id$av_s_impl
 
 #### TOTEX Beregninger ####
-
 #compute totex for D-nett
-d_DV = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensj+dat.id$d_pensjek-dat.id$d_impl
+
+d_DV = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensjkostgrlag # Har erstattet noe her ihht Roars kode
 d_AKG = (dat.id$d_bfv+dat.id$d_abbfv)*arb.kap.paaslag
 d_AVS = dat.id$d_avs+dat.id$d_abavs
 d_totco = d_DV-dat.id$d_utred-dat.id$d_391+d_AKG*nve.rente.t2+d_AVS+dat.id$d_kile+dat.id$d_nettap*kraftpris
 
 #compute totex for R-nett
-r_DV = dat.id$r_DVxL+dat.id$r_lonn-dat.id$r_lonnakt+dat.id$r_pensj+dat.id$r_pensjek-dat.id$r_impl
+r_DV = dat.id$r_DVxL+dat.id$r_lonn-dat.id$r_lonnakt+dat.id$r_pensjkostgrlag # Har erstattet noe her ihht Roars kode
 r_AKG = (dat.id$r_bfv+dat.id$r_abbfv)*arb.kap.paaslag
 r_AVS = dat.id$r_avs+dat.id$r_abavs
 r_totco = r_DV-dat.id$r_utred-dat.id$r_391+r_AKG*nve.rente.t2+r_AVS+dat.id$r_kile
