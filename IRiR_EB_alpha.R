@@ -109,6 +109,22 @@ rho = 0.6
 d_grs_pris = 1
 
 
+#### Beregner pensjonskostnader i faste priser ved hjelp av kpia####
+
+dat.id$fp_d_pensj = dat.id$d_pensj*dat.id$kpia
+dat.id$fp_d_pensjek = dat.id$d_pensjek * dat.id$kpia
+dat.id$fp_d_impl = dat.id$d_impl * dat.id$kpia
+dat.id$fp_r_pensj = dat.id$r_pensj*dat.id$kpia
+dat.id$fp_r_pensjek = dat.id$r_pensjek * dat.id$kpia
+dat.id$fp_r_impl = dat.id$r_impl * dat.id$kpia
+dat.id$fp_s_pensj = dat.id$s_pensj*dat.id$kpia
+dat.id$fp_s_pensjek = dat.id$s_pensjek * dat.id$kpia
+dat.id$fp_s_impl = dat.id$s_impl * dat.id$kpia
+
+
+#### Femårig snitt av pensjonskostnader i løpende priser til 
+
+
 #### TOTEX Beregninger ####
 
 #compute totex for D-nett
@@ -134,9 +150,9 @@ rm (dat.id)
 #snittdata for D-nett
 for(i in which(dat$aar == faktisk.aar))
 {
-  dat[i,"d_totco_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_totco"])
-  dat[i,"d_ab_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ab"])
-  dat[i,"d_hs_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_hs"])
+  dat[i,"av_d_totco"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_totco"])
+  dat[i,"av_d_ab"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ab"])
+  dat[i,"av_d_hs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_hs"])
   dat[i,"d_ns_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ns"])
 }
 
