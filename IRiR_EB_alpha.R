@@ -122,6 +122,7 @@ dat.id$fp_s_pensjek = dat.id$s_pensjek * dat.id$kpia
 dat.id$fp_s_impl = dat.id$s_impl * dat.id$kpia
 
 
+#### Femårig snitt av pensjonskostnader i løpende priser til 
 
 
 #### TOTEX Beregninger ####
@@ -143,18 +144,15 @@ r_totco = r_DV-dat.id$r_utred-dat.id$r_391+r_AKG*nve.rente.t2+r_AVS+dat.id$r_kil
 dat = cbind(dat.id,r_DV,r_AKG,r_AVS,r_totco,d_DV,d_AKG,d_AVS,d_totco)
 rm (dat.id)
 
-
-
-
 #beregner snitt av kostnader og output 
 #legger snitt-tallet inn i rad for faktisk år for hvert selskap, men oppretter ny kolonne
 
 #snittdata for D-nett
 for(i in which(dat$aar == faktisk.aar))
 {
-  dat[i,"d_totco_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_totco"])
-  dat[i,"d_ab_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ab"])
-  dat[i,"d_hs_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_hs"])
+  dat[i,"av_d_totco"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_totco"])
+  dat[i,"av_d_ab"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ab"])
+  dat[i,"av_d_hs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_hs"])
   dat[i,"d_ns_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ns"])
 }
 
