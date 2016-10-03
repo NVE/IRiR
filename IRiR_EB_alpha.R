@@ -153,17 +153,17 @@ for(i in which(dat$aar == faktisk.aar))
   dat[i,"av_d_totco"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_totco"])
   dat[i,"av_d_ab"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ab"])
   dat[i,"av_d_hs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_hs"])
-  dat[i,"d_ns_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ns"])
+  dat[i,"av_d_ns"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ns"])
 }
 
 #snittdata for R-nett
 for(i in which(dat$aar == faktisk.aar))
   {
-  dat[i,"r_totco_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_totco"])
-  dat[i,"r_vluft_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vluft"])
-  dat[i,"r_vjord_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vjord"])
-  dat[i,"r_vsjo_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vsjo"])
-  dat[i,"r_vgrs_snitt"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vgrs"])
+  dat[i,"av_r_totco"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_totco"])
+  dat[i,"av_r_vluft"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vluft"])
+  dat[i,"av_r_vjord"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vjord"])
+  dat[i,"av_r_vsjo"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vsjo"])
+  dat[i,"av_r_vgrs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vgrs"])
   }
 
 
