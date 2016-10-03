@@ -122,7 +122,21 @@ dat.id$fp_s_pensjek = dat.id$s_pensjek * dat.id$kpia
 dat.id$fp_s_impl = dat.id$s_impl * dat.id$kpia
 
 
-#### Femårig snitt av pensjonskostnader i løpende priser til 
+#### Femårig snitt av pensjonskostnader i løpende priser til kostnadsgrunnlag ####
+
+for(i in which(dat.id$aar %in% snitt.aar))
+{
+        dat.id[i,"av_d_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_pensj"], na.rm = T)
+        dat.id[i,"av_d_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_pensjek"], na.rm = T)
+        dat.id[i,"av_d_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_impl"], na.rm = T)
+        dat.id[i,"av_r_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"r_pensj"], na.rm = T)
+        dat.id[i,"av_r_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"r_pensjek"], na.rm = T)
+        dat.id[i,"av_r_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"r_impl"], na.rm = T)
+        dat.id[i,"av_s_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_pensj"], na.rm = T)
+        dat.id[i,"av_s_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_pensjek"], na.rm = T)
+        dat.id[i,"av_s_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_impl"], na.rm = T)
+        }
+
 
 
 #### TOTEX Beregninger ####
