@@ -115,7 +115,7 @@ faktisk.aar = 2014
 IR.aar = faktisk.aar + 2
 
 #Varsel/Vedtak
-Vedtak = 0 # 1 ved vedtak, 0 ved varsel
+vedtak = 0 # 1 ved vedtak, 0 ved varsel
 
 #Varsel
 nve.rente.t2 = 0.0661
