@@ -68,7 +68,7 @@ d_dea_til_gjsnitt <- (c(294, 652, 852))
 
 d_dmuer <- (c())
 
-d_ikkeIR <- (c(134, 348, 521, 612, 638, 696))
+d_ikkeIR <- (c(134, 348, 521, 612, 638, 696)) # IDene finnes ikke
 
 #Deretter for RS-nett
 r_spesial <- (c(10, 18, 35, 41, 88, 98, 106, 116, 135, 147, 156, 161, 162, 173,
@@ -115,7 +115,7 @@ faktisk.aar = 2014
 IR.aar = faktisk.aar + 2
 
 #Varsel/Vedtak
-Vedtak = 0 # 1 ved vedtak, 0 ved varsel
+vedtak = 0 # 1 ved vedtak, 0 ved varsel
 
 #Varsel
 nve.rente.t2 = 0.0661
@@ -174,13 +174,13 @@ dat.id$frontlov = "."
 
 ## Velger deretter korrekte renter avhengig om kjøringen er i varsel eller vedtaksmodus
 if (vedtak == 1)  {
-        rente_dea = nve_rente_t2
-        rente_ir = nve_rente_t
-        nettapspris_dea = systempris_t2
+        rente_dea = nve.rente.t2
+        rente_ir = nve.rente.t
+        nettapspris_dea = systempris.t2
 } else {
-        rente_dea = nve_rente_t2
-        rente_ir = nve_rente_estimert
-        nettapspris_dea = systempris_t2
+        rente_dea = nve.rente.t2
+        rente_ir = nve.rente.estimert
+        nettapspris_dea = systempris.t2
 }
 
 
