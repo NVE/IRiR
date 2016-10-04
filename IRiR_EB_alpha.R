@@ -42,10 +42,17 @@ dat.id$navn[dat.id$orgnr == 996325458] <- "Lyse Sentralnett"
 dat.id$id[dat.id$orgnr == 912631532] <- 460
 dat.id$navn[dat.id$orgnr == 912631532] <- "Morenett"
 
+#lager idaar og orgnraar variabler og endrer type for disse
 dat.id$idaar <- paste(dat.id$id, dat.id$aar, sep="")
 dat.id$orgnraar <- paste(dat.id$aar, dat.id$orgnr, sep="")
 dat.id$idaar <- as.numeric(dat.id$idaar)
 dat.id$orgnraar <- as.numeric(dat.id$orgnraar)
+
+# Endrer d_ab for MIP i direkte i datarket
+dat.id$d_ab[dat.id$idaar == 7432010] <- 248
+dat.id$d_ab[dat.id$idaar == 7432011] <- 246
+dat.id$d_ab[dat.id$idaar == 7432012] <- 246
+dat.id$d_ab[dat.id$idaar == 7432013] <- 245
 
 dat.id <- dat.id[!(dat.id$orgnr==962986633),] ## Sletter observasjoner fra Statnett
 
@@ -142,7 +149,6 @@ dat.id$fp_r_impl = dat.id$r_impl * dat.id$kpia
 dat.id$fp_s_pensj = dat.id$s_pensj*dat.id$kpia
 dat.id$fp_s_pensjek = dat.id$s_pensjek * dat.id$kpia
 dat.id$fp_s_impl = dat.id$s_impl * dat.id$kpia
-
 
 
 #### Femårig snitt av pensjonskostnader i løpende priser til kostnadsgrunnlag ####
