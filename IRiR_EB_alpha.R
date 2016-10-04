@@ -75,7 +75,7 @@ d_dea_til_gjsnitt <- (c(294, 652, 852))
 
 d_dmuer <- (c())
 
-d_ikkeIR <- (c(134, 348, 521, 612, 638, 696))
+d_ikkeIR <- (c(134, 348, 521, 612, 638, 696)) # IDene finnes ikke
 
 #Deretter for RS-nett
 r_spesial <- (c(10, 18, 35, 41, 88, 98, 106, 116, 135, 147, 156, 161, 162, 173,
@@ -123,6 +123,7 @@ IR.aar = faktisk.aar + 2
 
 #Varsel/Vedtak
 Vedtak = 0 # 1 ved vedtak, 0 ved varsel
+vedtak = 0 # 1 ved vedtak, 0 ved varsel
 
 #Varsel
 nve.rente.t2 = 0.0661
