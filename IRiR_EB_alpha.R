@@ -47,6 +47,7 @@ dat.id$orgnraar <- paste(dat.id$aar, dat.id$orgnr, sep="")
 dat.id$idaar <- as.numeric(dat.id$idaar)
 dat.id$orgnraar <- as.numeric(dat.id$orgnraar)
 
+dat.id <- dat.id[!(dat.id$orgnr==962986633),] ## Sletter observasjoner fra Statnett
 
 ##Sjekker om noen mangler id. .
 manglende.id <- dat.id[is.na(dat.id$id),]
