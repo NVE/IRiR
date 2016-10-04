@@ -47,6 +47,7 @@ dat.id$orgnraar <- paste(dat.id$aar, dat.id$orgnr, sep="")
 dat.id$idaar <- as.numeric(dat.id$idaar)
 dat.id$orgnraar <- as.numeric(dat.id$orgnraar)
 
+dat.id <- dat.id[!(dat.id$orgnr==962986633),] ## Sletter observasjoner fra Statnett
 
 ##Sjekker om noen mangler id. .
 manglende.id <- dat.id[is.na(dat.id$id),]
@@ -143,9 +144,9 @@ dat.id$fp_s_pensjek = dat.id$s_pensjek * dat.id$kpia
 dat.id$fp_s_impl = dat.id$s_impl * dat.id$kpia
 
 
+
 #### Femårig snitt av pensjonskostnader i løpende priser til kostnadsgrunnlag ####
 
-<<<<<<< HEAD
 for(i in which(dat.id$aar %in% snitt.aar))
 {
         dat.id[i,"av_d_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_pensj"], na.rm = T)
@@ -157,7 +158,9 @@ for(i in which(dat.id$aar %in% snitt.aar))
         dat.id[i,"av_s_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_pensj"], na.rm = T)
         dat.id[i,"av_s_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_pensjek"], na.rm = T)
         dat.id[i,"av_s_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_impl"], na.rm = T)
-        }
+}
+
+
 #### Pensjonskostnadsgrunnlaget etablers for alle nettnivåer
 
 dat.id$d_pensjkostgrlag = dat.id$av_d_pensj + dat.id$av_d_pensjek + dat.id$av_d_impl
@@ -165,7 +168,7 @@ dat.id$r_pensjkostgrlag = dat.id$av_r_pensj + dat.id$av_r_pensjek + dat.id$av_r_
 dat.id$s_pensjkostgrlag = dat.id$av_s_pensj + dat.id$av_s_pensjek + dat.id$av_s_impl
 
 #### TOTEX Beregninger ####
-=======
+
 ## Etablerer dummy for om selskapet kan være mønsterselskap (brukes i trinn 1)
 dat.id$frontlov = "."
 
@@ -180,7 +183,8 @@ if (vedtak == 1)  {
         nettapspris_dea = systempris_t2
 }
 
->>>>>>> mona-branch
+
+
 #compute totex for D-nett
 
 d_DV = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensjkostgrlag # Har erstattet noe her ihht Roars kode
