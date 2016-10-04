@@ -63,7 +63,7 @@ manglende.id[c("selskap", "orgnr")]
 rm(manglende.id, id, dat)
 
 
-# Fjerner bestemte selskap fra datasettet basert på id
+#### Fjerner bestemte selskap fra datasettet basert på id ####
 
 
 ## Selskaper som av diverse årsaker er unntat vanlig DEA- eller IR-regulering
@@ -180,13 +180,13 @@ dat.id$frontlov = "."
 
 ## Velger deretter korrekte renter avhengig om kjøringen er i varsel eller vedtaksmodus
 if (vedtak == 1)  {
-        rente_dea = nve_rente_t2
-        rente_ir = nve_rente_t
-        nettapspris_dea = systempris_t2
+        rente.dea = nve.rente.t2
+        rente.ir = nve.rente.t
+        nettapspris.dea = systempris.t2
 } else {
-        rente_dea = nve_rente_t2
-        rente_ir = nve_rente_estimert
-        nettapspris_dea = systempris_t2
+        rente.dea = nve.rente.t2
+        rente.ir = nve.rente.estimert
+        nettapspri.dea = systempris.t2
 }
 
 
@@ -209,9 +209,18 @@ r_totco = r_DV-dat.id$r_utred-dat.id$r_391+r_AKG*nve.rente.t2+r_AVS+dat.id$r_kil
 dat = cbind(dat.id,r_DV,r_AKG,r_AVS,r_totco,d_DV,d_AKG,d_AVS,d_totco)
 rm (dat.id)
 
+## Beregner gjennomsnittsfront
+        # Først opprettes verdier i faste priser
+        # Variabler som justeres med vanlig KPI
+
+dat$fp_d_kile = dat$d_kile * dat$kpi
+dat$fp_r_kile = dat$d_kile * dat$kpi
+dat$fp_s_kile = dat$s_kile * dat$kpi
+
+
+
 #beregner snitt av kostnader og output 
 #legger snitt-tallet inn i rad for faktisk år for hvert selskap, men oppretter ny kolonne
-
 #snittdata for D-nett
 for(i in which(dat$aar == faktisk.aar))
 {
