@@ -131,6 +131,27 @@ rho = 0.6
 d_grs_pris = 1
 
 
+#### Femårig snitt av pensjonskostnader i løpende priser til kostnadsgrunnlag ####
+
+for(i in which(dat.id$aar %in% snitt.aar))
+{
+        dat.id[i,"av_d_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_pensj"], na.rm = T)
+        dat.id[i,"av_d_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_pensjek"], na.rm = T)
+        dat.id[i,"av_d_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_impl"], na.rm = T)
+        dat.id[i,"av_r_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"r_pensj"], na.rm = T)
+        dat.id[i,"av_r_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"r_pensjek"], na.rm = T)
+        dat.id[i,"av_r_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"r_impl"], na.rm = T)
+        dat.id[i,"av_s_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_pensj"], na.rm = T)
+        dat.id[i,"av_s_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_pensjek"], na.rm = T)
+        dat.id[i,"av_s_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_impl"], na.rm = T)
+}
+
+#### Pensjonskostnadsgrunnlaget etablers for alle nettnivåer
+
+dat.id$d_pensjkostgrlag = dat.id$av_d_pensj + dat.id$av_d_pensjek + dat.id$av_d_impl
+dat.id$r_pensjkostgrlag = dat.id$av_r_pensj + dat.id$av_r_pensjek + dat.id$av_r_impl
+dat.id$s_pensjkostgrlag = dat.id$av_s_pensj + dat.id$av_s_pensjek + dat.id$av_s_impl
+
 #### TOTEX Beregninger ####
 
 ## Etablerer dummy for om selskapet kan være mønsterselskap (brukes i trinn 1)
@@ -148,7 +169,7 @@ if (vedtak == 1)  {
 }
 
 #compute totex for D-nett
-d_DV = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensj+dat.id$d_pensjek-dat.id$d_impl
+d_DV = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensjkostgrlag # Har erstattet noe her ihht Roars kode
 d_AKG = (dat.id$d_bfv+dat.id$d_abbfv)*arb.kap.paaslag
 d_AVS = dat.id$d_avs+dat.id$d_abavs
 d_totco = d_DV-dat.id$d_utred-dat.id$d_391+d_AKG*nve.rente.t2+d_AVS+dat.id$d_kile+dat.id$d_nettap*kraftpris
