@@ -210,6 +210,7 @@ r_totco = r_DV-dat.id$r_utred-dat.id$r_391+r_AKG*nve.rente.t2+r_AVS+dat.id$r_kil
 dat = cbind(dat.id,r_DV,r_AKG,r_AVS,r_totco,d_DV,d_AKG,d_AVS,d_totco)
 rm (dat.id)
 
+
 ## Beregner gjennomsnittsfront
         # Først opprettes verdier i faste priser
         # Variabler som justeres med vanlig KPI
@@ -218,6 +219,23 @@ dat$fp_d_kile = dat$d_kile * dat$kpi
 dat$fp_r_kile = dat$d_kile * dat$kpi
 dat$fp_s_kile = dat$s_kile * dat$kpi
 
+        #Variabler som justeres med KPI for varer og tjenester med arbeidslønn
+        # som dominerende prisfaktor. Tabell 03363. 
+dat$fp_d_DV = dat$d_DV*dat$kpia
+dat$fp_r_DV = dat$r_DV*dat$kpia
+dat$fp_s_DV = dat$s_DV*dat$kpia
+
+dat$fp_d_391 = dat$d_391*dat$kpia
+dat$fp_r_391 = dat$r_391*dat$kpia
+dat$fp_s_391 = dat$s_391*dat$kpia
+
+dat$fp_d_dv = dat$d_dv*dat$kpia # Feiler pga måten vi beregner TOTEX kontra Roar
+dat$fp_d_utred = dat$d_utred*dat$kpia
+
+dat$fp_r_dv = dat$r_dv*dat$kpia # Feiler pga måten vi beregner TOTEX kontra Roar
+dat$fp_r_utred = dat$r_utred*dat$kpia
+
+dat$fp_s_dv = dat$s_dv*dat$kpia # Feiler pga måten vi beregner TOTEX kontra Roar
 
 
 #beregner snitt av kostnader og output 
