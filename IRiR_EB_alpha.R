@@ -58,6 +58,27 @@ rm(manglende.id, id, dat)
 # Fjerner bestemte selskap fra datasettet basert på id
 
 
+## Selskaper som av diverse årsaker er unntat vanlig DEA- eller IR-regulering
+#Først for D-nett
+
+d_spesial <- (c(10, 23, 108, 121, 167, 222, 512, 686, 743))
+
+d_dea_til_gjsnitt <- (c(294, 652, 852))
+
+d_dmuer <- (c())
+
+d_ikkeIR <- (c(134, 348, 521, 612, 638, 696))
+
+#Deretter for RS-nett
+r_spesial <- (c(10, 18, 35, 41, 88, 98, 106, 116, 135, 147, 156, 161, 162, 173,
+                 184, 187, 204, 222, 238, 274, 287, 307, 343, 349, 484, 512, 549
+                 , 659, 686, 743)) # prøver, 10, her 
+
+r_separat_dmuer <- (c(7, 9, 14, 37, 62, 63, 65, 93, 103, 138, 146, 152, 164, 
+                       197, 206, 251, 257, 271, 275, 288, 295, 447, 464, 591, 
+                       625, 637, 669, 753))  # 14, 447, 753 
+
+r_dea_til_gjsnitt <- (c(183, 685, 542, 852, 900, 872))
 
 # KPI-data
 kpi = read.csv("./Data/Grunnlagsdata/KPIdata2016Varsel.csv", sep = ",")
@@ -124,6 +145,7 @@ dat.id$fp_s_impl = dat.id$s_impl * dat.id$kpia
 
 #### Femårig snitt av pensjonskostnader i løpende priser til kostnadsgrunnlag ####
 
+<<<<<<< HEAD
 for(i in which(dat.id$aar %in% snitt.aar))
 {
         dat.id[i,"av_d_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_pensj"], na.rm = T)
@@ -143,6 +165,22 @@ dat.id$r_pensjkostgrlag = dat.id$av_r_pensj + dat.id$av_r_pensjek + dat.id$av_r_
 dat.id$s_pensjkostgrlag = dat.id$av_s_pensj + dat.id$av_s_pensjek + dat.id$av_s_impl
 
 #### TOTEX Beregninger ####
+=======
+## Etablerer dummy for om selskapet kan være mønsterselskap (brukes i trinn 1)
+dat.id$frontlov = "."
+
+## Velger deretter korrekte renter avhengig om kjøringen er i varsel eller vedtaksmodus
+if (vedtak == 1)  {
+        rente_dea = nve_rente_t2
+        rente_ir = nve_rente_t
+        nettapspris_dea = systempris_t2
+} else {
+        rente_dea = nve_rente_t2
+        rente_ir = nve_rente_estimert
+        nettapspris_dea = systempris_t2
+}
+
+>>>>>>> mona-branch
 #compute totex for D-nett
 
 d_DV = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensjkostgrlag # Har erstattet noe her ihht Roars kode
