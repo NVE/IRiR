@@ -1,6 +1,5 @@
 ## IRiR
 
-
 #### R-teknisk oppsett ####
 
 #remove all objects from memory
@@ -21,67 +20,73 @@ options(scipen = 100)
 
 
 #### Importerer data ####
-
 #read data set from csv-file
 # Grunnlagsdata
 dat = read.csv("./Data/Grunnlagsdata/Grunnlagsdata_faktiskvarsel.csv",sep=",")
 # ID-er
 id = read.csv("./Data/Grunnlagsdata/id.csv", sep = ",")
-#Merger Id-er inn i Grunnlagsdata
-dat = merge.data.frame(dat, id, by = "orgnr", all.x = TRUE)
-dat$selskap <- as.character(dat$selskap)
-dat$navn<- as.character(dat$navn)
+#Tilegner ID-er til Grunnlagsdata vha merge
+dat.id = merge.data.frame(dat, id, by = "orgnr", all.x = TRUE)
+dat.id$selskap <- as.character(dat.id$selskap)
+dat.id$navn<- as.character(dat.id$navn)
 
 #Legger manuelt til IDer til selskapene som mangler
 #IDer basert på Stata-kode
 #Angir ny ID for Gassco
-dat$id[dat$orgnr == 983452841] = 900
-dat$navn[dat$orgnr == 983452841] = "Gassco"
+dat.id$id[dat.id$orgnr == 983452841] <- 900
+dat.id$navn[dat.id$orgnr == 983452841] <- "Gassco"
 #Angir ny ID for Lyse sentralnett
-dat$id[dat$orgnr == 996325458] = 872
-dat$navn[dat$orgnr == 996325458] = "Lyse Sentralnett"
+dat.id$id[dat.id$orgnr == 996325458] <- 872
+dat.id$navn[dat.id$orgnr == 996325458] <- "Lyse Sentralnett"
 #Angir ny ID for Mørenett
-dat$id[dat$orgnr == 912631532] = 460
-dat$navn[dat$orgnr == 912631532] = "Morenett"
+dat.id$id[dat.id$orgnr == 912631532] <- 460
+dat.id$navn[dat.id$orgnr == 912631532] <- "Morenett"
 
-dat$idaar = paste(dat$id, dat$aar, sep="")
-dat$orgnraar = paste(dat$aar, dat$orgnr, sep="")
-dat$idaar = as.numeric(dat$idaar)
-dat$orgnraar = as.numeric(dat$orgnraar)
+dat.id$idaar <- paste(dat.id$id, dat.id$aar, sep="")
+dat.id$orgnraar <- paste(dat.id$aar, dat.id$orgnr, sep="")
+dat.id$idaar <- as.numeric(dat.id$idaar)
+dat.id$orgnraar <- as.numeric(dat.id$orgnraar)
+
 
 ##Sjekker om noen mangler id. .
-manglende.id = dat.id[is.na(dat.id$id),]
+manglende.id <- dat.id[is.na(dat.id$id),]
 manglende.id[c("selskap", "orgnr")]
+
+rm(manglende.id, id, dat)
+
+
+# Fjerner bestemte selskap fra datasettet basert på id
+
+
 
 # KPI-data
 kpi = read.csv("./Data/Grunnlagsdata/KPIdata2016Varsel.csv", sep = ",")
         # legger til KPI-data for alle observasjoner i settet
-dat = merge.data.frame(dat, kpi, by="aar", all.x = TRUE)
+dat.id = merge.data.frame(dat.id, kpi, by="aar", all.x = TRUE)
 
-# Fikse på data for Hammerfest
+# Data for Hammerfest
 hfmo = read.csv("./Data/Grunnlagsdata/Hammerfest_Melkoya.csv", sep = ",")
         # Inkluderer bokførte verdier for Hammerfest
-dat = merge.data.frame(dat, hfmo, by="idaar", all.x = TRUE)
-        ### Her er det klønete kode Endre kan hjelpe oss med
-dat$r_abbfv_melk[is.na(dat$r_abbfv_melk)] = 0
-dat$r_abavs_melk[is.na(dat$r_abavs_melk)] = 0
-dat$tempbfv = dat$r_abbfv
-dat$tempavs = dat$r_abavs
-dat$r_abbfv = dat$tempbfv - dat$r_abbfv_melk
-dat$r_abavs = dat$tempavs - dat$r_abavs_melk
-dat$tempbfv = NULL
-dat$tempavs = NULL
+dat.id = merge.data.frame(dat.id, hfmo, by="idaar", all.x = TRUE)
+### Her er det klønete kode Endre kan hjelpe oss med
+dat.id$r_abbfv_melk[is.na(dat.id$r_abbfv_melk)] <- 0
+dat.id$r_abavs_melk[is.na(dat.id$r_abavs_melk)] <- 0
+
+dat.id$tempbfv <- dat.id$r_abbfv
+dat.id$tempavs <- dat.id$r_abavs
+dat.id$r_abbfv = dat.id$tempbfv - dat.id$r_abbfv_melk
+dat.id$r_abavs = dat.id$tempavs - dat.id$r_abavs_melk
+dat.id$tempbfv <- NULL
+dat.id$tempavs <- NULL
+rm(hfmo)
 
 # Data fra Varsel 15
 v15 = read.csv("./Data/Grunnlagsdata/Varsel15.csv", sep = ",")
 v15dv = read.csv("./Data/Grunnlagsdata/dv_totxdea_varsel15.csv", sep = ",")
 
-# Fjerner overflødig data
-rm(manglende.id, id, hfmo)
-
 
 #### Definerer parametre i analysen ####
-
+## parametre
 kraftpris = 0.26135
 snitt.aar = 2010:2014
 faktisk.aar = 2014
@@ -107,16 +112,21 @@ d_grs_pris = 1
 #### TOTEX Beregninger ####
 
 #compute totex for D-nett
-dat$d_DV = dat$d_DVxL + dat$d_lonn - dat$d_lonnakt + dat$d_pensj + dat$d_pensjek - dat$d_impl
-dat$d_AKG = (dat$d_bfv + dat$d_abbfv)*arb.kap.paaslag
-dat$d_AVS = dat$d_avs + dat$d_abavs
-dat$d_totco = dat$d_DV - dat$d_utred - dat$d_391 + dat$d_AKG*nve.rente.t2 + dat$d_AVS + dat$d_kile + dat$d_nettap*kraftpris
+d_DV = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensj+dat.id$d_pensjek-dat.id$d_impl
+d_AKG = (dat.id$d_bfv+dat.id$d_abbfv)*arb.kap.paaslag
+d_AVS = dat.id$d_avs+dat.id$d_abavs
+d_totco = d_DV-dat.id$d_utred-dat.id$d_391+d_AKG*nve.rente.t2+d_AVS+dat.id$d_kile+dat.id$d_nettap*kraftpris
 
 #compute totex for R-nett
-dat$r_DV = dat$r_DVxL + dat$r_lonn - dat$r_lonnakt + dat$r_pensj + dat$r_pensjek - dat$r_impl
-dat$r_AKG = (dat$r_bfv + dat$r_abbfv)*arb.kap.paaslag
-dat$r_AVS = dat$r_avs + dat$r_abavs
-dat$r_totco = dat$r_DV - dat$r_utred - dat$r_391 + dat$r_AKG*nve.rente.t2 + dat$r_AVS + dat$r_kile
+r_DV = dat.id$r_DVxL+dat.id$r_lonn-dat.id$r_lonnakt+dat.id$r_pensj+dat.id$r_pensjek-dat.id$r_impl
+r_AKG = (dat.id$r_bfv+dat.id$r_abbfv)*arb.kap.paaslag
+r_AVS = dat.id$r_avs+dat.id$r_abavs
+r_totco = r_DV-dat.id$r_utred-dat.id$r_391+r_AKG*nve.rente.t2+r_AVS+dat.id$r_kile
+  #+dat.id$r_nettap*kraftpris (nettap skal ikke være med i R-nett)
+
+#nytt datasett som inneholder alle variabler
+dat = cbind(dat.id,r_DV,r_AKG,r_AVS,r_totco,d_DV,d_AKG,d_AVS,d_totco)
+rm (dat.id)
 
 #beregner snitt av kostnader og output 
 #legger snitt-tallet inn i rad for faktisk år for hvert selskap, men oppretter ny kolonne
