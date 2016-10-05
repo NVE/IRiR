@@ -196,6 +196,8 @@ if (vedtak == 1)  {
 
 #compute totex for D-nett
 dat.id$d_dv = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensjkostgrlag
+        #Beregner også dv på gæmlemåten for kalibrering
+        dat.id$d_dv_2012 = dat.id$d_DVxL +dat.id$d_lonn - dat.id$d_lonnakt + dat.id$d_pensj + dat.id$d_pensjek
 
 dat.id$d_DV =  dat.id$d_dv- dat.id$d_391- dat.id$d_utred  
 dat.id$d_akg =  dat.id$d_bfv*arb.kap.paaslag
@@ -207,6 +209,8 @@ dat.id$d_TOTXDEA =  dat.id$d_DV+( dat.id$d_AKG*rente.dea)+ dat.id$d_AVS + dat.id
 
 #compute totex for R-nett
 dat.id$r_dv = dat.id$r_DVxL+dat.id$r_lonn-dat.id$r_lonnakt+dat.id$r_pensjkostgrlag
+        #Beregner også dv på gæmlemåten for kalibrering                
+        dat.id$r_dv_2012 = dat.id$r_DVxL +dat.id$r_lonn - dat.id$r_lonnakt + dat.id$r_pensj + dat.id$r_pensjek
 
 dat.id$r_DV = dat.id$r_dv - dat.id$r_391- dat.id$r_utred
 dat.id$r_akg = (dat.id$r_bfv*arb.kap.paaslag)
@@ -217,12 +221,14 @@ dat.id$r_TOTXDEA = dat.id$r_DV + ( dat.id$r_AKG*rente.dea) + dat.id$r_AVS+ dat.i
         
         
 #compute totex for S-nett
+dat.id$s_dv = dat.id$s_DVxL + dat.id$s_lonn - dat.id$s_lonnakt + dat.id$s_pensjkostgrlag
+        #Beregner også dv på gæmlemåten for kalibrering 
+        dat.id$s_dv_2012 = dat.id$s_DVxL + dat.id$s_lonn - dat.id$s_lonnakt +dat.id$s_pensj + dat.id$s_pensjek 
 dat.id$s_DV = dat.id$s_dv - dat.id$s_391
 dat.id$s_akg = (dat.id$s_bfv*arb.kap.paaslag) 
 dat.id$s_AKG =  dat.id$s_akg 
 dat.id$s_AVS = dat.id$s_avs 
-dat.id$s_TOTXDEA = dat.id$s_DV + ( dat.id$s_AKG*rente.dea)+ 
-        dat.id$s_AVS+ dat.id$s_kile
+dat.id$s_TOTXDEA = dat.id$s_DV + ( dat.id$s_AKG*rente.dea) + dat.id$s_AVS+ dat.id$s_kile
 
 
 
