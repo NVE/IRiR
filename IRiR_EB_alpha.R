@@ -190,28 +190,47 @@ if (vedtak == 1)  {
 } else {
         rente.dea = nve.rente.t2
         rente.ir = nve.rente.estimert
-        nettapspri.dea = systempris.t2
+        nettapspris.dea = systempris.t2
 }
 
 
 
 #compute totex for D-nett
+dat.id$d_dv = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensjkostgrlag
+        #Beregner også dv på gæmlemåten for kalibrering
+        dat.id$d_dv_2012 = dat.id$d_DVxL +dat.id$d_lonn - dat.id$d_lonnakt + dat.id$d_pensj + dat.id$d_pensjek
 
-d_DV = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensjkostgrlag # Har erstattet noe her ihht Roars kode
-d_AKG = (dat.id$d_bfv+dat.id$d_abbfv)*arb.kap.paaslag
-d_AVS = dat.id$d_avs+dat.id$d_abavs
-d_totco = d_DV-dat.id$d_utred-dat.id$d_391+d_AKG*nve.rente.t2+d_AVS+dat.id$d_kile+dat.id$d_nettap*kraftpris
+dat.id$d_DV =  dat.id$d_dv- dat.id$d_391- dat.id$d_utred  
+dat.id$d_akg =  dat.id$d_bfv*arb.kap.paaslag
+dat.id$d_abakg =  dat.id$d_abbfv*arb.kap.paaslag
+dat.id$d_AKG =  dat.id$d_akg + dat.id$d_abakg
+dat.id$d_AVS =  dat.id$d_avs + dat.id$d_abavs
+dat.id$d_nettapkr = dat.id$d_nettap*nettapspris.dea
+dat.id$d_TOTXDEA =  dat.id$d_DV+( dat.id$d_AKG*rente.dea)+ dat.id$d_AVS + dat.id$d_kile + dat.id$d_nettapkr 
 
 #compute totex for R-nett
-r_DV = dat.id$r_DVxL+dat.id$r_lonn-dat.id$r_lonnakt+dat.id$r_pensjkostgrlag # Har erstattet noe her ihht Roars kode
-r_AKG = (dat.id$r_bfv+dat.id$r_abbfv)*arb.kap.paaslag
-r_AVS = dat.id$r_avs+dat.id$r_abavs
-r_totco = r_DV-dat.id$r_utred-dat.id$r_391+r_AKG*nve.rente.t2+r_AVS+dat.id$r_kile
-  #+dat.id$r_nettap*kraftpris (nettap skal ikke være med i R-nett)
+dat.id$r_dv = dat.id$r_DVxL+dat.id$r_lonn-dat.id$r_lonnakt+dat.id$r_pensjkostgrlag
+        #Beregner også dv på gæmlemåten for kalibrering                
+        dat.id$r_dv_2012 = dat.id$r_DVxL +dat.id$r_lonn - dat.id$r_lonnakt + dat.id$r_pensj + dat.id$r_pensjek
 
-#nytt datasett som inneholder alle variabler
-dat = cbind(dat.id,r_DV,r_AKG,r_AVS,r_totco,d_DV,d_AKG,d_AVS,d_totco)
-rm (dat.id)
+dat.id$r_DV = dat.id$r_dv - dat.id$r_391- dat.id$r_utred
+dat.id$r_akg = (dat.id$r_bfv*arb.kap.paaslag)
+dat.id$r_abakg =  dat.id$r_abbfv*arb.kap.paaslag
+dat.id$r_AKG =  dat.id$r_akg + dat.id$r_abakg
+dat.id$r_AVS = dat.id$r_avs + dat.id$r_abavs
+dat.id$r_TOTXDEA = dat.id$r_DV + ( dat.id$r_AKG*rente.dea) + dat.id$r_AVS+ dat.id$r_kile # I R skal ikke nettap være med!!!
+        
+        
+#compute totex for S-nett
+dat.id$s_dv = dat.id$s_DVxL + dat.id$s_lonn - dat.id$s_lonnakt + dat.id$s_pensjkostgrlag
+        #Beregner også dv på gæmlemåten for kalibrering 
+        dat.id$s_dv_2012 = dat.id$s_DVxL + dat.id$s_lonn - dat.id$s_lonnakt +dat.id$s_pensj + dat.id$s_pensjek 
+dat.id$s_DV = dat.id$s_dv - dat.id$s_391
+dat.id$s_akg = (dat.id$s_bfv*arb.kap.paaslag) 
+dat.id$s_AKG =  dat.id$s_akg 
+dat.id$s_AVS = dat.id$s_avs 
+dat.id$s_TOTXDEA = dat.id$s_DV + ( dat.id$s_AKG*rente.dea) + dat.id$s_AVS+ dat.id$s_kile
+
 
 
 ## Beregner gjennomsnittsfront

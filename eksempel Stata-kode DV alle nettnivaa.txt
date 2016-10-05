@@ -1,0 +1,24 @@
+D-nett
+gen double d_DV =  d_dv- d_391- d_utred  
+gen double d_akg =  d_bfv*arb_kap_paaslag
+gen double d_abakg =  d_abbfv*arb_kap_paaslag
+gen double d_AKG =  d_akg + d_abakg
+gen double d_AVS =  d_avs + d_abavs
+gen double d_nettapkr = d_nettap*nettapspris_dea
+gen double d_TOTXDEA =  d_DV+( d_AKG*rente_dea)+ d_AVS + d_kile + d_nettapkr 
+
+R-nett
+gen double r_DV = r_dv - r_391- r_utred
+gen double r_akg = (r_bfv*arb_kap_paaslag)
+gen double r_abakg =  r_abbfv*arb_kap_paaslag
+gen double r_AKG =  r_akg + r_abakg
+gen double r_AVS = r_avs + r_abavs
+gen double r_TOTXDEA = r_DV + ( r_AKG*rente_dea)+ r_AVS+ r_kile // I R skal ikke nettap være med!!!
+
+
+S-nett
+gen double s_DV = s_dv - s_391
+gen double s_akg = (s_bfv*arb_kap_paaslag) 
+gen double s_AKG =  s_akg 
+gen double s_AVS = s_avs 
+gen double s_TOTXDEA = s_DV + ( s_AKG*rente_dea)+ s_AVS+ s_kile
