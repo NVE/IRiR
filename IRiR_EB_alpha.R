@@ -10,10 +10,11 @@ getwd()
 #the address can be copied from the address bar in Windows Explorer
 #remember to change "\" to "/" or "\\" 
 #my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
-my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
+my.path = "C:\\Users\\MOHH\\Documents\\GitHub\\IRiR"
 setwd(my.path)
 #load benchmarking package of Bogetoft & Otto
 library(Benchmarking)
+library(xlsx)
 source("functions_nve.R")
 #ønsker å vise store tall som fulle verdier, ikke som potenser
 options(scipen = 100)
@@ -295,42 +296,115 @@ rownames(y.snitt.r) = eval.r
 rownames(z.snitt.r) = eval.r
 
 
-#### Lage output i trinn 1 ####
-library(xlsx)
-#mulig jeg bør lage ny dataframe før jeg gjør om til csv
-d_grunnlagsdata_trinn1 = data.frame(dat$d_dv, dat$d_391, dat$d_utred, dat$d_DV, d_AKG, d_abakg,
-                                    dat$d_AKG, dat$d_avs, dat$d_abavs, dat$d_avs, dat$d_kile, 
-                                    dat$d_nettap, dat$d_nettapkr, dat$d_grs_cost, dat$d_TOTXDEA, 
-                                    dat$d_ab, dat$d_hs, dat$d_ns)
+#### Export til Excel trinn 1 ####
+
+# OBSOBS: sjekk at datarammene inneholder riktige variabler når alle variabler er laget
+# Denne bør kanskje stå nedenfor under "Trinn 1 - DEA kjøringer"
+# Konstruerer datarammer til Excel-arkene
+d_grunnlagsdata_trinn1 = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_dv, dat$d_391, 
+                                    dat$d_utred, dat$d_DV, d_AKG, d_abakg,dat$d_AKG, dat$d_avs, 
+                                    dat$d_abavs, dat$d_avs, dat$d_kile, dat$d_nettap, 
+                                    dat$d_nettapkr, dat$d_grs_cost, dat$d_TOTXDEA, dat$d_ab, 
+                                    dat$d_hs, dat$d_ns)
 write.csv(d_grunnlagsdata_trinn1, file = "\\\\Data\\Data fra R\\d_grunnlagsdata_trinn1")
 
-d_forslagDV = data.frame(dat$d_DVxL, dat$d_lonn, dat$d_lonnakt, dat$d_pensj, dat$fp_d_pensj_faktisk, 
-                         dat$fp_d_pensj, dat$av_hist_fp_d_pensj, dat$av_fp_d_pensj, dat$d_pensjek, 
+d_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_DVxL, dat$d_lonn, 
+                         dat$d_lonnakt, dat$d_pensj, dat$fp_d_pensj_faktisk, dat$fp_d_pensj, 
+                         dat$av_hist_fp_d_pensj, dat$av_fp_d_pensj, dat$d_pensjek, 
                          dat$fp_d_pensjek, dat$av_fp_d_pensjek, dat$d_impl, dat$fp_d_impl, 
                          dat$av_fp_d_impl, dat$d_pensjkostgrlag, dat$d_dv, dat$d_dv_2012)
 write.csv(d_forslagDV, file = "d_forslagDV")
 
-r_grunnlagsdata_trinn1 = data.frame(dat$r_akg, dat$r_abakg, dat$r_AKG, dat$r_avs, dat$r_abavs, 
-                                    dat$r_AVS, dat$r_kile, dat$r_TOTXDEA, dat$r_vluft, dat$r_vjord,
+d_gjsnittfront = data.frame(dat$idaar, dat$id aar, dat$selskap, dat$fp_d_dv, dat$fp_d_391, 
+                            dat$fp_d_DV, dat$fp_d_kile, dat$sf_d_TOTXDEA, dat$sf_d_ab, 
+                            dat$sf_d_hs, dat$sf_d_ns, dat$d_snittfront*)
+write.csv(d_gjsnittfront, file = "d_gjensnittfront")
+
+d_DEAdata = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$frontlov, 
+                       dat$d_snittfront_d_TOTXDEA, dat$d_snittfront_d_ab, dat$d_snittfront_d_hs, 
+                       d_snittfront_d_ns)
+write.csv(d_DEAdata, file = "d_DEAdata")
+
+d_vektberegning = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_frontlov_hoved, 
+                             dat$frontlov, dat$d_vekt*, dat$d_normkostandel*, dat$d_kostbidrag*)
+write.csv(d_vektberegning, file ="d_vektberegning")
+
+d_DEAresultater = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_frontlov_hoved, 
+                             dat$d_score_snittfront, dat$d_score_spesial, dat$d_dea_til2trinn)
+write.csv(d_DEAresultater, file = "d_DEAresultater")
+
+r_grunnlagsdata_trinn1 = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_akg, 
+                                    dat$r_abakg, dat$r_AKG, dat$r_avs, dat$r_abavs, dat$r_AVS, 
+                                    dat$r_kile, dat$r_TOTXDEA, dat$r_vluft, dat$r_vjord,
                                     dat$r_vsjo, dat$r_vgrs)
 write.csv(r_grunnlagsdata_trinn1, file = "r_grunnlagsdata_trinn1")
 
-r_forslagDV = data.frame(dat$r_DVxL, dat$r_lonn, dat$r_lonnakt, dat$r_pensj, dat$fp_r_pensj, 
-                         dat$av_fp_r_pensj, dat$r_pensjek, dat$fp_r_pensjek, dat$av_fp_r_pensjek, 
-                         dat$r_impl, dat$fp_r_impl, dat$av_fp_r_impl, dat$r_pensjkostgrlag, 
-                         dat$r_dv, dat$r_dv_2012)
+r_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_DVxL, dat$r_lonn, 
+                         dat$r_lonnakt, dat$r_pensj, dat$fp_r_pensj, dat$av_fp_r_pensj, 
+                         dat$r_pensjek, dat$fp_r_pensjek, dat$av_fp_r_pensjek, dat$r_impl, 
+                         dat$fp_r_impl, dat$av_fp_r_impl, dat$r_pensjkostgrlag, dat$r_dv, 
+                         dat$r_dv_2012)
 write.csv(r_forslagDV, file = "r_forslagDV")
 
-s_forslagDV = data.frame(dat$s_DVxL, dat$s_lonn, dat$s_lonnakt, dat$s_pensj, dat$fp_s_pensj_faktisk, 
-                         dat$fp_s_pensj, dat$av_fp_s_pensj, dat$s_pensjek, dat$fp_s_pensjek, 
-                         dat$fp_s_pensjek_faktisk, dat$av_fp_s_pensjek, dat$s_impl, dat$fp_s_impl_faktisk, 
-                         dat$fp_s_impl, dat$av_fp_s_impl, dat$s_pensjkostgrlag, dat$s_dv, dat$s_dv_2012)
+r_gjsnittfront = data.frame(dat$idaar, dat$id aar, dat$selskap, dat$fp_r_dv, dat$fp_r_391, 
+                            dat$fp_r_utred, dat$fp_r_DV, dat$fp_r_kile, dat$sf_r_*, 
+                            dat$r_snittfront*)
+write.csv(r_gjsnittfront, file = "r_gjensnittfront")
+
+r_DEAdata = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$frontlov, dat$r_snittfront*)
+write.csv(r_DEAdata, file = "r_DEAdata")
+
+r_vektberegning = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_frontlov_hoved, 
+                             dat$frontlov, dat$r_vekt*, dat$r_normkostandel*, dat$r_kostbidrag*)
+write.csv(r_vektberegning, file ="r_vektberegning")
+
+r_DEAresultater = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_frontlov_hoved, 
+                             dat$r_score_snittfront, dat$r_score_spesial, dat$r_dea_til2trinn)
+write.csv(r_DEAresultater, file = "r_DEAresultater")
+
+s_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$s_DVxL, dat$s_lonn, 
+                         dat$s_lonnakt, dat$s_pensj, dat$fp_s_pensj_faktisk, dat$fp_s_pensj, 
+                         dat$av_fp_s_pensj, dat$s_pensjek, dat$fp_s_pensjek, 
+                         dat$fp_s_pensjek_faktisk, dat$av_fp_s_pensjek, dat$s_impl, 
+                         dat$fp_s_impl_faktisk, dat$fp_s_impl, dat$av_fp_s_impl, 
+                         dat$s_pensjkostgrlag, dat$s_dv, dat$s_dv_2012)
 write.csv(s_forslagDV, file = "s_forslagDV")
 
-Data og DEAresultater trinn 1 Dnett = createWorkbook()
-d_grunnlagsdata_trinn1 = createSheet(wb = Data og DEAresultater trinn 1 Dnett, sheetName = d_grunnlagsdata_trinn1)
+# Lager Excel-filer
+Data og DEA 1D = createWorkbook()
+side1D = createSheet(wb = Data og DEA 1D, sheetName = d_grunnlagsdata_trinn1)
+side2D = createSheet(wb = Data og DEA 1D, sheetName = d_forslagDV)
+side3D = createSheet(wb = Data og DEA 1D, sheetName = d_gjsnittfront)
+side4D = createSheet(wb = Data og DEA 1D, sheetName = d_dataDEA)
+side5D = createSheet(wb = Data og DEA 1D, sheetName = d_vektberegning)
+side6D = createSheet(wb = Data og DEA 1D, sheetName = d_DEAresultater)
+addDataFrame(x = d_grunnlagsdata_trinn1, sheet = side1D)
+addDataFrame(x = d_forslagDV, sheet = side2D)
+addDataFrame(x = d_gjsnittfront, sheet = side3D)
+addDataFrame(x = d_DEAdata, sheet = side4D)
+addDataFrame(x = d_vektberegning, sheet = side5D)
+addDataFrame(x = d_DEAresultater, sheet = side6D)
+saveWorkbook(Data og DEA 1D, "Data og DEAresultater trinn 1 Distribusjonsnett.xlsx")
 
-Data og DEAresultater trinn 1 Rnett = createWorkbook()
+Data og DEA 1R = createWorkbook()
+side1R = createSheet(wb = Data og DEA 1R, sheetName = r_grunnlagsdata_trinn1)
+side2R = createSheet(wb = Data og DEA 1R, sheetName = r_forslagDV)
+side3R = createSheet(wb = Data og DEA 1R, sheetName = r_gjsnittfront)
+side4R = createSheet(wb = Data og DEA 1R, sheetName = r_dataDEA)
+side5R = createSheet(wb = Data og DEA 1R, sheetName = r_vektberegning)
+side6R = createSheet(wb = Data og DEA 1R, sheetName = r_DEAresultater)
+addDataFrame(x = r_grunnlagsdata_trinn1, sheet = side1R)
+addDataFrame(x = r_forslagDV, sheet = side2R)
+addDataFrame(x = r_gjsnittfront, sheet = side3R)
+addDataFrame(x = r_DEAdata, sheet = side4R)
+addDataFrame(x = r_vektberegning, sheet = side5R)
+addDataFrame(x = r_DEAresultater, sheet = side6R)
+saveWorkbook(Data og DEA 1R, "Data og DEAresultater trinn 1 Regionalnett.xlsx")
+
+Data S = createWorkbook()
+side1S = createSheet(wb=Data S, sheetName = s_forslagDV)
+addDataFrame(x=s_forslagDV, sheet = side1S)
+saveWorkbook(Data S, "Data Sentralnett")
 
 
 #### Trinn 1 - DEA-kjøringer ####
