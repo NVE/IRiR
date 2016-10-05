@@ -295,6 +295,44 @@ rownames(y.snitt.r) = eval.r
 rownames(z.snitt.r) = eval.r
 
 
+#### Lage output i trinn 1 ####
+library(xlsx)
+#mulig jeg bør lage ny dataframe før jeg gjør om til csv
+d_grunnlagsdata_trinn1 = data.frame(dat$d_dv, dat$d_391, dat$d_utred, dat$d_DV, d_AKG, d_abakg,
+                                    dat$d_AKG, dat$d_avs, dat$d_abavs, dat$d_avs, dat$d_kile, 
+                                    dat$d_nettap, dat$d_nettapkr, dat$d_grs_cost, dat$d_TOTXDEA, 
+                                    dat$d_ab, dat$d_hs, dat$d_ns)
+write.csv(d_grunnlagsdata_trinn1, file = "\\\\Data\\Data fra R\\d_grunnlagsdata_trinn1")
+
+d_forslagDV = data.frame(dat$d_DVxL, dat$d_lonn, dat$d_lonnakt, dat$d_pensj, dat$fp_d_pensj_faktisk, 
+                         dat$fp_d_pensj, dat$av_hist_fp_d_pensj, dat$av_fp_d_pensj, dat$d_pensjek, 
+                         dat$fp_d_pensjek, dat$av_fp_d_pensjek, dat$d_impl, dat$fp_d_impl, 
+                         dat$av_fp_d_impl, dat$d_pensjkostgrlag, dat$d_dv, dat$d_dv_2012)
+write.csv(d_forslagDV, file = "d_forslagDV")
+
+r_grunnlagsdata_trinn1 = data.frame(dat$r_akg, dat$r_abakg, dat$r_AKG, dat$r_avs, dat$r_abavs, 
+                                    dat$r_AVS, dat$r_kile, dat$r_TOTXDEA, dat$r_vluft, dat$r_vjord,
+                                    dat$r_vsjo, dat$r_vgrs)
+write.csv(r_grunnlagsdata_trinn1, file = "r_grunnlagsdata_trinn1")
+
+r_forslagDV = data.frame(dat$r_DVxL, dat$r_lonn, dat$r_lonnakt, dat$r_pensj, dat$fp_r_pensj, 
+                         dat$av_fp_r_pensj, dat$r_pensjek, dat$fp_r_pensjek, dat$av_fp_r_pensjek, 
+                         dat$r_impl, dat$fp_r_impl, dat$av_fp_r_impl, dat$r_pensjkostgrlag, 
+                         dat$r_dv, dat$r_dv_2012)
+write.csv(r_forslagDV, file = "r_forslagDV")
+
+s_forslagDV = data.frame(dat$s_DVxL, dat$s_lonn, dat$s_lonnakt, dat$s_pensj, dat$fp_s_pensj_faktisk, 
+                         dat$fp_s_pensj, dat$av_fp_s_pensj, dat$s_pensjek, dat$fp_s_pensjek, 
+                         dat$fp_s_pensjek_faktisk, dat$av_fp_s_pensjek, dat$s_impl, dat$fp_s_impl_faktisk, 
+                         dat$fp_s_impl, dat$av_fp_s_impl, dat$s_pensjkostgrlag, dat$s_dv, dat$s_dv_2012)
+write.csv(s_forslagDV, file = "s_forslagDV")
+
+Data og DEAresultater trinn 1 Dnett = createWorkbook()
+d_grunnlagsdata_trinn1 = createSheet(wb = Data og DEAresultater trinn 1 Dnett, sheetName = d_grunnlagsdata_trinn1)
+
+Data og DEAresultater trinn 1 Rnett = createWorkbook()
+
+
 #### Trinn 1 - DEA-kjøringer ####
 
 #hovedkjøring trinn 1
