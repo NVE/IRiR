@@ -173,6 +173,8 @@ dat.id$d_pensjkostgrlag = dat.id$av_d_pensj + dat.id$av_d_pensjek + dat.id$av_d_
 dat.id$r_pensjkostgrlag = dat.id$av_r_pensj + dat.id$av_r_pensjek + dat.id$av_r_impl
 dat.id$s_pensjkostgrlag = dat.id$av_s_pensj + dat.id$av_s_pensjek + dat.id$av_s_impl
 
+#kun for git-merging
+
 #### TOTEX Beregninger ####
 
 ## Etablerer dummy for om selskapet kan være mønsterselskap (brukes i trinn 1)
