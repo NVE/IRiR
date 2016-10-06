@@ -27,87 +27,81 @@ dat = read.csv("./Data/Grunnlagsdata/Grunnlagsdata_faktiskvarsel.csv",sep=",")
 # ID-er
 id = read.csv("./Data/Grunnlagsdata/id.csv", sep = ",")
 #Tilegner ID-er til Grunnlagsdata vha merge
-dat.id = merge.data.frame(dat, id, by = "orgnr", all.x = TRUE)
-dat.id$selskap <- as.character(dat.id$selskap)
-dat.id$navn<- as.character(dat.id$navn)
+dat = merge.data.frame(dat, id, by = "orgnr", all.x = TRUE)
+dat$selskap <- as.character(dat$selskap)
+dat$navn<- as.character(dat$navn)
 
 #Legger manuelt til IDer til selskapene som mangler
 #IDer basert på Stata-kode
 #Angir ny ID for Gassco
-dat.id$id[dat.id$orgnr == 983452841] <- 900
-dat.id$navn[dat.id$orgnr == 983452841] <- "Gassco"
+dat$id[dat$orgnr == 983452841] <- 900
+dat$navn[dat$orgnr == 983452841] <- "Gassco"
 #Angir ny ID for Lyse sentralnett
-dat.id$id[dat.id$orgnr == 996325458] <- 872
-dat.id$navn[dat.id$orgnr == 996325458] <- "Lyse Sentralnett"
+dat$id[dat$orgnr == 996325458] <- 872
+dat$navn[dat$orgnr == 996325458] <- "Lyse Sentralnett"
 #Angir ny ID for Mørenett
-dat.id$id[dat.id$orgnr == 912631532] <- 460
-dat.id$navn[dat.id$orgnr == 912631532] <- "Morenett"
+dat$id[dat$orgnr == 912631532] <- 460
+dat$navn[dat$orgnr == 912631532] <- "Morenett"
 
-#lager idaar og orgnraar variabler og endrer type for disse
-dat.id$idaar <- paste(dat.id$id, dat.id$aar, sep="")
-dat.id$orgnraar <- paste(dat.id$aar, dat.id$orgnr, sep="")
-dat.id$idaar <- as.numeric(dat.id$idaar)
-dat.id$orgnraar <- as.numeric(dat.id$orgnraar)
+# Lager idaar og orgnraar variabler og endrer type for disse
+dat$idaar <- paste(dat$id, dat$aar, sep="")
+dat$orgnraar <- paste(dat$aar, dat$orgnr, sep="")
+dat$idaar <- as.numeric(dat$idaar)
+dat$orgnraar <- as.numeric(dat$orgnraar)
 
 # Endrer d_ab for MIP i direkte i datarket
-dat.id$d_ab[dat.id$idaar == 7432010] <- 248
-dat.id$d_ab[dat.id$idaar == 7432011] <- 246
-dat.id$d_ab[dat.id$idaar == 7432012] <- 246
-dat.id$d_ab[dat.id$idaar == 7432013] <- 245
+dat$d_ab[dat$idaar == 7432010] <- 248
+dat$d_ab[dat$idaar == 7432011] <- 246
+dat$d_ab[dat$idaar == 7432012] <- 246
+dat$d_ab[dat$idaar == 7432013] <- 245
 
-dat.id <- dat.id[!(dat.id$orgnr==962986633),] ## Sletter observasjoner fra Statnett
+dat <- dat[!(dat$orgnr==962986633),] ## Sletter observasjoner fra Statnett
 
-##Sjekker om noen mangler id. .
-manglende.id <- dat.id[is.na(dat.id$id),]
+## Sjekker om noen mangler id. .
+manglende.id <- dat[is.na(dat$id),]
 manglende.id[c("selskap", "orgnr")]
 
-rm(manglende.id, id, dat)
+rm(manglende.id, id)
 
 
 #### Fjerner bestemte selskap fra datasettet basert på id ####
-
 
 ## Selskaper som av diverse årsaker er unntat vanlig DEA- eller IR-regulering
 #Først for D-nett
 
 d_spesial <- (c(10, 23, 108, 121, 167, 222, 512, 686, 743))
-
 d_dea_til_gjsnitt <- (c(294, 652, 852))
-
 d_dmuer <- (c())
-
 d_ikkeIR <- (c(134, 348, 521, 612, 638, 696)) # IDene finnes ikke
 
 #Deretter for RS-nett
 r_spesial <- (c(10, 18, 35, 41, 88, 98, 106, 116, 135, 147, 156, 161, 162, 173,
                  184, 187, 204, 222, 238, 274, 287, 307, 343, 349, 484, 512, 549
                  , 659, 686, 743)) # prøver, 10, her 
-
 r_separat_dmuer <- (c(7, 9, 14, 37, 62, 63, 65, 93, 103, 138, 146, 152, 164, 
                        197, 206, 251, 257, 271, 275, 288, 295, 447, 464, 591, 
                        625, 637, 669, 753))  # 14, 447, 753 
-
 r_dea_til_gjsnitt <- (c(183, 685, 542, 852, 900, 872))
 
 # KPI-data
 kpi = read.csv("./Data/Grunnlagsdata/KPIdata2016Varsel.csv", sep = ",")
-        # legger til KPI-data for alle observasjoner i settet
-dat.id = merge.data.frame(dat.id, kpi, by="aar", all.x = TRUE)
+# legger til KPI-data for alle observasjoner i settet
+dat = merge.data.frame(dat, kpi, by="aar", all.x = TRUE)
 
 # Data for Hammerfest
 hfmo = read.csv("./Data/Grunnlagsdata/Hammerfest_Melkoya.csv", sep = ",")
-        # Inkluderer bokførte verdier for Hammerfest
-dat.id = merge.data.frame(dat.id, hfmo, by="idaar", all.x = TRUE)
+# Inkluderer bokførte verdier for Hammerfest
+dat = merge.data.frame(dat, hfmo, by="idaar", all.x = TRUE)
 ### Her er det klønete kode Endre kan hjelpe oss med
-dat.id$r_abbfv_melk[is.na(dat.id$r_abbfv_melk)] <- 0
-dat.id$r_abavs_melk[is.na(dat.id$r_abavs_melk)] <- 0
+dat$r_abbfv_melk[is.na(dat$r_abbfv_melk)] <- 0
+dat$r_abavs_melk[is.na(dat$r_abavs_melk)] <- 0
 
-dat.id$tempbfv <- dat.id$r_abbfv
-dat.id$tempavs <- dat.id$r_abavs
-dat.id$r_abbfv = dat.id$tempbfv - dat.id$r_abbfv_melk
-dat.id$r_abavs = dat.id$tempavs - dat.id$r_abavs_melk
-dat.id$tempbfv <- NULL
-dat.id$tempavs <- NULL
+dat$tempbfv <- dat$r_abbfv
+dat$tempavs <- dat$r_abavs
+dat$r_abbfv = dat$tempbfv - dat$r_abbfv_melk
+dat$r_abavs = dat$tempavs - dat$r_abavs_melk
+dat$tempbfv <- NULL
+dat$tempavs <- NULL
 rm(hfmo)
 
 # Data fra Varsel 15
@@ -142,45 +136,45 @@ d_grs_pris = 1
 
 #### Beregner pensjonskostnader i faste priser ved hjelp av kpia####
 
-dat.id$fp_d_pensj = dat.id$d_pensj*dat.id$kpia
-dat.id$fp_d_pensjek = dat.id$d_pensjek * dat.id$kpia
-dat.id$fp_d_impl = dat.id$d_impl * dat.id$kpia
-dat.id$fp_r_pensj = dat.id$r_pensj*dat.id$kpia
-dat.id$fp_r_pensjek = dat.id$r_pensjek * dat.id$kpia
-dat.id$fp_r_impl = dat.id$r_impl * dat.id$kpia
-dat.id$fp_s_pensj = dat.id$s_pensj*dat.id$kpia
-dat.id$fp_s_pensjek = dat.id$s_pensjek * dat.id$kpia
-dat.id$fp_s_impl = dat.id$s_impl * dat.id$kpia
+dat$fp_d_pensj = dat$d_pensj*dat$kpia
+dat$fp_d_pensjek = dat$d_pensjek * dat$kpia
+dat$fp_d_impl = dat$d_impl * dat$kpia
+dat$fp_r_pensj = dat$r_pensj*dat$kpia
+dat$fp_r_pensjek = dat$r_pensjek * dat$kpia
+dat$fp_r_impl = dat$r_impl * dat$kpia
+dat$fp_s_pensj = dat$s_pensj*dat$kpia
+dat$fp_s_pensjek = dat$s_pensjek * dat$kpia
+dat$fp_s_impl = dat$s_impl * dat$kpia
 
 
 #### Femårig snitt av pensjonskostnader i løpende priser til kostnadsgrunnlag ####
 
-for(i in which(dat.id$aar %in% snitt.aar))
+for(i in which(dat$aar %in% snitt.aar))
 {
-        dat.id[i,"av_d_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_pensj"], na.rm = T)
-        dat.id[i,"av_d_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_pensjek"], na.rm = T)
-        dat.id[i,"av_d_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"d_impl"], na.rm = T)
-        dat.id[i,"av_r_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"r_pensj"], na.rm = T)
-        dat.id[i,"av_r_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"r_pensjek"], na.rm = T)
-        dat.id[i,"av_r_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"r_impl"], na.rm = T)
-        dat.id[i,"av_s_pensj"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_pensj"], na.rm = T)
-        dat.id[i,"av_s_pensjek"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_pensjek"], na.rm = T)
-        dat.id[i,"av_s_impl"] = mean(dat.id[dat.id$orgnr == dat.id$orgnr[i] & dat.id$aar %in% snitt.aar,"s_impl"], na.rm = T)
+        dat[i,"av_d_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_pensj"], na.rm = T)
+        dat[i,"av_d_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_pensjek"], na.rm = T)
+        dat[i,"av_d_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_impl"], na.rm = T)
+        dat[i,"av_r_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_pensj"], na.rm = T)
+        dat[i,"av_r_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_pensjek"], na.rm = T)
+        dat[i,"av_r_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_impl"], na.rm = T)
+        dat[i,"av_s_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"s_pensj"], na.rm = T)
+        dat[i,"av_s_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"s_pensjek"], na.rm = T)
+        dat[i,"av_s_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"s_impl"], na.rm = T)
 }
 
 
 #### Pensjonskostnadsgrunnlaget etablers for alle nettnivåer
 
-dat.id$d_pensjkostgrlag = dat.id$av_d_pensj + dat.id$av_d_pensjek + dat.id$av_d_impl
-dat.id$r_pensjkostgrlag = dat.id$av_r_pensj + dat.id$av_r_pensjek + dat.id$av_r_impl
-dat.id$s_pensjkostgrlag = dat.id$av_s_pensj + dat.id$av_s_pensjek + dat.id$av_s_impl
+dat$d_pensjkostgrlag = dat$av_d_pensj + dat$av_d_pensjek + dat$av_d_impl
+dat$r_pensjkostgrlag = dat$av_r_pensj + dat$av_r_pensjek + dat$av_r_impl
+dat$s_pensjkostgrlag = dat$av_s_pensj + dat$av_s_pensjek + dat$av_s_impl
 
 #kun for git-merging
 
 #### TOTEX Beregninger ####
 
-## Etablerer dummy for om selskapet kan være mønsterselskap (brukes i trinn 1)
-dat.id$frontlov = "."
+## Konstruerer frontlov-variabel
+dat$frontlov = "."
 
 ## Velger deretter korrekte renter avhengig om kjøringen er i varsel eller vedtaksmodus
 if (vedtak == 1)  {
@@ -196,41 +190,39 @@ if (vedtak == 1)  {
 
 
 #compute totex for D-nett
-dat.id$d_dv = dat.id$d_DVxL+dat.id$d_lonn-dat.id$d_lonnakt+dat.id$d_pensjkostgrlag
-        #Beregner også dv på gæmlemåten for kalibrering
-        dat.id$d_dv_2012 = dat.id$d_DVxL +dat.id$d_lonn - dat.id$d_lonnakt + dat.id$d_pensj + dat.id$d_pensjek
+dat$d_dv = dat$d_DVxL+dat$d_lonn-dat$d_lonnakt+dat$d_pensjkostgrlag
+#Beregner også dv på gæmlemåten for kalibrering
+dat$d_dv_2012 = dat$d_DVxL +dat$d_lonn - dat$d_lonnakt + dat$d_pensj + dat$d_pensjek
 
-dat.id$d_DV =  dat.id$d_dv- dat.id$d_391- dat.id$d_utred  
-dat.id$d_akg =  dat.id$d_bfv*arb.kap.paaslag
-dat.id$d_abakg =  dat.id$d_abbfv*arb.kap.paaslag
-dat.id$d_AKG =  dat.id$d_akg + dat.id$d_abakg
-dat.id$d_AVS =  dat.id$d_avs + dat.id$d_abavs
-dat.id$d_nettapkr = dat.id$d_nettap*nettapspris.dea
-dat.id$d_TOTXDEA =  dat.id$d_DV+( dat.id$d_AKG*rente.dea)+ dat.id$d_AVS + dat.id$d_kile + dat.id$d_nettapkr 
+dat$d_DV =  dat$d_dv- dat$d_391- dat$d_utred  
+dat$d_akg =  dat$d_bfv*arb.kap.paaslag
+dat$d_abakg =  dat$d_abbfv*arb.kap.paaslag
+dat$d_AKG =  dat$d_akg + dat$d_abakg
+dat$d_AVS =  dat$d_avs + dat$d_abavs
+dat$d_nettapkr = dat$d_nettap*nettapspris.dea
+dat$d_TOTXDEA =  dat$d_DV+( dat$d_AKG*rente.dea)+ dat$d_AVS + dat$d_kile + dat$d_nettapkr 
 
 #compute totex for R-nett
-dat.id$r_dv = dat.id$r_DVxL+dat.id$r_lonn-dat.id$r_lonnakt+dat.id$r_pensjkostgrlag
-        #Beregner også dv på gæmlemåten for kalibrering                
-        dat.id$r_dv_2012 = dat.id$r_DVxL +dat.id$r_lonn - dat.id$r_lonnakt + dat.id$r_pensj + dat.id$r_pensjek
+dat$r_dv = dat$r_DVxL+dat$r_lonn-dat$r_lonnakt+dat$r_pensjkostgrlag
+#Beregner også dv på gæmlemåten for kalibrering                
+dat$r_dv_2012 = dat$r_DVxL +dat$r_lonn - dat$r_lonnakt + dat$r_pensj + dat$r_pensjek
 
-dat.id$r_DV = dat.id$r_dv - dat.id$r_391- dat.id$r_utred
-dat.id$r_akg = (dat.id$r_bfv*arb.kap.paaslag)
-dat.id$r_abakg =  dat.id$r_abbfv*arb.kap.paaslag
-dat.id$r_AKG =  dat.id$r_akg + dat.id$r_abakg
-dat.id$r_AVS = dat.id$r_avs + dat.id$r_abavs
-dat.id$r_TOTXDEA = dat.id$r_DV + ( dat.id$r_AKG*rente.dea) + dat.id$r_AVS+ dat.id$r_kile # I R skal ikke nettap være med!!!
-        
-        
+dat$r_DV = dat$r_dv - dat$r_391- dat$r_utred
+dat$r_akg = (dat$r_bfv*arb.kap.paaslag)
+dat$r_abakg =  dat$r_abbfv*arb.kap.paaslag
+dat$r_AKG =  dat$r_akg + dat$r_abakg
+dat$r_AVS = dat$r_avs + dat$r_abavs
+dat$r_TOTXDEA = dat$r_DV + ( dat$r_AKG*rente.dea) + dat$r_AVS+ dat$r_kile # I R skal ikke nettap være med!!!
+
 #compute totex for S-nett
-dat.id$s_dv = dat.id$s_DVxL + dat.id$s_lonn - dat.id$s_lonnakt + dat.id$s_pensjkostgrlag
-        #Beregner også dv på gæmlemåten for kalibrering 
-        dat.id$s_dv_2012 = dat.id$s_DVxL + dat.id$s_lonn - dat.id$s_lonnakt +dat.id$s_pensj + dat.id$s_pensjek 
-dat.id$s_DV = dat.id$s_dv - dat.id$s_391
-dat.id$s_akg = (dat.id$s_bfv*arb.kap.paaslag) 
-dat.id$s_AKG =  dat.id$s_akg 
-dat.id$s_AVS = dat.id$s_avs 
-dat.id$s_TOTXDEA = dat.id$s_DV + ( dat.id$s_AKG*rente.dea) + dat.id$s_AVS+ dat.id$s_kile
-
+dat$s_dv = dat$s_DVxL + dat$s_lonn - dat$s_lonnakt + dat$s_pensjkostgrlag
+#Beregner også dv på gæmlemåten for kalibrering 
+dat$s_dv_2012 = dat$s_DVxL + dat$s_lonn - dat$s_lonnakt +dat$s_pensj + dat$s_pensjek 
+dat$s_DV = dat$s_dv - dat$s_391
+dat$s_akg = (dat$s_bfv*arb.kap.paaslag) 
+dat$s_AKG =  dat$s_akg 
+dat$s_AVS = dat$s_avs 
+dat$s_TOTXDEA = dat$s_DV + ( dat$s_AKG*rente.dea) + dat$s_AVS+ dat$s_kile
 
 
 ## Beregner gjennomsnittsfront
@@ -265,7 +257,7 @@ dat$fp_s_dv = dat$s_dv*dat$kpia # Feiler pga måten vi beregner TOTEX kontra Roar
 #snittdata for D-nett
 for(i in which(dat$aar == faktisk.aar))
 {
-  dat[i,"av_d_totco"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_totco"])
+  dat[i,"av_d_TOTXDEA"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_TOTXDEA"])
   dat[i,"av_d_ab"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ab"])
   dat[i,"av_d_hs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_hs"])
   dat[i,"av_d_ns"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ns"])
@@ -274,7 +266,7 @@ for(i in which(dat$aar == faktisk.aar))
 #snittdata for R-nett
 for(i in which(dat$aar == faktisk.aar))
   {
-  dat[i,"av_r_totco"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_totco"])
+  dat[i,"av_r_TOTXDEA"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_TOTXDEA"])
   dat[i,"av_r_vluft"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vluft"])
   dat[i,"av_r_vjord"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vjord"])
   dat[i,"av_r_vsjo"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vsjo"])
@@ -286,16 +278,16 @@ for(i in which(dat$aar == faktisk.aar))
 
 #diverse utvalg av selskaper, basert på orgnr
 #de som skal måles
-eval.r = dat$orgnr[dat$r_totco >= 7000 & dat$r_vluft > 0 & dat$aar == faktisk.aar]
+eval.r = dat$orgnr[dat$r_TOTXDEA >= 7000 & dat$r_vluft > 0 & dat$aar == faktisk.aar]
 #de som kan danne fronten
-front.r = dat$orgnr[dat$r_totco >= 15000 & dat$aar == faktisk.aar]
+front.r = dat$orgnr[dat$r_TOTXDEA >= 15000 & dat$aar == faktisk.aar]
 #de som skal evalueres men ikke kan være på fronten
 sep.eval.r = setdiff(eval.r,front.r)
 
 
 #### Velger data for selskapene som skal evalueres ####
 #faktiske data for selskaper som skal evalueres
-x.faktisk.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,"r_totco"]
+x.faktisk.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,"r_TOTXDEA"]
 y.faktisk.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("r_vluft","r_vjord","r_vsjo","r_vgrs")]
 z.faktisk.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("rr_he","rr_s12")]
 kap.faktisk.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("r_AKG")]
@@ -307,7 +299,7 @@ names(kap.faktisk.r) = eval.r
 
 #### Beregner snitt for selskapene som skal evalueres ####
 #snittdata for selskaper som skal evalueres
-x.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,"av_r_totco"]
+x.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,"av_r_TOTXDEA"]
 y.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("av_r_vluft","av_r_vjord","av_r_vsjo","av_r_vgrs")]
 z.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("rr_he","rr_s12")]
 names(x.snitt.r) = eval.r
@@ -321,7 +313,7 @@ rownames(z.snitt.r) = eval.r
 # Denne bør kanskje stå nedenfor under "Trinn 1 - DEA kjøringer"
 # Konstruerer datarammer til Excel-arkene
 d_grunnlagsdata_trinn1 = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_dv, dat$d_391, 
-                                    dat$d_utred, dat$d_DV, d_AKG, d_abakg,dat$d_AKG, dat$d_avs, 
+                                    dat$d_utred, dat$d_DV, d_AKG, d_abakg, dat$d_akg, dat$d_avs, 
                                     dat$d_abavs, dat$d_avs, dat$d_kile, dat$d_nettap, 
                                     dat$d_nettapkr, dat$d_grs_cost, dat$d_TOTXDEA, dat$d_ab, 
                                     dat$d_hs, dat$d_ns)
