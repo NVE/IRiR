@@ -134,7 +134,7 @@ rho = 0.6
 d_grs_pris = 1
 
 
-#### Beregner pensjonskostnader i faste priser ved hjelp av kpia####
+#### Pensjonskostnadskjøret ####
 
 dat$fp_d_pensj = dat$d_pensj*dat$kpia
 dat$fp_d_pensjek = dat$d_pensjek * dat$kpia
@@ -147,29 +147,66 @@ dat$fp_s_pensjek = dat$s_pensjek * dat$kpia
 dat$fp_s_impl = dat$s_impl * dat$kpia
 
 
-#### Femårig snitt av pensjonskostnader i løpende priser til kostnadsgrunnlag ####
+## Må beregne "historiske verdier" for perioden 2007-2013
+hist.pensj.aar = 2007:2013
+
+dat$temp.d.p = dat$fp_d_pensj
+dat$temp.d.pk = dat$fp_d_pensjek
+dat$temp.d.i = dat$fp_d_impl
+dat$temp.r.p = dat$fp_r_pensj
+dat$temp.r.pk = dat$fp_r_pensjek
+dat$temp.r.i = dat$fp_r_impl
+dat$temp.s.p = dat$fp_s_pensj
+dat$temp.s.pk = dat$fp_s_pensjek
+dat$temp.s.i = dat$fp_s_impl
+
+for(i in which(dat$aar %in% hist.pensj.aar))
+{
+dat[i,"fp_d_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% hist.pensj.aar,"temp.d.p"], na.rm = T)
+dat[i,"fp_d_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% hist.pensj.aar,"temp.d.pk"], na.rm = T)
+dat[i,"fp_d_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% hist.pensj.aar,"temp.d.i"], na.rm = T)
+dat[i,"fp_r_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% hist.pensj.aar,"temp.r.p"], na.rm = T)
+dat[i,"fp_r_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% hist.pensj.aar,"temp.r.pk"], na.rm = T)
+dat[i,"fp_r_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% hist.pensj.aar,"temp.r.i"], na.rm = T)
+dat[i,"fp_s_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% hist.pensj.aar,"temp.s.p"], na.rm = T)
+dat[i,"fp_s_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% hist.pensj.aar,"temp.s.pk"], na.rm = T)
+dat[i,"fp_s_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% hist.pensj.aar,"temp.s.i"], na.rm = T)
+}
+
+dat$temp.d.p <-NULL
+dat$temp.d.pk <-NULL
+dat$temp.d.i <-NULL
+dat$temp.r.p <-NULL
+dat$temp.r.pk <-NULL
+dat$temp.r.i <-NULL
+dat$temp.s.p <-NULL
+dat$temp.s.pk <-NULL
+dat$temp.s.i <-NULL
+
+
+
+## Femårig snitt av pensjonskostnader i faste priser til kostnadsgrunnlag
 
 for(i in which(dat$aar %in% snitt.aar))
 {
-        dat[i,"av_d_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_pensj"], na.rm = T)
-        dat[i,"av_d_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_pensjek"], na.rm = T)
-        dat[i,"av_d_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_impl"], na.rm = T)
-        dat[i,"av_r_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_pensj"], na.rm = T)
-        dat[i,"av_r_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_pensjek"], na.rm = T)
-        dat[i,"av_r_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_impl"], na.rm = T)
-        dat[i,"av_s_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"s_pensj"], na.rm = T)
-        dat[i,"av_s_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"s_pensjek"], na.rm = T)
-        dat[i,"av_s_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"s_impl"], na.rm = T)
+        dat[i,"av_fp_d_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_d_pensj"], na.rm = T)
+        dat[i,"av_fp_d_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_d_pensjek"], na.rm = T)
+        dat[i,"av_fp_d_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_d_impl"], na.rm = T)
+        dat[i,"av_fp_r_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_r_pensj"], na.rm = T)
+        dat[i,"av_fp_r_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_r_pensjek"], na.rm = T)
+        dat[i,"av_fp_r_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_r_impl"], na.rm = T)
+        dat[i,"av_fp_s_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_s_pensj"], na.rm = T)
+        dat[i,"av_fp_s_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_s_pensjek"], na.rm = T)
+        dat[i,"av_fp_s_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_s_impl"], na.rm = T)
 }
 
 
-#### Pensjonskostnadsgrunnlaget etablers for alle nettnivåer
+## Pensjonskostnadsgrunnlaget etablers for alle nettnivåer
 
-dat$d_pensjkostgrlag = dat$av_d_pensj + dat$av_d_pensjek + dat$av_d_impl
-dat$r_pensjkostgrlag = dat$av_r_pensj + dat$av_r_pensjek + dat$av_r_impl
-dat$s_pensjkostgrlag = dat$av_s_pensj + dat$av_s_pensjek + dat$av_s_impl
+dat$d_pensjkostgrlag = (dat$av_fp_d_pensj + dat$av_fp_d_pensjek - dat$av_fp_d_impl) / dat$kpia
+dat$r_pensjkostgrlag = (dat$av_fp_r_pensj + dat$av_fp_r_pensjek - dat$av_fp_r_impl) / dat$kpia
+dat$s_pensjkostgrlag = (dat$av_fp_s_pensj + dat$av_fp_s_pensjek - dat$av_fp_s_impl) / dat$kpia
 
-#kun for git-merging
 
 #### TOTEX Beregninger ####
 
