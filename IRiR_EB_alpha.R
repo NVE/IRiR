@@ -193,6 +193,23 @@ if (vedtak == 1)  {
 dat$d_dv = dat$d_DVxL+dat$d_lonn-dat$d_lonnakt+dat$d_pensjkostgrlag
 #Beregner også dv på gæmlemåten for kalibrering
 dat$d_dv_2012 = dat$d_DVxL +dat$d_lonn - dat$d_lonnakt + dat$d_pensj + dat$d_pensjek
+        #Må også ta hensyn til grensesnittkostnadene
+dat$d_grs.dummy <- 1
+
+for (i in which(dat$id %in% d_dea_til_gjsnitt)){
+        dat[i,"d_grs.dummy"]  = 0 
+}
+
+for (i in which(dat$id %in% d_spesial)){
+        dat[i,"d_grs.dummy"]  = 0 
+}
+
+#Priser inn grensesnittvariabelen. Her med faktor 1.11, ukjent rasjonale bak denne verdien
+dat$d_grs.cost <- 0
+grs.kostfaktor = 1.11
+
+dat$d_grs.cost <- ifelse(dat$d_grs.dummy==1,dat$d_grs*grs.kostfaktor, 0)
+
 
 dat$d_DV =  dat$d_dv- dat$d_391- dat$d_utred  
 dat$d_akg =  dat$d_bfv*arb.kap.paaslag
@@ -200,7 +217,9 @@ dat$d_abakg =  dat$d_abbfv*arb.kap.paaslag
 dat$d_AKG =  dat$d_akg + dat$d_abakg
 dat$d_AVS =  dat$d_avs + dat$d_abavs
 dat$d_nettapkr = dat$d_nettap*nettapspris.dea
-dat$d_TOTXDEA =  dat$d_DV+( dat$d_AKG*rente.dea)+ dat$d_AVS + dat$d_kile + dat$d_nettapkr 
+dat$d_TOTXDEA =  dat$d_DV+( dat$d_AKG*rente.dea)+ dat$d_AVS + dat$d_kile + dat$d_nettapkr - dat$d_grs.cost
+
+
 
 #compute totex for R-nett
 dat$r_dv = dat$r_DVxL+dat$r_lonn-dat$r_lonnakt+dat$r_pensjkostgrlag
@@ -317,9 +336,10 @@ dat[is.na(dat)] <- 0
 d_grunnlagsdata_trinn1 = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_dv, dat$d_391, 
                                dat$d_utred, dat$d_DV, dat$d_AKG, dat$d_abakg, dat$d_akg, dat$d_avs, 
                                dat$d_abavs, dat$d_avs, dat$d_kile, dat$d_nettap, 
-                               dat$d_nettapkr, dat$d_grs_cost, dat$d_TOTXDEA, dat$d_ab, 
+                               dat$d_nettapkr, dat$d_grs.cost, dat$d_TOTXDEA, dat$d_ab, 
                                dat$d_hs, dat$d_ns)
 write.csv(d_grunnlagsdata_trinn1, file = "\\\\Data\\Data fra R\\d_grunnlagsdata_trinn1")
+
 
 d_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_DVxL, dat$d_lonn, 
                          dat$d_lonnakt, dat$d_pensj, dat$fp_d_pensj_faktisk, dat$fp_d_pensj, 
