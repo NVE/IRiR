@@ -309,14 +309,16 @@ rownames(z.snitt.r) = eval.r
 
 #### Export til Excel trinn 1 ####
 
+dat[is.na(dat)] <- 0
+
 # OBSOBS: sjekk at datarammene inneholder riktige variabler når alle variabler er laget
 # Denne bør kanskje stå nedenfor under "Trinn 1 - DEA kjøringer"
 # Konstruerer datarammer til Excel-arkene
 d_grunnlagsdata_trinn1 = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_dv, dat$d_391, 
-                                    dat$d_utred, dat$d_DV, d_AKG, d_abakg, dat$d_akg, dat$d_avs, 
-                                    dat$d_abavs, dat$d_avs, dat$d_kile, dat$d_nettap, 
-                                    dat$d_nettapkr, dat$d_grs_cost, dat$d_TOTXDEA, dat$d_ab, 
-                                    dat$d_hs, dat$d_ns)
+                               dat$d_utred, dat$d_DV, dat$d_AKG, dat$d_abakg, dat$d_akg, dat$d_avs, 
+                               dat$d_abavs, dat$d_avs, dat$d_kile, dat$d_nettap, 
+                               dat$d_nettapkr, dat$d_grs_cost, dat$d_TOTXDEA, dat$d_ab, 
+                               dat$d_hs, dat$d_ns)
 write.csv(d_grunnlagsdata_trinn1, file = "\\\\Data\\Data fra R\\d_grunnlagsdata_trinn1")
 
 d_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_DVxL, dat$d_lonn, 
@@ -326,7 +328,7 @@ d_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_DVxL, da
                          dat$av_fp_d_impl, dat$d_pensjkostgrlag, dat$d_dv, dat$d_dv_2012)
 write.csv(d_forslagDV, file = "d_forslagDV")
 
-d_gjsnittfront = data.frame(dat$idaar, dat$id aar, dat$selskap, dat$fp_d_dv, dat$fp_d_391, 
+d_gjsnittfront = data.frame(dat$idaar, dat$idaar, dat$selskap, dat$fp_d_dv, dat$fp_d_391, 
                             dat$fp_d_DV, dat$fp_d_kile, dat$sf_d_TOTXDEA, dat$sf_d_ab, 
                             dat$sf_d_hs, dat$sf_d_ns, dat$d_snittfront*)
 write.csv(d_gjsnittfront, file = "d_gjensnittfront")
@@ -357,7 +359,7 @@ r_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_DVxL, da
                          dat$r_dv_2012)
 write.csv(r_forslagDV, file = "r_forslagDV")
 
-r_gjsnittfront = data.frame(dat$idaar, dat$id aar, dat$selskap, dat$fp_r_dv, dat$fp_r_391, 
+r_gjsnittfront = data.frame(dat$idaar, dat$idaar, dat$selskap, dat$fp_r_dv, dat$fp_r_391, 
                             dat$fp_r_utred, dat$fp_r_DV, dat$fp_r_kile, dat$sf_r_*, 
                             dat$r_snittfront*)
 write.csv(r_gjsnittfront, file = "r_gjensnittfront")
