@@ -69,8 +69,8 @@ rm(manglende.id, id)
 ## Selskaper som av diverse årsaker er unntat vanlig DEA- eller IR-regulering
 #Først for D-nett
 
-d_spesial <- (c(10, 108, 121, 167, 222, 512, 686, 743))
-d_dea_til_gjsnitt <- (c(187, 294, 652, 852))
+d_spesial <- (c(10, 23, 108, 121, 167, 222, 512, 686, 743))
+d_dea_til_gjsnitt <- (c(294, 652, 852))
 d_dmuer <- (c())
 d_ikkeIR <- (c(134, 348, 521, 612, 638, 696)) # IDene finnes ikke
 
@@ -299,140 +299,49 @@ dat$fp_d_391 = dat$d_391*dat$kpia
 dat$fp_r_391 = dat$r_391*dat$kpia
 dat$fp_s_391 = dat$s_391*dat$kpia
 
-dat$fp_d_dv = dat$d_dv*dat$kpia
+dat$fp_d_dv = dat$d_dv*dat$kpia # Feiler pga måten vi beregner TOTEX kontra Roar
 dat$fp_d_utred = dat$d_utred*dat$kpia
 
-dat$fp_r_dv = dat$r_dv*dat$kpia
+dat$fp_r_dv = dat$r_dv*dat$kpia # Feiler pga måten vi beregner TOTEX kontra Roar
 dat$fp_r_utred = dat$r_utred*dat$kpia
 
-dat$fp_s_dv = dat$s_dv*dat$kpia
-
-
-## TOTEX til snittfront
-#Setter alle NA-observasjoner til 0
-#dat[is.na(dat)] = 0
-        #D-nett
-dat$fp_d_TOTXDEA = dat$fp_d_DV + dat$d_AKG*rente.dea + dat$d_AVS + dat$fp_d_kile + dat$d_nettapkr - dat$d_grs.cost
-
-dat$sf_d_DV = dat$d_DV
-
-        #R-nett
-dat$fp_r_TOTXDEA = dat$fp_r_DV + dat$r_AKG*rente.dea + dat$r_AVS + dat$fp_r_kile
-dat$sf_r_vluft = dat$r_vluft
-dat$sf_r_vjord = dat$r_vjord
-dat$sf_r_vsjo = dat$r_vsjo
-dat$rd_vgrs =  dat$d_grs +dat$r_vgrs
-dat$sf_rd_vgrs = dat$d_grs +dat$r_vgrs
-dat$sf_r_vgrs =dat$r_vgrs
+dat$fp_s_dv = dat$s_dv*dat$kpia # Feiler pga måten vi beregner TOTEX kontra Roar
 
 
 #beregner snitt av kostnader og output 
 #legger snitt-tallet inn i rad for faktisk år for hvert selskap, men oppretter ny kolonne
-#Snittfront-data for D-nett
+#snittdata for D-nett
 for(i in which(dat$aar == faktisk.aar))
 {
-        dat[i,"sf_d_TOTXDEA"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_d_TOTXDEA"])
-        dat[i,"sf_d_ab"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ab"])
-        dat[i,"sf_d_hs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_hs"])
-        dat[i,"sf_d_ns"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ns"])
+  dat[i,"av_d_TOTXDEA"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_TOTXDEA"])
+  dat[i,"av_d_ab"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ab"])
+  dat[i,"av_d_hs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_hs"])
+  dat[i,"av_d_ns"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ns"])
 }
 
-#snittfront-data for R-nett
+#snittdata for R-nett
 for(i in which(dat$aar == faktisk.aar))
-{
-        dat[i,"sf_r_TOTXDEA"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_r_TOTXDEA"])
-        dat[i,"sf_r_vluft"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vluft"])
-        dat[i,"sf_r_vjord"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vjord"])
-        dat[i,"sf_r_vsjo"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vsjo"])
-        dat[i,"sf_r_vgrs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vgrs"])
-}
-
-
-
-# for(i in which(dat$aar == faktisk.aar))
-# {
-#   dat[i,"av_d_TOTXDEA"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_TOTXDEA"])
-#   dat[i,"av_d_ab"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ab"])
-#   dat[i,"av_d_hs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_hs"])
-#   dat[i,"av_d_ns"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ns"])
-# }
-# 
-# #snittdata for R-nett
-# for(i in which(dat$aar == faktisk.aar))
-#   {
-#   dat[i,"av_r_TOTXDEA"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_TOTXDEA"])
-#   dat[i,"av_r_vluft"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vluft"])
-#   dat[i,"av_r_vjord"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vjord"])
-#   dat[i,"av_r_vsjo"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vsjo"])
-#   dat[i,"av_r_vgrs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vgrs"])
-#   }
+  {
+  dat[i,"av_r_TOTXDEA"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_TOTXDEA"])
+  dat[i,"av_r_vluft"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vluft"])
+  dat[i,"av_r_vjord"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vjord"])
+  dat[i,"av_r_vsjo"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vsjo"])
+  dat[i,"av_r_vgrs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vgrs"])
+  }
 
 
 #### Utvalg av selskaper ####
-## Endre metoden
-# #diverse utvalg av selskaper, basert på orgnr
-# #de som skal måles
-# eval.r = dat$orgnr[dat$r_TOTXDEA >= 7000 & dat$r_vluft > 0 & dat$aar == faktisk.aar]
-# #de som kan danne fronten
-# front.r = dat$orgnr[dat$r_TOTXDEA >= 15000 & dat$aar == faktisk.aar]
-# #de som skal evalueres men ikke kan være på fronten
-# sep.eval.r = setdiff(eval.r,front.r)
 
-## Roar metoden
-        #D-nett
-dat$d_tilDEA = 0
-dat$d_tilDEA <- ifelse(dat$d_TOTXDEA > 0, dat$d_tilDEA <- 1, dat$d_tilDEA <- 0)
-
-
-for (i in which(dat$id %in% d_dea_til_gjsnitt)){
-        dat[i,"d_tilDEA"]  = 0 
-}
-
-for (i in which(dat$id %in% d_spesial)){
-        dat[i,"d_tilDEA"]  = 0 
-}
-
-for (i in which(dat$id %in% d_ikkeIR)){
-        dat[i,"d_tilDEA"]  = 0 
-}
-
-d_tilDEA <- dat[dat$d_tilDEA==1,]
-
-        #R-nett
-dat$r_tilDEA = 0
-dat$r_tilDEA <- ifelse(dat$r_TOTXDEA > 0, dat$r_tilDEA <- 1, dat$r_tilDEA <- 0)
-
-
-for (i in which(dat$id %in% r_dea_til_gjsnitt)){
-        dat[i,"r_tilDEA"]  = 0 
-}
-
-for (i in which(dat$id %in% r_spesial)){
-        dat[i,"r_tilDEA"]  = 0 
-}
-
-r_tilDEA <- dat[dat$r_tilDEA==1,]
+#diverse utvalg av selskaper, basert på orgnr
+#de som skal måles
+eval.r = dat$orgnr[dat$r_TOTXDEA >= 7000 & dat$r_vluft > 0 & dat$aar == faktisk.aar]
+#de som kan danne fronten
+front.r = dat$orgnr[dat$r_TOTXDEA >= 15000 & dat$aar == faktisk.aar]
+#de som skal evalueres men ikke kan være på fronten
+sep.eval.r = setdiff(eval.r,front.r)
 
 
 #### Velger data for selskapene som skal evalueres ####
-#snittdata for selskaper som skal evalueres
-        #D-nett
-x.sf.d = dat[dat$orgnr %in% d_tilDEA$orgnr & dat$aar == faktisk.aar,c("sf_d_TOTXDEA")]
-y.sf.d = dat[dat$orgnr %in% d_tilDEA$orgnr & dat$aar == faktisk.aar,c("sf_d_ab","sf_d_hs","sf_d_ns")]
-names(x.sf.d) = dat #Fungerer ikke
-rownames(y.sf.d) = dat
-
-
-
-        #R-nett
-x.sf.r = dat[dat$orgnr %in% r_tilDEA & dat$aar == faktisk.aar,"sf_r_TOTXDEA"]
-y.sf.r = dat[dat$orgnr %in% r_tilDEA & dat$aar == faktisk.aar,c("sf_r_vluft","sf_r_vjord","sf_r_vsjo","sf_r_vgrs")]
-names(x.sf.r) = dat
-rownames(y.sf.r) = dat
-
-
-
-
 #faktiske data for selskaper som skal evalueres
 x.faktisk.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,"r_TOTXDEA"]
 y.faktisk.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("r_vluft","r_vjord","r_vsjo","r_vgrs")]
@@ -444,78 +353,73 @@ rownames(z.faktisk.r) = eval.r
 names(kap.faktisk.r) = eval.r
 
 
-
-
+#### Beregner snitt for selskapene som skal evalueres ####
+#snittdata for selskaper som skal evalueres
+x.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,"av_r_TOTXDEA"]
+y.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("av_r_vluft","av_r_vjord","av_r_vsjo","av_r_vgrs")]
+z.snitt.r = dat[dat$orgnr %in% eval.r & dat$aar == faktisk.aar,c("rr_he","rr_s12")]
+names(x.snitt.r) = eval.r
+rownames(y.snitt.r) = eval.r
+rownames(z.snitt.r) = eval.r
 
 
 #### Export til Excel trinn 1 ####
 
-#dat[is.na(dat)] <- 0
+# Gir manglende observasjoner en verdi lik null
+dat[is.na(dat)] <- 0
 
 # OBSOBS: sjekk at datarammene inneholder riktige variabler når alle variabler er laget
 # Denne bør kanskje stå nedenfor under "Trinn 1 - DEA kjøringer"
 # Konstruerer datarammer til Excel-arkene
-# d_grunnlagsdata_trinn1 = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_dv, dat$d_391, 
-#                                dat$d_utred, dat$d_DV, dat$d_AKG, dat$d_abakg, dat$d_akg, dat$d_avs, 
-#                                dat$d_abavs, dat$d_avs, dat$d_kile, dat$d_nettap, 
-#                                dat$d_nettapkr, dat$d_grs.cost, dat$d_TOTXDEA, dat$d_ab, 
-#                                dat$d_hs, dat$d_ns)
-# write.csv(d_grunnlagsdata_trinn1, file = "\\\\Data\\Data fra R\\d_grunnlagsdata_trinn1")
-# 
-# 
-# d_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_DVxL, dat$d_lonn, 
-#                          dat$d_lonnakt, dat$d_pensj, dat$fp_d_pensj_faktisk, dat$fp_d_pensj, 
-#                          dat$av_hist_fp_d_pensj, dat$av_fp_d_pensj, dat$d_pensjek, 
-#                          dat$fp_d_pensjek, dat$av_fp_d_pensjek, dat$d_impl, dat$fp_d_impl, 
-#                          dat$av_fp_d_impl, dat$d_pensjkostgrlag, dat$d_dv, dat$d_dv_2012)
-# write.csv(d_forslagDV, file = "d_forslagDV")
-# 
+d_grunnlagsdata_trinn1 = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_dv, dat$d_391, 
+                               dat$d_utred, dat$d_DV, dat$d_AKG, dat$d_abakg, dat$d_akg, dat$d_avs, 
+                               dat$d_abavs, dat$d_avs, dat$d_kile, dat$d_nettap, 
+                               dat$d_nettapkr, dat$d_grs.cost, dat$d_TOTXDEA, dat$d_ab, 
+                               dat$d_hs, dat$d_ns)
+
+d_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_DVxL, dat$d_lonn, 
+                         dat$d_lonnakt, dat$d_pensj,  dat$fp_d_pensj, 
+                         dat$d_pensjek, dat$d_impl, dat$fp_d_impl, dat$av_fp_d_pensj, 
+                         dat$fp_d_pensjek, dat$av_fp_d_pensjek, 
+                         dat$av_fp_d_impl, dat$d_pensjkostgrlag, dat$d_dv, dat$d_dv_2012)
+
 # d_gjsnittfront = data.frame(dat$idaar, dat$idaar, dat$selskap, dat$fp_d_dv, dat$fp_d_391, 
-#                             dat$fp_d_DV, dat$fp_d_kile, dat$sf_d_TOTXDEA, dat$sf_d_ab, 
+#                             dat$fp_d_DV, dat$fp_d_kile) 
+#                             dat$sf_d_TOTXDEA, dat$sf_d_ab, 
 #                             dat$sf_d_hs, dat$sf_d_ns, dat$d_snittfront*)
-# write.csv(d_gjsnittfront, file = "d_gjensnittfront")
 # 
 # d_DEAdata = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$frontlov, 
 #                        dat$d_snittfront_d_TOTXDEA, dat$d_snittfront_d_ab, dat$d_snittfront_d_hs, 
 #                        d_snittfront_d_ns)
-# write.csv(d_DEAdata, file = "d_DEAdata")
 # 
 # d_vektberegning = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_frontlov_hoved, 
 #                              dat$frontlov, dat$d_vekt*, dat$d_normkostandel*, dat$d_kostbidrag*)
-# write.csv(d_vektberegning, file ="d_vektberegning")
 # 
 # d_DEAresultater = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$d_frontlov_hoved, 
 #                              dat$d_score_snittfront, dat$d_score_spesial, dat$d_dea_til2trinn)
-# write.csv(d_DEAresultater, file = "d_DEAresultater")
-# 
-# r_grunnlagsdata_trinn1 = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_akg, 
-#                                     dat$r_abakg, dat$r_AKG, dat$r_avs, dat$r_abavs, dat$r_AVS, 
-#                                     dat$r_kile, dat$r_TOTXDEA, dat$r_vluft, dat$r_vjord,
-#                                     dat$r_vsjo, dat$r_vgrs)
-# write.csv(r_grunnlagsdata_trinn1, file = "r_grunnlagsdata_trinn1")
-# 
-# r_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_DVxL, dat$r_lonn, 
-#                          dat$r_lonnakt, dat$r_pensj, dat$fp_r_pensj, dat$av_fp_r_pensj, 
-#                          dat$r_pensjek, dat$fp_r_pensjek, dat$av_fp_r_pensjek, dat$r_impl, 
-#                          dat$fp_r_impl, dat$av_fp_r_impl, dat$r_pensjkostgrlag, dat$r_dv, 
-#                          dat$r_dv_2012)
-# write.csv(r_forslagDV, file = "r_forslagDV")
-# 
+
+r_grunnlagsdata_trinn1 = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_akg, 
+                                    dat$r_abakg, dat$r_AKG, dat$r_avs, dat$r_abavs, dat$r_AVS, 
+                                    dat$r_kile, dat$r_TOTXDEA, dat$r_vluft, dat$r_vjord,
+                                    dat$r_vsjo, dat$r_vgrs)
+
+r_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_DVxL, dat$r_lonn, 
+                         dat$r_lonnakt, dat$r_pensj, dat$fp_r_pensj, dat$av_fp_r_pensj, 
+                         dat$r_pensjek, dat$fp_r_pensjek, dat$av_fp_r_pensjek, dat$r_impl, 
+                         dat$fp_r_impl, dat$av_fp_r_impl, dat$r_pensjkostgrlag, dat$r_dv, 
+                         dat$r_dv_2012)
+
 # r_gjsnittfront = data.frame(dat$idaar, dat$idaar, dat$selskap, dat$fp_r_dv, dat$fp_r_391, 
 #                             dat$fp_r_utred, dat$fp_r_DV, dat$fp_r_kile, dat$sf_r_*, 
 #                             dat$r_snittfront*)
-# write.csv(r_gjsnittfront, file = "r_gjensnittfront")
 # 
 # r_DEAdata = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$frontlov, dat$r_snittfront*)
-# write.csv(r_DEAdata, file = "r_DEAdata")
 # 
 # r_vektberegning = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_frontlov_hoved, 
 #                              dat$frontlov, dat$r_vekt*, dat$r_normkostandel*, dat$r_kostbidrag*)
-# write.csv(r_vektberegning, file ="r_vektberegning")
 # 
 # r_DEAresultater = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$r_frontlov_hoved, 
 #                              dat$r_score_snittfront, dat$r_score_spesial, dat$r_dea_til2trinn)
-# write.csv(r_DEAresultater, file = "r_DEAresultater")
 # 
 # s_forslagDV = data.frame(dat$idaar, dat$id, dat$aar, dat$selskap, dat$s_DVxL, dat$s_lonn, 
 #                          dat$s_lonnakt, dat$s_pensj, dat$fp_s_pensj_faktisk, dat$fp_s_pensj, 
@@ -523,9 +427,9 @@ names(kap.faktisk.r) = eval.r
 #                          dat$fp_s_pensjek_faktisk, dat$av_fp_s_pensjek, dat$s_impl, 
 #                          dat$fp_s_impl_faktisk, dat$fp_s_impl, dat$av_fp_s_impl, 
 #                          dat$s_pensjkostgrlag, dat$s_dv, dat$s_dv_2012)
-# write.csv(s_forslagDV, file = "s_forslagDV")
-# 
-# # Lager Excel-filer
+
+# Lager Excel-filer
+# Må få Excel-pakken til å fungere før vi får kjørt disse. Må installere ny versjon av Java.
 # Data og DEA 1D = createWorkbook()
 # side1D = createSheet(wb = Data og DEA 1D, sheetName = d_grunnlagsdata_trinn1)
 # side2D = createSheet(wb = Data og DEA 1D, sheetName = d_forslagDV)
@@ -561,20 +465,13 @@ names(kap.faktisk.r) = eval.r
 # addDataFrame(x=s_forslagDV, sheet = side1S)
 # saveWorkbook(Data S, "Data Sentralnett")
 
-#Runder av data til DEA til "hele tusen"
-x.sf.d$sf_d_TOTXDEA <- round(x.sf.d$sf_d_TOTXDEA, digits = 0)
-y.sf.d$sf_d_ab  <- round(y.sf.d$sf_d_ab, digits = 0)
-y.sf.d$sf_d_ns <- round(y.sf.d$sf_d_ns, digits = 0)
-y.sf.d$sf_d_hs <- round(y.sf.d$sf_d_hs, digits = 0)
-
 
 #### Trinn 1 - DEA-kjøringer ####
 
 #hovedkjøring trinn 1
 #merk at fronten defineres av de radene i x.snitt.r og y.snitt.r som tilvhører selskapene i front.r
-#res.tmp1 = dea(X=x.snitt.r,Y=y.snitt.r,XREF=x.snitt.r[as.character(front.r)],YREF=y.snitt.r[as.character(front.r),],RTS="crs")
-res.tmp1 = dea(X=x.sf.d,Y=y.sf.d, RTS="crs")
-plot(sort(res.sf.sf.d$eff))
+res.tmp1 = dea(X=x.snitt.r,Y=y.snitt.r,XREF=x.snitt.r[as.character(front.r)],YREF=y.snitt.r[as.character(front.r),],RTS="crs")
+#plot(sort(res.snitt.snitt.r$eff))
 
 #spesialkjøring for selskaper som bare kan være front for seg selv
 eff.snitt.snitt.r = res.tmp1$eff
