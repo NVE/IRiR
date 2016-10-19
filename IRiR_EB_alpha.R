@@ -29,19 +29,9 @@ source("1_2_Company_Selection.R")
 
 source("1_3_Input_Data_DEA.R")
 
+#### Trinn 1 - DEA ####
 
-#### Trinn 1 - DEA-kjøringer ####
-
-#Runder av data til DEA til "hele tusen"  
-x.sf.d$sf_d_TOTXDEA <- round(x.sf.d$sf_d_TOTXDEA, digits = 0)  
-y.sf.d$sf_d_ab  <- round(y.sf.d$sf_d_ab, digits = 0)  
-y.sf.d$sf_d_ns <- round(y.sf.d$sf_d_ns, digits = 0)  
-y.sf.d$sf_d_hs <- round(y.sf.d$sf_d_hs, digits = 0) 
-
-# Hovedkjøring trinn 1
-# Merk at fronten defineres av de radene i x.snitt.r og y.snitt.r som tilvhører selskapene i front.r
-res.tmp1 = dea(X=x.snitt.r,Y=y.snitt.r,XREF=x.snitt.r[as.character(front.r)],YREF=y.snitt.r[as.character(front.r),],RTS="crs")
-#plot(sort(res.snitt.snitt.r$eff))
+source("1_4_DEA_DistributionGrid.R")
 
 # Spesialkjøring for selskaper som bare kan være front for seg selv
 eff.snitt.snitt.r = res.tmp1$eff
