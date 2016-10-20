@@ -29,7 +29,11 @@ for (i in which(dat$id %in% d_ikkeIR)){
         dat[i,"d_tilDEA"]  = 0   
 } 
 
-d_tilDEA <- dat[dat$d_tilDEA==1,] 
+for (i in which(dat$aar %in% snitt.aar)){
+        d_tilDEA <-dat[dat$d_tilDEA==1,]
+}
+
+d_tilDEA <- subset.data.frame(d_tilDEA, !is.na(aar))
 
 # R-nett
 dat$r_tilDEA = 0  
