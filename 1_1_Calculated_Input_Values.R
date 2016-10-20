@@ -63,6 +63,7 @@ for(i in which(dat$aar %in% snitt.aar))
         dat[i,"av_fp_s_pensj"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_s_pensj"], na.rm = T)
         dat[i,"av_fp_s_pensjek"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_s_pensjek"], na.rm = T)
         dat[i,"av_fp_s_impl"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"fp_s_impl"], na.rm = T)
+        dat[i,"av_d_grs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_grs"], na.rm = T)
 }
 
 # Pensjonskostnadsgrunnlaget etablers for alle nettnivåer
@@ -104,7 +105,7 @@ for (i in which(dat$id %in% d_spesial)){
 
 # Priser inn grensesnittvariabelen. Her med faktor 1.11, ukjent rasjonale bak denne verdien
 dat$d_grs.cost <- 0
-grs.kostfaktor = 1.11
+grs.kostfaktor = 1
 
 dat$d_grs.cost <- ifelse(dat$d_grs.dummy==1,dat$d_grs*grs.kostfaktor, 0)
 

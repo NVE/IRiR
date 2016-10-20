@@ -14,7 +14,7 @@ write.csv(cbind(x.faktisk.d, y.snitt.d), file = "deaData.csv")
 
 # Hovedkjøring trinn 1
 # Merk at fronten defineres av de radene i x.snitt.r og y.snitt.r som tilvhører selskapene i front.r
-dea.snitt.d = sdea(X=x.snitt.d, Y=y.snitt.d, RTS="crs",)
+dea.faktisk.snitt.d = sdea(X=x.faktisk.d, Y=y.snitt.d, RTS="crs")
 #plot(sort(dea.faktisk.snitt.d$eff))
 #View(cbind(x.faktisk.d, y.snitt.d, dea.faktisk.snitt.d$eff)[order(dea.faktisk.snitt.d$eff)])
 write.csv(dea.faktisk.snitt.d$eff, file = "DEAeff1.csv")
