@@ -70,7 +70,7 @@ d_vekter.faktisk = d_vekter.temp[, colSums(d_vekter.temp) > 0]
 #Fjerner midlertidege dfs
 rm(d_kostbidrag, d_lambda, d_normkostandel, d_vekter.temp)
 
-
+write.csv(d_vekter.faktisk, file = "d_vektberegning.csv")
 
 # # Spesialkjøring for selskaper som bare kan være front for seg selv
 # Er pr dd ikke aktuelt for D-nett.
