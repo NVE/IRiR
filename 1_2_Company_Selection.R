@@ -17,6 +17,8 @@
 dat$d_tilDEA = 0
 dat$d_tilDEA <- ifelse(dat$d_TOTXDEA > 0, dat$d_tilDEA <- 1, dat$d_tilDEA <- 0)
 
+# Basert på gruppene
+
 for (i in which(dat$id %in% d_dea_til_gjsnitt)){
         dat[i,"d_tilDEA"]  = 0 
 }
@@ -33,7 +35,9 @@ for (i in which(dat$aar %in% snitt.aar)){
         d_tilDEA <-dat[dat$d_tilDEA==1,]
 }
 
-d_tilDEA <- subset.data.frame(d_tilDEA, !is.na(aar))
+
+
+d_tilDEA <- subset.data.frame(d_tilDEA, !is.na(aar) & aar==faktisk.aar)
 
 # R-nett
 dat$r_tilDEA = 0  
