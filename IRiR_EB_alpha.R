@@ -10,7 +10,7 @@ getwd()
 # The address can be copied from the address bar in Windows Explorer
 # Remember to change "\" to "/" or "\\" 
 #my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
-my.path = "C:\\Users\\MOHH\\Documents\\GitHub\\IRiR"
+my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
 setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
 library(Benchmarking)
@@ -33,22 +33,6 @@ source("1_3_Input_Data_DEA.R")
 
 source("1_4_DEA_DistributionGrid.R")
 
-# Spesialkjøring for selskaper som bare kan være front for seg selv
-eff.snitt.snitt.r = res.tmp1$eff
-lambda.snitt.snitt.r = cbind(res.tmp1$lambda,matrix(NA,nrow=nrow(res.tmp1$lambda),ncol=length(sep.eval.r)))
-colnames(lambda.snitt.snitt.r) = c(front.r,sep.eval.r)
-for(i in sep.eval.r)
-  {
-  res.tmp2 = dea(X=x.snitt.r,Y=y.snitt.r,RTS="crs",XREF=x.snitt.r[as.character(c(front.r,i))],YREF=y.snitt.r[as.character(c(front.r,i)),])
-  eff.snitt.snitt.r[as.character(i)] = res.tmp2$eff[as.character(i)] 
-  for(j in c(front.r,i))
-    lambda.snitt.snitt.r[as.character(i),as.character(j)] = res.tmp2$lambda[as.character(i),paste("L_",as.character(j),sep="")]
-  }
-remove(res.tmp1)
-remove(res.tmp2)
-
-plot(sort(eff.snitt.snitt.r))
-View(lambda.snitt.snitt.r)
 
 
 

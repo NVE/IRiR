@@ -36,8 +36,11 @@ for (i in which(dat$aar %in% snitt.aar)){
 }
 
 
-
+#Dataframe med alle selskaper som skal være med i standard DEA-modell D-nettt
 d_tilDEA <- subset.data.frame(d_tilDEA, !is.na(aar) & aar==faktisk.aar)
+#Hjelpe-vektor som kun inneholder ider, sortert etter samme rekkefølge som ovenstående frame
+#Brukes for å gi ider til verdier i DEA
+d_DEA_id <- d_tilDEA$id
 
 # R-nett
 dat$r_tilDEA = 0  
