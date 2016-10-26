@@ -26,7 +26,6 @@ d_tilDEA[is.na(d_tilDEA$d_skytelse)] = 0
 #Litt usikker på om dette er ok.
 
 
-
 #Lager ny variabel lik som småkraftytelse ihht Roars script
 d_tilDEA$dr_sky = d_tilDEA$d_skytelse
 
@@ -34,4 +33,25 @@ d_tilDEA$dr_sky = d_tilDEA$d_skytelse
 d_tilDEA$d_dea_til2trinn = d_tilDEA$d_f_sf_eff
 
 d_tilDEA$d_knorm = d_tilDEA$d_TOTXDEA * d_tilDEA$d_dea_til2trinn
+
+
+d_tilDEA$d_skala = d_tilDEA$d_knorm #Bruker norm som skaleringsfaktor
+
+#Beregner rammevilkårsvariabler
+d_tilDEA$d_hsluft = d_tilDEA$d_hs - d_tilDEA$d_hsjord - d_tilDEA$d_hssjo
+# d_tilDEA$d_hssjo = d_tilDEA$d_hssjou6kv + d_tilDEA$d_hssjoo6kv
+d_tilDEA$d_hs_jsl = d_tilDEA$d_hsjord + d_tilDEA$d_hssjo + d_tilDEA$d_hsluft # Disse variablene er HS.
+d_tilDEA$dr_hsjordand = d_tilDEA$d_hsjord / d_tilDEA$d_hs_jsl
+d_tilDEA$dr_hssjoand = d_tilDEA$d_hssjo / d_tilDEA$d_hs_jsl
+d_tilDEA$dr_hskabelandel = (d_tilDEA$d_hsjord + d_tilDEA$d_hssjo) / d_tilDEA$d_hs_jsl
+
+
+d_tilDEA$dr_aoey1sz = d_tilDEA$d_aoey1 / d_tilDEA$d_skala
+colnames(d_tilDEA)[colnames(d_tilDEA)=="d_aoey1"] <- "dr_aoey1"
+
+d_tilDEA$dr_skysz = d_tilDEA$d_skytelse / d_tilDEA$d_skala
+
+d_tilDEA$dr_vr2 = d_tilDEA$dr_vr * d_tilDEA$dr_vr
+d_tilDEA$dr_vr2_k2lukk = d_tilDEA$dr_vr2 / d_tilDEA$dr_k2lukk
+
 write.csv(d_tilDEA, file="tmp1.csv")
