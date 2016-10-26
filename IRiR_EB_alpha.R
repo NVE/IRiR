@@ -15,29 +15,28 @@ setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
 library(Benchmarking)
 library(xlsx)
-source("functions_nve.R")
+source("./R-script/functions_nve.R")
 # Ønsker å vise store tall som fulle verdier, ikke som potenser
 options(scipen = 100)
 
 #### Grunnlag for DEA ####
 
-source("1_0_Config_Assumptions_Data.R")
+source("./R-script/1_0_Config_Assumptions_Data.R")
 
-source("1_1_Calculated_Input_Values.R")
+source("./R-script/1_1_Calculated_Input_Values.R")
 
-source("1_2_Company_Selection.R")
+source("./R-script/1_2_Company_Selection.R")
 
-source("1_3_Input_Data_DEA.R")
+source("./R-script/1_3_Input_Data_DEA.R")
 
 #### Trinn 1 - DEA ####
-
-source("1_4_DEA_DistributionGrid.R")
-
-
-
-
+        #D-nett
+source("./R-script/1_4_DEA_DistributionGrid.R")
+        #R-nett
 
 ####  Trinn 2 - RVK-justering vha regresjon ####
+        #D-nett
+source("./R-script/2_0_Bootstrap_Data.R")
 
 # #correct for environmental effects
 res.stage2 = two.stage(x.snitt,z.snitt,res.snitt.snitt.r$eff,res.snitt.snitt.r$lambda) 

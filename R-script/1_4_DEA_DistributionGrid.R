@@ -16,7 +16,7 @@ y.faktisk.d$d_ns <- round(y.faktisk.d$d_ns, digits = 0)
 y.faktisk.d$d_hs <- round(y.faktisk.d$d_hs, digits = 0) 
 
 ### DEA input
-write.csv(cbind(d_tilDEA$id, x.snitt.d, y.snitt.d,x.faktisk.d, y.faktisk.d), file = "d_InputDEA.csv")
+write.csv(cbind(d_tilDEA$id, x.snitt.d, y.snitt.d,x.faktisk.d, y.faktisk.d), file = "./Resultater/d_InputDEA.csv")
 
 
 # Hovedkjøring trinn 1
@@ -26,8 +26,12 @@ write.csv(cbind(d_tilDEA$id, x.snitt.d, y.snitt.d,x.faktisk.d, y.faktisk.d), fil
 dea.faktisk.snitt.d = dea(X=x.faktisk.d, Y=y.faktisk.d, XREF=x.snitt.d, YREF=y.snitt.d, RTS="crs")
 plot(sort(dea.faktisk.snitt.d$eff))
 #View(cbind(x.faktisk.d, y.snitt.d, dea.faktisk.snitt.d$eff)[order(dea.faktisk.snitt.d$eff)])
-write.csv(cbind(d_tilDEA$id,dea.faktisk.snitt.d$eff), file = "DEAeff1.csv")
-write.csv(cbind(d_tilDEA,dea.faktisk.snitt.d$eff), file = "d_DEAResultat_Data.csv")
+d_tilDEA = data.frame(cbind(d_tilDEA, dea.faktisk.snitt.d$eff))
+#Endrer navn på variabelen som merges inn
+colnames(d_tilDEA)[colnames(d_tilDEA)=="dea.faktisk.snitt.d.eff"] <- "d_f_sf_eff"
+
+write.csv(cbind(d_tilDEA$id,dea.faktisk.snitt.d$eff), file = "./Resultater/DEAeff1.csv")
+write.csv(d_tilDEA, file = "./Resultater/d_DEAResultat_Data.csv")
 
 
 
@@ -70,7 +74,7 @@ d_vekter.faktisk = d_vekter.temp[, colSums(d_vekter.temp) > 0]
 #Fjerner midlertidege dfs
 rm(d_kostbidrag, d_lambda, d_normkostandel, d_vekter.temp)
 
-write.csv(d_vekter.faktisk, file = "d_vektberegning.csv")
+write.csv(d_vekter.faktisk, file = "./Resultater/d_vektberegning.csv")
 
 # # Spesialkjøring for selskaper som bare kan være front for seg selv
 # Er pr dd ikke aktuelt for D-nett.
