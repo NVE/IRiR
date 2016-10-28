@@ -13,8 +13,14 @@ getwd()
 my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
 setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
+# Følgende pakker benyttes
+# Benchmarking, xlsx, plyr, dplyr
 library(Benchmarking)
 library(xlsx)
+library(plyr)
+library(dplyr)
+library(FactoMineR)
+
 source("./R-script/functions_nve.R")
 # Ønsker å vise store tall som fulle verdier, ikke som potenser
 options(scipen = 100)
@@ -37,6 +43,9 @@ source("./R-script/1_4_DEA_DistributionGrid.R")
 ####  Trinn 2 - RVK-justering vha regresjon ####
         #D-nett
 source("./R-script/2_0_Bootstrap_Data.R")
+
+source("./R-script/2_4_GEO_correction_stage2.R")
+
 
 # #correct for environmental effects
 res.stage2 = two.stage(x.snitt,z.snitt,res.snitt.snitt.r$eff,res.snitt.snitt.r$lambda) 

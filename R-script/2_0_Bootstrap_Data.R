@@ -12,7 +12,7 @@ manglende.bs <- dat[is.na(d_tilDEA$correst),]
 #importert Bootstrap-estimat for snitt mot snitt beregnet escore
 manglende.bs[c("selskap", "orgnr")] 
 
-rm(d_bs)
+rm(manglende.bs)
 
 #endrer navn på variablene importert fra bootstrap
 #"e3"-indikerer hvilke forutsetninger som er valgt i Fritsch
