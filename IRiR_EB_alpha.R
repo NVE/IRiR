@@ -17,6 +17,7 @@ setwd(my.path)
 # Benchmarking, xlsx, plyr, dplyr
 library(Benchmarking)
 library(xlsx)
+library(xlsxjars)
 library(plyr)
 library(dplyr)
 library(FactoMineR)
@@ -24,6 +25,7 @@ library(FactoMineR)
 source("./R-script/functions_nve.R")
 # Ønsker å vise store tall som fulle verdier, ikke som potenser
 options(scipen = 100)
+
 
 #### Grunnlag for DEA ####
 

@@ -33,13 +33,16 @@ fjellbekk_var = data.frame(cbind(d_tilDEA$dr_he1, d_tilDEA$dr_s7, d_tilDEA$dr_sk
 fjellbekk_var = data.frame(plyr::rename(fjellbekk_var, c("X1"="dr_he1", "X2"="dr_s7", "X3"="dr_skysz")))
 
 # Bruker to ulike metoder for faktoranalyse
-pca.fb.1=PCA(fjellbekk_var) # Beregner eigenverdier og lager grafer
-pca.fb.2 = princomp(fjellbekk_var, cor=TRUE) # Beregner prinsipal-komponenter. (eigenvektorer)
+pca.fb.1=PCA(fjellbekk_var, scale.unit = TRUE, ncp=1, graph = T) # Beregner eigenverdier og lager grafer
+pca.fb.2 = princomp(fjellbekk_var) # Beregner prinsipal-komponenter. (eigenvektorer)
+pca.fb.3 = prcomp(fjellbekk_var, scale. = TRUE)
+
 #Skriver de 
 pca.fb.1$eig
 pca.fb.2$loadings
 #Lager dataframe av de ønskede estimerte verdiene fra PCA
-df.dr_Geo1 = data.frame(pca.fb.1$ind$coord[,1:1] )
+df.dr_Geo1=data.frame(pca.fb.3$x[,1])
+df.dr_Geo1=df.dr_Geo1*-1
 colnames(df.dr_Geo1) <- "dr_Geo1" 
 
 d_tilDEA = data.frame(cbind(d_tilDEA, df.dr_Geo1))
@@ -48,6 +51,7 @@ rm(df.dr_Geo1)
 #Kjører regresjon fjellbekk
 fjellbekk_reg <- lm(d_tilDEA$dr_Geo1 ~ d_tilDEA$dr_he1 + d_tilDEA$dr_s7 + d_tilDEA$dr_skysz) # Ikke helt identisk, får grave litt etter årsak.
 summary(fjellbekk_reg)
+
 
 ## Nedenfor følger frekkevarianter for å forstå mellomregninger
 # pca.fb = prcomp(fjellbekk_var, scale = TRUE)
@@ -81,6 +85,4 @@ summary(fjellbekk_reg)
 #      ylab = "Cumulative Proportion of Variance Explained",
 #      type = "b")
 
-
-
-
+d_tilDEA
