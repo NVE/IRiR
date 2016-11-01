@@ -5,6 +5,8 @@
 # Read data set from csv-file
 # Grunnlagsdata
 dat = read.csv("./Data/Grunnlagsdata/Grunnlagsdata_faktiskvarsel.csv",sep=",")
+
+
 # ID-er
 id = read.csv("./Data/Grunnlagsdata/id.csv", sep = ",")
 # Tilegner ID-er til Grunnlagsdata vha merge
