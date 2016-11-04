@@ -5,29 +5,8 @@ d_tilDEA$d_frontlov_hoved = d_tilDEA$frontlov
 
 d_tilDEA$d_til2trinn = 0
 
-#Ulik datastruktur gjør dette kanskje unødvendig i R.
-#Kan se nærmere på dette i ifbm R-nett. 
-#
-#Roars kode:
-# 
-# // Bestemme hvilke selskaper som skal være med i analysen (kun frontselskaper, samt noen til, dette kan ev vurderes på nytt med bootstrap)
-# gen d_til2trinn = 0
-# label var d_til2trinn "Hvis 1, er med i trinn2"
-# 
-# replace d_til2trinn = 1 if d_frontlov_hoved==1 & aar==curr_aar
-# 
-# if length("$d_ikke_til_trinn2")>1 {
-#         foreach num of numlist $d_ikke_til_trinn2 {    
-#                 replace d_til2trinn = 0 if id == `num'
-#         }
-#         }
-#                 
-#                 
-#                 
-#                 replace d_til2trinn = F.d_til2trinn if aar==curr_aar-1
-
-
-#Lage Fjellbekk
+ 
+#Lage Fjellbekk - Geo1
 
 fjellbekk_var = data.frame(cbind(d_tilDEA$dr_he1, d_tilDEA$dr_s7, d_tilDEA$dr_skysz))
 fjellbekk_var = data.frame(plyr::rename(fjellbekk_var, c("X1"="dr_he1", "X2"="dr_s7", "X3"="dr_skysz")))
@@ -49,9 +28,9 @@ d_tilDEA = data.frame(cbind(d_tilDEA, df.dr_Geo1))
 rm(df.dr_Geo1)
 
 #Kjører regresjon fjellbekk
-fjellbekk_reg <- lm(d_tilDEA$dr_Geo1 ~ d_tilDEA$dr_he1 + d_tilDEA$dr_s7 + d_tilDEA$dr_skysz) # Ikke helt identisk, får grave litt etter årsak.
+fjellbekk_reg <- lm(d_tilDEA$dr_Geo1 ~ d_tilDEA$dr_he1 + d_tilDEA$dr_s7 + d_tilDEA$dr_skysz)
 summary(fjellbekk_reg)
-
+rm(fjellbekk_var)
 
 ## Nedenfor følger frekkevarianter for å forstå mellomregninger
 # pca.fb = prcomp(fjellbekk_var, scale = TRUE)
@@ -85,4 +64,26 @@ summary(fjellbekk_reg)
 #      ylab = "Cumulative Proportion of Variance Explained",
 #      type = "b")
 
-d_tilDEA
+
+# Lage Øyvind - Geo 2
+
+oyvind_var = data.frame(cbind(d_tilDEA$dr_vr2_k2lukk, d_tilDEA$dr_aoey1sz, d_tilDEA$dr_hssjoand))
+oyvind_var = data.frame(plyr::rename(oyvind_var, c("X1"="dr_vr2_k2lukk", "X2"="dr_aoey1sz", "X3"="dr_hssjoand")))
+
+pca.oy.3 = prcomp(oyvind_var, scale. = TRUE)
+df.dr_Geo2=data.frame(pca.oy.3$x[,1])
+colnames(df.dr_Geo2) <- "dr_Geo2" 
+d_tilDEA = data.frame(cbind(d_tilDEA, df.dr_Geo2))
+rm(df.dr_Geo2)
+
+oyvind_reg <- lm(d_tilDEA$dr_Geo2 ~ d_tilDEA$dr_vr2_k2lukk + d_tilDEA$dr_aoey1sz + d_tilDEA$dr_hssjoand)
+summary(oyvind_reg)
+
+
+# Lage Frost - Geo 3
+d_tilDEA$dr_tempneg = d_tilDEA$dr_temp*-1 # Dette er ikke korrekt pt
+if (d_tilDEA$dr_brgrad_gjsn < 65.9){
+        d_tilDEA$dr_brgrad_gjsn==65.9        
+} else {
+        
+}
