@@ -33,7 +33,9 @@ colnames(d_tilDEA)[colnames(d_tilDEA)=="dea.faktisk.snitt.d.eff"] <- "d_f_sf_eff
 write.csv(cbind(d_tilDEA$id,dea.faktisk.snitt.d$eff), file = "./Resultater/DEAeff1.csv")
 write.csv(d_tilDEA, file = "./Resultater/d_DEAResultat_Data.csv")
 
-
+#Lager liste av IDer for referenter i D-nett
+d_ref = as.list(colnames(d_vekter.faktisk))
+d_ref = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref), "[^0-9]+")))))
 
 #Beregner kostbidrag
 #1. Henter vekter fra DEA-beregning
@@ -73,6 +75,7 @@ d_vekter.temp = data.frame(cbind(d_DEA_id, d_lambda, d_normkostandel, d_kostbidr
 d_vekter.faktisk = d_vekter.temp[, colSums(d_vekter.temp) > 0]
 #Fjerner midlertidege dfs
 rm(d_kostbidrag, d_lambda, d_normkostandel, d_vekter.temp)
+
 
 write.csv(d_vekter.faktisk, file = "./Resultater/d_vektberegning.csv")
 

@@ -98,3 +98,4 @@ rm(df.dr_Geo3)
 
 frost_reg <- lm(d_tilDEA$dr_Geo3 ~ d_tilDEA$dr_snog + d_tilDEA$dr_brgrad_gjsn + d_tilDEA$dr_is_gjsn + d_tilDEA$dr_tempneg)
 summary(frost_reg)
+
