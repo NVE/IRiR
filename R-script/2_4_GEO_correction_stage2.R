@@ -82,8 +82,20 @@ summary(oyvind_reg)
 
 # Lage Frost - Geo 3
 d_tilDEA$dr_tempneg = d_tilDEA$dr_temp*-1 # Dette er ikke korrekt pt
-if (d_tilDEA$dr_brgrad_gjsn < 65.9){
-        d_tilDEA$dr_brgrad_gjsn==65.9        
-} else {
-        
-}
+#Setter alle verdier i snittbreddegrad under 65,9 til 65,9
+d_tilDEA$dr_brgrad_gjsn = pmax(d_tilDEA$dr_brgrad_gjsn, 65.9)
+#Lager dataframe med variabler som inngår i frost
+frost_var = data.frame(cbind(d_tilDEA$dr_snog, d_tilDEA$dr_brgrad_gjsn, 
+                             d_tilDEA$dr_is_gjsn, d_tilDEA$dr_tempneg))
+frost_var = data.frame(plyr::rename(frost_var, c("X1"="dr_snog", "X2"="dr_brgrad_gjsn", "X3"="dr_is_gjsn", "X4"="dr_tempneg")))
+
+pca.fr.3 = prcomp(frost_var, scale. = TRUE)
+df.dr_Geo3=data.frame(pca.fr.3$x[,1])
+df.dr_Geo3=df.dr_Geo3*-1
+colnames(df.dr_Geo3) <- "dr_Geo3"
+d_tilDEA = data.frame(cbind(d_tilDEA, df.dr_Geo3))
+rm(df.dr_Geo3)
+
+frost_reg <- lm(d_tilDEA$dr_Geo3 ~ d_tilDEA$dr_snog + d_tilDEA$dr_brgrad_gjsn + d_tilDEA$dr_is_gjsn + d_tilDEA$dr_tempneg)
+summary(frost_reg)
+
