@@ -30,3 +30,38 @@ df.dm_dr_s4 = data.frame(dm_dr_s4)
 d_tilDEA = cbind.data.frame(d_tilDEA, df.dm_dr_s4)
 
 rm(df.dm_dr_s4, dm_dr_s4)
+
+#trekker ut referentes verdier for Geo1
+d_ref.dm.Geo1 = d_ref.data$dr_Geo1
+#Regner produktsummer pr kolonne, hver kolonne representerer da hvert selskap
+dm_dr_Geo1 = colSums(d_ref.dm.Geo1*d_normkost.temp)
+df.dm_dr_Geo1 = data.frame(dm_dr_Geo1)
+#legger verdiene i egen frame før de kobles på d_tilDEA
+d_tilDEA = cbind.data.frame(d_tilDEA, df.dm_dr_Geo1)
+
+rm(df.dm_dr_Geo1, dm_dr_Geo1)
+
+#trekker ut referentes verdier for Geo2
+d_ref.dm.Geo2 = d_ref.data$dr_Geo2
+#Regner produktsummer pr kolonne, hver kolonne representerer da hvert selskap
+dm_dr_Geo2 = colSums(d_ref.dm.Geo2*d_normkost.temp)
+df.dm_dr_Geo2 = data.frame(dm_dr_Geo2)
+#legger verdiene i egen frame før de kobles på d_tilDEA
+d_tilDEA = cbind.data.frame(d_tilDEA, df.dm_dr_Geo2)
+
+rm(df.dm_dr_Geo2, dm_dr_Geo2)
+
+#trekker ut referentes verdier for Geo 3
+d_ref.dm.Geo3 = d_ref.data$dr_Geo3
+#Regner produktsummer pr kolonne, hver kolonne representerer da hvert selskap
+dm_dr_Geo3 = colSums(d_ref.dm.Geo3*d_normkost.temp)
+df.dm_dr_Geo3 = data.frame(dm_dr_Geo3)
+#legger verdiene i egen frame før de kobles på d_tilDEA
+d_tilDEA = cbind.data.frame(d_tilDEA, df.dm_dr_Geo3)
+
+rm(df.dm_dr_Geo3, dm_dr_Geo3)f
+
+trinn2_reg = lm(d_tilDEA$d_score_bs100 ~ d_tilDEA$dm_dr_hsjordand + d_tilDEA$dm_dr_s4 + 
+           d_tilDEA$dm_dr_Geo1 + d_tilDEA$dm_dr_Geo2 + d_tilDEA$dm_dr_Geo3)
+
+summary(trinn2_reg)
