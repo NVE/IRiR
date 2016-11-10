@@ -93,7 +93,7 @@ colnames(d_normkostandel.snitt) = paste("sf_d_normkostandel", colnames(d_normkos
 #Kombinerer fire df til én
 d_vekter.temp = data.frame(cbind(d_DEA_id, d_lambda, d_normkostandel, d_kostbidrag))
 d_vekter.temp.snitt = data.frame(cbind(d_DEA_id, d_lambda.snitt, d_normkostandel.snitt, d_kostbidrag.snitt))
-#Fjerner alle df som ikke har sum større enn 0
+#Fjerner alle kolonner som ikke har sum større enn 0
 d_vekter.faktisk = d_vekter.temp[, colSums(d_vekter.temp) > 0]
 d_vekter.snitt = d_vekter.temp.snitt[, colSums(d_vekter.temp.snitt) > 0]
 #Fjerner midlertidege dfs
@@ -105,6 +105,7 @@ d_ref = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref), "[^0-9]+")))))
 d_ref.snitt = as.list(colnames(d_vekter.snitt))
 d_ref.snitt = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref.snitt), "[^0-9]+")))))
 
+#Lage logisk sjekk for å sjekke dref=drefsnitt
 
 write.csv(d_vekter.faktisk, file = "./Resultater/d_vektberegning.csv")
 

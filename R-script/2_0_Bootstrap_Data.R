@@ -11,7 +11,7 @@ manglende.bs <- dat[is.na(d_tilDEA$correst),]
 #Får du følgende melding, "<0 rows> (or 0-length row.names)", har alle selskap fått
 #importert Bootstrap-estimat for snitt mot snitt beregnet escore
 manglende.bs[c("selskap", "orgnr")] 
-
+#Legg inn logisk sjekk på at den er tom
 rm(manglende.bs)
 
 #endrer navn på variablene importert fra bootstrap
