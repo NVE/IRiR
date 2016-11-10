@@ -1,3 +1,4 @@
+
 ## IRiR
 
 #### R-teknisk oppsett ####
@@ -45,7 +46,6 @@ source("./R-script/1_4_DEA_DistributionGrid.R")
 ####  Trinn 2 - RVK-justering vha regresjon ####
         #D-nett
 source("./R-script/2_0_Bootstrap_Data.R")
-
 source("./R-script/2_4_GEO_correction_stage2.R")
 
 

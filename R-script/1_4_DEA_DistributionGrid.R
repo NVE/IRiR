@@ -30,52 +30,80 @@ d_tilDEA = data.frame(cbind(d_tilDEA, dea.faktisk.snitt.d$eff))
 #Endrer navn på variabelen som merges inn
 colnames(d_tilDEA)[colnames(d_tilDEA)=="dea.faktisk.snitt.d.eff"] <- "d_f_sf_eff"
 
+#Beregner ren snitt front
+dea.snitt.snitt.d = dea(X=x.snitt.d, Y=y.snitt.d, RTS="crs")
+plot(sort(dea.snitt.snitt.d$eff))
+d_tilDEA = data.frame(cbind(d_tilDEA, dea.snitt.snitt.d$eff))
+#Endrer navn på variabelen som merges inn
+colnames(d_tilDEA)[colnames(d_tilDEA)=="dea.snitt.snitt.d.eff"] <- "d_sf_eff"
+
 write.csv(cbind(d_tilDEA$id,dea.faktisk.snitt.d$eff), file = "./Resultater/DEAeff1.csv")
 write.csv(d_tilDEA, file = "./Resultater/d_DEAResultat_Data.csv")
+
 
 
 #Beregner kostbidrag
 #1. Henter vekter fra DEA-beregning
 d_kostbidrag = data.frame(dea.faktisk.snitt.d$lambda)
+d_kostbidrag.snitt = data.frame(dea.snitt.snitt.d$lambda)
 #2. Transponerer matrisen slik at den kan ganges direkte ut med TOTEX
 d_kostbidrag = data.frame(t(d_kostbidrag))
+d_kostbidrag.snitt = data.frame(t(d_kostbidrag.snitt))
 #3. Multipliserer df med snitt-TOTEX
 d_kostbidrag = data.frame(d_kostbidrag * x.snitt.d)
+d_kostbidrag.snitt = data.frame(d_kostbidrag.snitt * x.snitt.d)
 rownames(d_kostbidrag) = d_DEA_id
 colnames(d_kostbidrag) = d_DEA_id
-
+rownames(d_kostbidrag.snitt) = d_DEA_id
+colnames(d_kostbidrag.snitt) = d_DEA_id
 
 #Beregner normkostandel
 #1. Henter kostnadsbidrag
 d_normkostandel = data.frame(d_kostbidrag)
+d_normkostandel.snitt = data.frame(d_kostbidrag.snitt)
 #2. Regner summen av alle kolonner og deler på sum pr kolonne 
 d_normkostandel = sweep(d_normkostandel,2, colSums(d_normkostandel),'/')
+d_normkostandel.snitt = sweep(d_normkostandel.snitt,2, colSums(d_normkostandel.snitt),'/')
 rownames(d_normkostandel) = d_DEA_id
 colnames(d_normkostandel) = d_DEA_id
-
+rownames(d_normkostandel.snitt) = d_DEA_id
+colnames(d_normkostandel.snitt) = d_DEA_id
 
 #Henter vekter
 d_lambda = data.frame(dea.faktisk.snitt.d$lambda)
+d_lambda.snitt = data.frame(dea.snitt.snitt.d$lambda)
 rownames(d_lambda) = d_DEA_id
 colnames(d_lambda) = d_DEA_id
+rownames(d_lambda.snitt) = d_DEA_id
+colnames(d_lambda.snitt) = d_DEA_id
 
 #Transponerer tilbake for å kunne koble DFs til et sett
 d_kostbidrag = data.frame(t(d_kostbidrag))
 d_normkostandel = data.frame(t(d_normkostandel))
+d_kostbidrag.snitt = data.frame(t(d_kostbidrag.snitt))
+d_normkostandel.snitt = data.frame(t(d_normkostandel.snitt))
 #Legger til prefix på hver kolonne
 colnames(d_lambda) = paste("d_vekt_", colnames(d_lambda),sep="")
 colnames(d_kostbidrag) = paste("d_kostbidrag_", colnames(d_kostbidrag), sep="")
 colnames(d_normkostandel) = paste("d_normkostandel", colnames(d_normkostandel), sep="")
+colnames(d_lambda.snitt) = paste("sf_d_vekt_", colnames(d_lambda.snitt),sep="")
+colnames(d_kostbidrag.snitt) = paste("sf_d_kostbidrag_", colnames(d_kostbidrag.snitt), sep="")
+colnames(d_normkostandel.snitt) = paste("sf_d_normkostandel", colnames(d_normkostandel.snitt), sep="")
+
 #Kombinerer fire df til én
 d_vekter.temp = data.frame(cbind(d_DEA_id, d_lambda, d_normkostandel, d_kostbidrag))
+d_vekter.temp.snitt = data.frame(cbind(d_DEA_id, d_lambda.snitt, d_normkostandel.snitt, d_kostbidrag.snitt))
 #Fjerner alle df som ikke har sum større enn 0
 d_vekter.faktisk = d_vekter.temp[, colSums(d_vekter.temp) > 0]
+d_vekter.snitt = d_vekter.temp.snitt[, colSums(d_vekter.temp.snitt) > 0]
 #Fjerner midlertidege dfs
 rm(d_kostbidrag, d_lambda, d_normkostandel, d_vekter.temp)
-
+rm(d_kostbidrag.snitt, d_lambda.snitt, d_normkostandel.snitt, d_vekter.temp.snitt)
 #Lager liste av IDer for referenter i D-nett
 d_ref = as.list(colnames(d_vekter.faktisk))
 d_ref = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref), "[^0-9]+")))))
+d_ref.snitt = as.list(colnames(d_vekter.snitt))
+d_ref.snitt = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref.snitt), "[^0-9]+")))))
 
 
 write.csv(d_vekter.faktisk, file = "./Resultater/d_vektberegning.csv")
