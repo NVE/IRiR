@@ -95,8 +95,18 @@ d_tilDEA$dm_sf_dr_Geo3 = d_tilDEA$dr_Geo3 - d_tilDEA$d_mon_sf_dr_Geo3
 # label var dm_dr_Geo2 "Diff mønster Geo2 regresjon Øyvind "	//NyOyvind
 # label var dm_dr_Geo3 "Diff mønster Geo3 regresjon Frost"
 
-trinn2_reg = lm(d_score_bs100 ~ dm_sf_dr_hsjordand + 
-                        dm_sf_dr_s4 + dm_sf_dr_Geo1 + 
-                        dm_sf_dr_Geo2 + dm_sf_dr_Geo3, data = subset(d_tilDEA, idaar!= 1812014))
+##Bacon outlier test
+baconvar.d = d_tilDEA[c("d_score_bs100","dm_sf_dr_hsjordand","dm_sf_dr_s4",
+                   "dm_sf_dr_Geo1","dm_sf_dr_Geo2","dm_sf_dr_Geo3")]
+#Navngir radene i samsvar med id
+rownames(baconvar.d) = d_DEA_id
+
+outlier.d <- mvBACON(baconvar.d)
+points(baconvar.d[!outlier.d$subset,],pch=2,col=2,cex=1)
+#Har altså funnet en outlier, men vet ikke hvordan vi skal identifisere hvilket selskap
+#det er snakk om, og hvordan vi skal legge det inn i regresjonen.
+
+trinn2_reg = lm(d_score_bs100 ~ dm_sf_dr_hsjordand + dm_sf_dr_s4 + dm_sf_dr_Geo1 + 
+                dm_sf_dr_Geo2 + dm_sf_dr_Geo3, data = subset(d_tilDEA, idaar!= 1812014))
 
 summary(trinn2_reg)
