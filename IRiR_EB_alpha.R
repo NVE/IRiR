@@ -30,7 +30,6 @@ source("./R-script/functions_nve.R")
 # Ønsker å vise store tall som fulle verdier, ikke som potenser
 options(scipen = 100)
 
-
 #### Grunnlag for DEA ####
 
 source("./R-script/1_0_Config_Assumptions_Data.R")
@@ -53,13 +52,11 @@ source("./R-script/2_4_GEO_correction_stage2.R")
 source("./R-script/2_4_1_TargetU_Geo.R")
 source("./R-script/2_3_Act_GEO_Correct.R")
 
-# #correct for environmental effects
-res.stage2 = two.stage(x.snitt,z.snitt,res.snitt.snitt.r$eff,res.snitt.snitt.r$lambda) 
-plot(sort(res.stage2$eff.corr.NVE))
-# 
-
-
 #### Trinn 3 - Kalibrering av kostnadsnormer ####
+        #D-nett
+source("./R-script/3_1_1_OOTO-model.R")
+source("./R-script/3_5_Kalibrering_D3.R")
+
 # #kalibrerer kostnadsnormer basert på avkastningsgrunnlag
 res.stage3 = calibrate(res.faktisk.snitt.r$eff,x.faktisk,weight=kap.faktisk)
 # #vis gjennomsnittlig kostnadsvektet effektivitet
