@@ -40,4 +40,4 @@ d_OOTO$d_oppgave_kr = d_OOTO$d_oppgave/d_OOTO$d_TOTXDEA
 d_OOTO$d_sf_d_oppgave_kr = d_OOTO$d_sf_d_oppgave/d_OOTO$sf_d_TOTXDEA
 
 #Beregner "DEA-resultat" til kalibrering for OOTO
-d_OOTO$d_deares_til_kal = d_OOTO$d_oppgave_kr/d_sf_d_oppgave_kr
+d_OOTO$d_deares_til_kal = d_OOTO$d_oppgave_kr/d_OOTO$d_sf_d_oppgave_kr

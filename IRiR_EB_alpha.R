@@ -55,7 +55,7 @@ source("./R-script/2_3_Act_GEO_Correct.R")
 #### Trinn 3 - Kalibrering av kostnadsnormer ####
         #D-nett
 source("./R-script/3_1_1_OOTO-model.R")
-
+source("./R-script/3_5_Kalibrering_D3.R")
 
 # #kalibrerer kostnadsnormer basert på avkastningsgrunnlag
 res.stage3 = calibrate(res.faktisk.snitt.r$eff,x.faktisk,weight=kap.faktisk)
