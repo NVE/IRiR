@@ -22,6 +22,9 @@ library(xlsxjars)
 library(plyr)
 library(dplyr)
 library(FactoMineR)
+library(robustX)
+library(outliers)
+library(modi)
 
 source("./R-script/functions_nve.R")
 # Ønsker å vise store tall som fulle verdier, ikke som potenser
@@ -47,7 +50,7 @@ source("./R-script/1_4_DEA_DistributionGrid.R")
         #D-nett
 source("./R-script/2_0_Bootstrap_Data.R")
 source("./R-script/2_4_GEO_correction_stage2.R")
-
+source("./R-script/2_4_1_TargetU_Geo.R")
 
 # #correct for environmental effects
 res.stage2 = two.stage(x.snitt,z.snitt,res.snitt.snitt.r$eff,res.snitt.snitt.r$lambda) 
