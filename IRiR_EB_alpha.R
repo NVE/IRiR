@@ -51,6 +51,7 @@ source("./R-script/1_4_DEA_DistributionGrid.R")
 source("./R-script/2_0_Bootstrap_Data.R")
 source("./R-script/2_4_GEO_correction_stage2.R")
 source("./R-script/2_4_1_TargetU_Geo.R")
+source("./R-script/2_3_Act_GEO_Correct.R")
 
 # #correct for environmental effects
 res.stage2 = two.stage(x.snitt,z.snitt,res.snitt.snitt.r$eff,res.snitt.snitt.r$lambda) 
