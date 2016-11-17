@@ -1,3 +1,4 @@
+
 ## Beregner Mønsterselskapets rammevilkår
 
 #sf_ er fortsatt forkortelse for verdier for snittfront, dette gjelder ogs
@@ -101,12 +102,26 @@ baconvar.d = d_tilDEA[c("d_score_bs100","dm_sf_dr_hsjordand","dm_sf_dr_s4",
 #Navngir radene i samsvar med id
 rownames(baconvar.d) = d_DEA_id
 
-outlier.d <- mvBACON(baconvar.d)
-points(baconvar.d[!outlier.d$subset,],pch=2,col=2,cex=1)
+# outlier.d <- BEM(baconvar.d, alpha = 0.15)
+# outlier.dX <- mvBACON(baconvar.d, alpha = 0.15, init.sel = "Mahalanobis", m=4)
+# 
+# plot(baconvar.d, )
+# points(baconvar.d[!outlier.d$subset,],pch=2,col=2,cex=1)
+# d_bacon_out = data.frame(outlier.d$subset)
+# colnames(d_bacon_out) <- "d_bacon_out"
+
 #Har altså funnet en outlier, men vet ikke hvordan vi skal identifisere hvilket selskap
-#det er snakk om, og hvordan vi skal legge det inn i regresjonen.
+#det er snakk om, og hvordan vi skal legge det inn i regresjonen. 
 
 trinn2_reg = lm(d_score_bs100 ~ dm_sf_dr_hsjordand + dm_sf_dr_s4 + dm_sf_dr_Geo1 + 
                 dm_sf_dr_Geo2 + dm_sf_dr_Geo3, data = subset(d_tilDEA, idaar!= 1812014))
-
+#Har ikke fått bacontest til å gjengi resultater fra Stata, er nå hardkodet inn i reg, må snakke med Endre om dette.
 summary(trinn2_reg)
+
+#Trekker ut trinn 2-koeffisienter og lagrer disse som egene parametre
+d_par_hsjordand = as.numeric(trinn2_reg$coefficients["dm_sf_dr_hsjordand"])
+d_par_s4 = as.numeric(trinn2_reg$coefficients["dm_sf_dr_s4"])
+d_par_Geo1 = as.numeric(trinn2_reg$coefficients["dm_sf_dr_Geo1"])
+d_par_Geo2 = as.numeric(trinn2_reg$coefficients["dm_sf_dr_Geo2"])
+d_par_Geo3 = as.numeric(trinn2_reg$coefficients["dm_sf_dr_Geo3"])
+
