@@ -71,6 +71,16 @@ kpi = read.csv("./Data/Grunnlagsdata/KPIdata2016Varsel.csv", sep = ",")
 # Legger til KPI-data for alle observasjoner i settet
 dat = merge.data.frame(dat, kpi, by="aar", all.x = TRUE)
 
+kpia2014 = 209.5
+kpia2015 = 215.4
+kpia2016 = 221.6
+curr_aar_kpiafaktor = kpia2016/kpia2014 # Hardkodet til bruk i trinn 3
+
+kpi2014 = 136.9 
+kpi2015 = 139.7 
+kpi2016 = 143.8
+curr_aar_kpifaktor = kpi2016/kpi2014 # Hardkodet til bruk i trinn 3
+
 # Data for Hammerfest
 hfmo = read.csv("./Data/Grunnlagsdata/Hammerfest_Melkoya.csv", sep = ",")
 # Inkluderer bokførte verdier for Hammerfest
@@ -96,6 +106,7 @@ v15dv = read.csv("./Data/Grunnlagsdata/dv_totxdea_varsel15.csv", sep = ",")
 
 # Parametre
 kraftpris = 0.26135
+nettapspris.ir = 0.20133 
 snitt.aar = 2010:2014
 faktisk.aar = 2014
 IR.aar = faktisk.aar + 2
