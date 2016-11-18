@@ -12,7 +12,9 @@ rownames(y.snitt.d) = d_DEA_id
         # R-nett  
 x.snitt.r = dat[dat$orgnr %in% r_tilDEA$orgnr & dat$aar == faktisk.aar,"sf_r_TOTXDEA"]  
 y.snitt.r = dat[dat$orgnr %in% r_tilDEA$orgnr & dat$aar == faktisk.aar,c("sf_r_vluft","sf_r_vjord","sf_r_vsjo","sf_r_vgrs")]  
-
+#Navngir rader for data til DEA slik at disse er gjenkjennelige i resultater
+names(x.snitt.r) = r_DEA_id
+rownames(y.snitt.r) = r_DEA_id
 
 
 # Faktiske data for selskaper som skal evalueres
@@ -22,8 +24,12 @@ y.faktisk.d = dat[dat$orgnr %in% d_tilDEA$orgnr & dat$aar == faktisk.aar,c("d_ab
 #Navngir rader for data til DEA slik at disse er gjenkjennelige i resultater
 names(x.faktisk.d) = d_DEA_id
 rownames(y.faktisk.d) = d_DEA_id
+        
         # R-nett
 x.faktisk.r = dat[dat$orgnr %in% r_tilDEA$orgnr & dat$aar == faktisk.aar,"r_TOTXDEA"]
 y.faktisk.r = dat[dat$orgnr %in% r_tilDEA$orgnr & dat$aar == faktisk.aar,c("r_vluft","r_vjord","r_vsjo","r_vgrs")]
 z.faktisk.r = dat[dat$orgnr %in% r_tilDEA$orgnr & dat$aar == faktisk.aar,c("rr_he","rr_s12")]
 kap.faktisk.r = dat[dat$orgnr %in% r_tilDEA$orgnr & dat$aar == faktisk.aar,c("r_AKG")]
+#Navngir rader for data til DEA slik at disse er gjenkjennelige i resultater
+names(x.faktisk.r) = r_DEA_id
+rownames(y.faktisk.r) = r_DEA_id
