@@ -55,3 +55,7 @@ for (i in which(dat$id %in% r_spesial)){
 }  
 
 r_tilDEA <- dat[dat$r_tilDEA == 1,]
+#Dataframe med alle selskaper som skal være med i standard DEA-modell R-nettt
+r_tilDEA <- subset.data.frame(r_tilDEA, !is.na(aar) & aar==faktisk.aar)
+#Brukes for å gi ider til verdier i DEA
+r_DEA_id <- r_tilDEA$id
