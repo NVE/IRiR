@@ -146,7 +146,7 @@ dat$s_TOTXDEA = dat$s_DV + ( dat$s_AKG*rente.dea) + dat$s_AVS+ dat$s_kile
 # Først opprettes verdier i faste priser
 # Variabler som justeres med vanlig KPI
 dat$fp_d_kile = dat$d_kile * dat$kpi
-dat$fp_r_kile = dat$d_kile * dat$kpi
+dat$fp_r_kile = dat$r_kile * dat$kpi
 dat$fp_s_kile = dat$s_kile * dat$kpi
 
 #Variabler som justeres med KPI for varer og tjenester med arbeidslønn
