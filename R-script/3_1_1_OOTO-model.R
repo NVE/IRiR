@@ -18,7 +18,7 @@ for (i in which(dat$aar %in% snitt.aar)){
 #Dataframe med alle selskaper som skal være med i standard DEA-modell D-nettt
 d_OOTO <- subset.data.frame(d_OOTO, aar == faktisk.aar)
 
-#disse verdiene er antakelig hentet fra REN. opkto funnet i notat fra 2009
+#disse verdiene er antakelig hentet fra REN. opko funnet i notat fra 2009
 d_pris_ab = 12
 d_pris_hs = 419
 d_pris_ns = 147
