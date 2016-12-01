@@ -35,6 +35,8 @@ for (i in which(dat$aar %in% snitt.aar)){
         d_tilDEA <-dat[dat$d_tilDEA==1,]
 }
 
+#Lager vektor med selskapene som skal kjøres i normal-modell
+d_normal <- unique(subset(d_tilDEA$id, !(d_tilDEA$id %in% d_separat_dmuer | d_tilDEA$id %in%  d_spesial | d_tilDEA$id %in% d_dea_til_gjsnitt)))
 
 #Dataframe med alle selskaper som skal være med i standard DEA-modell D-nettt
 d_tilDEA <- subset.data.frame(d_tilDEA, !is.na(aar) & aar==faktisk.aar)
@@ -55,7 +57,9 @@ for (i in which(dat$id %in% r_spesial)){
 }  
 
 r_tilDEA <- dat[dat$r_tilDEA == 1,]
-#Dataframe med alle selskaper som skal være med i standard DEA-modell R-nettt
+#Dataframe med alle selskaper som skal være med i standard DEA-modell og "front for seg selv" R-nett
 r_tilDEA <- subset.data.frame(r_tilDEA, !is.na(aar) & aar==faktisk.aar)
 #Brukes for å gi ider til verdier i DEA
 r_DEA_id <- r_tilDEA$id
+#Lager vektor med selskapene som skal kjøres i normal-modell
+r_normal <- unique(subset(r_tilDEA$id, !(r_tilDEA$id %in% r_separat_dmuer | r_tilDEA$id %in%  r_spesial | r_tilDEA$id %in% r_dea_til_gjsnitt)))

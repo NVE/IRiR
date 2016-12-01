@@ -11,7 +11,7 @@ getwd()
 # The address can be copied from the address bar in Windows Explorer
 # Remember to change "\" to "/" or "\\" 
 #my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
-my.path = "C:\\Users\\mohh\\Documents\\GitHub\\IRiR"
+my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
 setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
 # Følgende pakker benyttes
@@ -44,6 +44,7 @@ source("./R-script/1_3_Input_Data_DEA.R")
         #D-nett
 source("./R-script/1_4_DEA_DistributionGrid.R")
         #R-nett
+source("./R-script/1_6_DEA_RSnett.R")
 
 ####  Trinn 2 - RVK-justering vha regresjon ####
         #D-nett
