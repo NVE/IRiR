@@ -42,7 +42,7 @@ source("./R-script/1_3_Input_Data_DEA.R")
 
 #### Trinn 1 - DEA ####
         #D-nett
-source("./R-script/1_4_DEA_DistributionGrid.R")
+source("./R-script/1_4_x_DEA_Dnett_gr.R")
         #R-nett
 source("./R-script/1_6_DEA_RSnett.R")
 
