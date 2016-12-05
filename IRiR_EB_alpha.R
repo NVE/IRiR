@@ -54,7 +54,7 @@ source("./R-script/2_4_1_TargetU_Geo.R")
 source("./R-script/2_3_Act_GEO_Correct.R")
 
 #### Trinn 3 - Kalibrering av kostnadsnormer ####
-        #D-nett
+        #D-net
 source("./R-script/3_1_1_OOTO-model.R")
 source("./R-script/3_5_Kalibrering_D3.R")
 
