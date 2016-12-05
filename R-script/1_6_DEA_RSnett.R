@@ -117,8 +117,6 @@ r_ref.snitt.sep = subset(r_ref.snitt.alle, r_ref.snitt.alle %in% r_separat_dmuer
 # 
 # #Lage logisk sjekk for å sjekke dref=drefsnitt
 
-rm(r.ref.alle, r_ref.snitt, r_ref.snitt.alle, r_ref.snitt.sep, r_ref.alle)
+rm(r_ref.snitt, r_ref.snitt.alle, r_ref.snitt.sep, r_ref.alle)
 
 # write.csv(r_vekter.faktisk, file = "./Resultater/r_vektberegning.csv")
-# 
-# 
