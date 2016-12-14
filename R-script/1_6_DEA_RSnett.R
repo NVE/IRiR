@@ -56,6 +56,8 @@ for(i in r_separat_dmuer)
                 r_lambda[as.character(i),as.character(j)] = dea.sep.faktisk.snitt.r$lambda[as.character(i),paste("L_",as.character(j),sep="")]
 }
 
+r_lambda = r_lambda[,order(as.numeric(colnames(r_lambda)))]
+
 
 #spesialkjøring for selskaper som bare kan være front for seg selv - blir noe feil med snitt-mot-snitt-kjøring
 eff.snitt.snitt.r = dea.snitt.snitt.r$eff
@@ -69,6 +71,8 @@ for(i in r_separat_dmuer)
         for(j in c(r_normal,i))
                 r_lambda.snitt[as.character(i),as.character(j)] = dea.sep.snitt.snitt.r$lambda[as.character(i),paste("L_",as.character(j),sep="")]
 }
+
+r_lambda.snitt = r_lambda.snitt[,order(as.numeric(colnames(r_lambda)))]
 
 ##Setter alle NA-verdier i lambda(vekt-dataframes til 0.)
 r_lambda[is.na(r_lambda)] <- 0

@@ -32,7 +32,7 @@ two.stage <- function(x,z,eff,lambda)
   #differences versus reference dmus  
   z.diff <- z - w.ref %*% z   
   #regression for stage 2 based on differences  
-  res.regr.NVE <- lm(eff ~ z.diff)  
+  res.regr.NVE <- lm(eff ~ z.diff, data = )  #r_normal, 
   #calculate final efficiency scores based on updated z-differences  
   eff.corr.NVE <- as.vector(eff - z.diff%*%res.regr.NVE$coefficients[2:(ncol(z)+1)])  
   
@@ -43,6 +43,94 @@ two.stage <- function(x,z,eff,lambda)
 
 #----------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------
+
+x = x.snitt.r
+z = r_tilDEA$rr_Geo3
+y = y.snitt.r
+eff = dea(x,y,RTS="crs")$eff
+lambda = dea(x,y,RTS="crs")$lambda
+id = names(x)
+id.ut = as.character(r_separat_dmuer)
+eff = ifelse(id == "62",0.1,eff)
+coeff = res.rvk1$regr.coeff.NVE
+
+res.rvk1 = rvk1(x,z,eff,lambda,id,id.ut)
+
+res.rvk2 = rvk2(eff,id,coeff,z,lambda)
+        
+
+#NY VERSJON TILPASSET NVE
+# x is a vector of input values (n_dmu dx 1)
+# z is a matrix with values of environmental variables (n_dmu x n_z)
+# eff is a vector of unconditional efficiency scores (n_dmu x 1)
+# lambda is a matrix of reference weights (n_dmu x n_dmu)
+rvk1 <- function(x,z,eff,lambda,id,id.ut)  
+        {
+        #data types  
+        x <- as.vector(x)  
+        z <- as.matrix(z)  
+        eff <- as.vector(eff)  
+        lambda <- as.matrix(lambda)
+        names(x) = id
+        rownames(z) = id
+        names(eff) = id
+        
+        #correction based on NVEs "difference" method  
+        # AMUNDSVEEN, R.; KORDAHL, O.-P.; KVILE, H. M. & LANGSET, T.  
+        # SECOND STAGE ADJUSTMENT FOR FIRM HETEROGENEITY IN DEA: A NOVEL APPROACH USED IN REGULATION OF NORWEGIAN ELECTRICITY DSOS 
+        # Recent Developments in Data Envelopment Analysis and its Applications, 2014, 334
+        
+        #cost norm for each dmu  
+        x.norm = lambda %*% x  
+        #norm contribution for each reference dmu  
+        x.norm.contrib = lambda %*% diag(x)  
+        #weight for each reference dmu  
+        w.ref = x.norm.contrib / rowSums(x.norm.contrib)
+        #differences versus reference dmus  
+        z.diff = z - w.ref %*% z  
+        #outlier-test
+        # outlier.d <- BEM(baconvar.d, alpha = 0.15)
+        outlier.dX <- mvBACON(cbind(eff, z.diff), alpha = 0.00001, init.sel = "Mahalanobis", m=4)
+        id.ut = union(id.ut,which(!outlier.dX$subset))
+        #regression for stage 2 based on differences  
+        res.regr.NVE <- lm(eff ~ z.diff,subset = setdiff(id,id.ut)) 
+        
+        res <- list(regr.coeff.NVE=res.regr.NVE$coefficients,z.diff=z.diff)
+        return(res)  
+        }
+#----------------------------------------------------------------------------------------------
+#calculate final efficiency scores based on updated z-differences  
+
+rvk2 <- function(eff,id,coeff,z,lambda)
+        {
+        #data types  
+        x <- as.vector(x)  
+        z <- as.matrix(z)  
+        eff <- as.vector(eff)  
+        lambda <- as.matrix(lambda)
+        names(x) = id
+        rownames(z) = id
+        names(eff) = id
+        
+        #cost norm for each dmu  
+        x.norm = lambda %*% x  
+        #norm contribution for each reference dmu  
+        x.norm.contrib = lambda %*% diag(x)  
+        #weight for each reference dmu  
+        w.ref = x.norm.contrib / rowSums(x.norm.contrib)
+        #differences versus reference dmus  
+        z.diff = z - w.ref %*% z  
+        
+        #beregner justerte effektivitetstall
+        eff.corr <- as.vector(eff - z.diff%*%coeff[2:(ncol(z)+1)])  
+
+        res <- list(eff.corr=eff.corr,z.diff=z.diff)
+        return(res)
+        }
+
+
+#----------------------------------------------------------------------------------------------
+
 
 #calibrating efficiency scores
 #----- begin function calibrate

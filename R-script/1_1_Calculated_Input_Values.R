@@ -2,6 +2,7 @@
 
 #### Pensjonskostnadskjøret ####
 
+
 dat$fp_d_pensj = dat$d_pensj*dat$kpia
 dat$fp_d_pensjek = dat$d_pensjek * dat$kpia
 dat$fp_d_impl = dat$d_impl * dat$kpia
@@ -205,20 +206,3 @@ for(i in which(dat$aar == faktisk.aar))
         dat[i,"sf_r_vsjo"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vsjo"])
         dat[i,"sf_r_vgrs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vgrs"])
 }
-
-# for(i in which(dat$aar == faktisk.aar))
-# {
-#         dat[i,"av_d_TOTXDEA"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_TOTXDEA"])
-#         dat[i,"av_d_ab"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ab"])
-#         dat[i,"av_d_hs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_hs"])
-#         dat[i,"av_d_ns"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"d_ns"])
-# }
-# 
-# for(i in which(dat$aar == faktisk.aar))
-# {
-#         dat[i,"av_r_TOTXDEA"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_TOTXDEA"])
-#         dat[i,"av_r_vluft"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vluft"])
-#         dat[i,"av_r_vjord"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vjord"])
-#         dat[i,"av_r_vsjo"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vsjo"])
-#         dat[i,"av_r_vgrs"] = mean(dat[dat$orgnr == dat$orgnr[i] & dat$aar %in% snitt.aar,"r_vgrs"])
-# }

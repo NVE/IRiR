@@ -24,7 +24,7 @@ library(dplyr)
 library(FactoMineR)
 library(robustX)
 library(outliers)
-library(modi)
+
 
 source("./R-script/functions_nve.R")
 # Ønsker å vise store tall som fulle verdier, ikke som potenser
@@ -50,13 +50,18 @@ source("./R-script/1_6_DEA_RSnett.R")
         #D-nett
 source("./R-script/2_0_Bootstrap_Data.R")
 source("./R-script/2_4_GEO_correction_stage2.R")
+
+rvk1(x=x.snitt.d,z=cbind(d_tilDEA$dr_hsjordand, d_tilDEA$dr_s4, d_tilDEA$dr_Geo1, d_tilDEA$dr_Geo2, d_tilDEA$dr_Geo3), eff=d_tilDEA$d_bs_correst_e3, lambda=d_lambda, id=d_tilDEA$id, id.ut=d_separat_dmuer)
+
 source("./R-script/2_4_1_TargetU_Geo.R")
 source("./R-script/2_3_Act_GEO_Correct.R")
+        #R-nett
+source("./R-script/2_5_Bootstrap_Data_R.R")
 
 #### Trinn 3 - Kalibrering av kostnadsnormer ####
         #D-net
 source("./R-script/3_1_1_OOTO-model.R")
-source("./R-script/3_5_Kalibrering_D3.R")
+source("./R-script/3_5 Kalibrering_D3.R")
 
 # #kalibrerer kostnadsnormer basert på avkastningsgrunnlag
 res.stage3 = calibrate(res.faktisk.snitt.r$eff,x.faktisk,weight=kap.faktisk)
