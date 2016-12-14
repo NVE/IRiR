@@ -44,19 +44,19 @@ two.stage <- function(x,z,eff,lambda)
 #----------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------
 
-x = x.snitt.r
-z = r_tilDEA$rr_Geo3
-y = y.snitt.r
-eff = dea(x,y,RTS="crs")$eff
-lambda = dea(x,y,RTS="crs")$lambda
-id = names(x)
-id.ut = as.character(r_separat_dmuer)
-eff = ifelse(id == "62",0.1,eff)
-coeff = res.rvk1$regr.coeff.NVE
-
-res.rvk1 = rvk1(x,z,eff,lambda,id,id.ut)
-
-res.rvk2 = rvk2(eff,id,coeff,z,lambda)
+# x = x.snitt.r
+# z = r_tilDEA$rr_Geo3
+# y = y.snitt.r
+# eff = dea(x,y,RTS="crs")$eff
+# lambda = dea(x,y,RTS="crs")$lambda
+# id = names(x)
+# id.ut = as.character(r_separat_dmuer)
+# eff = ifelse(id == "62",0.1,eff)
+# coeff = res.rvk1$regr.coeff.NVE
+# 
+# res.rvk1 = rvk1(x,z,eff,lambda,id,id.ut)
+# 
+# res.rvk2 = rvk2(eff,id,coeff,z,lambda)
         
 
 #NY VERSJON TILPASSET NVE
