@@ -1,21 +1,5 @@
 #### DEA R-nett ####
 
-
-#Runder av data til DEA til "hele tusen"  
-#Disse får definere teknologien (fronten) i hovedkjøringen
-x.snitt.r <- round(x.snitt.r, digits = 0)  
-y.snitt.r$sf_r_vluft  <- round(y.snitt.r$sf_r_vluft, digits = 0)  
-y.snitt.r$sf_r_vjord <- round(y.snitt.r$sf_r_vjord, digits = 0)  
-y.snitt.r$sf_r_vsjo <- round(y.snitt.r$sf_r_vsjo, digits = 0)
-y.snitt.r$sf_r_vgrs <- round(y.snitt.r$sf_r_vgrs, digits = 0)
-
-#Disse måles mot fronten og gir gjeldende DEA-score
-x.faktisk.r <- round(x.faktisk.r, digits = 0) 
-y.faktisk.r$r_vluft  <- round(y.faktisk.r$r_vluft, digits = 0)  
-y.faktisk.r$r_vjord <- round(y.faktisk.r$r_vjord, digits = 0)  
-y.faktisk.r$r_vsjo <- round(y.faktisk.r$r_vsjo, digits = 0)
-y.faktisk.r$r_vgrs <- round(y.faktisk.r$r_vgrs, digits = 0) 
-
 ### DEA input
 write.csv(cbind(r_tilDEA$id, x.snitt.r, y.snitt.r, x.faktisk.r, y.faktisk.r), file = "./Resultater/r_InputDEA.csv")
 

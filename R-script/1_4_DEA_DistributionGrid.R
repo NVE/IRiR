@@ -2,18 +2,6 @@
 
 #### Trinn 1 - DEA-kjøringer ####
 
-#Runder av data til DEA til "hele tusen"  
-        #Disse får definere teknologien (fronten) i hovedkjøringen
-x.snitt.d <- round(x.snitt.d, digits = 0)  
-y.snitt.d$sf_d_ab  <- round(y.snitt.d$sf_d_ab, digits = 0)  
-y.snitt.d$sf_d_ns <- round(y.snitt.d$sf_d_ns, digits = 0)  
-y.snitt.d$sf_d_hs <- round(y.snitt.d$sf_d_hs, digits = 0)
-
-#Disse måles mot fronten og gir gjeldende DEA-score
-x.faktisk.d <- round(x.faktisk.d, digits = 0) 
-y.faktisk.d$d_ab  <- round(y.faktisk.d$d_ab, digits = 0)  
-y.faktisk.d$d_ns <- round(y.faktisk.d$d_ns, digits = 0)  
-y.faktisk.d$d_hs <- round(y.faktisk.d$d_hs, digits = 0) 
 
 ### DEA input
 write.csv(cbind(d_tilDEA$id, x.snitt.d, y.snitt.d,x.faktisk.d, y.faktisk.d), file = "./Resultater/d_InputDEA.csv")
