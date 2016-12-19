@@ -74,48 +74,48 @@ for(i in d_separat_dmuer)
 d_lambda[is.na(d_lambda)] <- 0
 d_lambda.snitt[is.na(d_lambda.snitt)] <- 0
 
-#Beregner kostbidrag - dette er vekten for hver referent pr selskap ganget med referentens tilhørende snittkostnad.
-d_kostbidrag = d_lambda*x.snitt.d[match(colnames(d_lambda), names(x.snitt.d))][col(d_lambda)]
-d_kostbidrag.snitt = d_lambda.snitt*x.snitt.d[match(colnames(d_lambda.snitt), names(x.snitt.d))][col(d_lambda.snitt)]
+# #Beregner kostbidrag - dette er vekten for hver referent pr selskap ganget med referentens tilhørende snittkostnad.
+# d_kostbidrag = d_lambda*x.snitt.d[match(colnames(d_lambda), names(x.snitt.d))][col(d_lambda)]
+# d_kostbidrag.snitt = d_lambda.snitt*x.snitt.d[match(colnames(d_lambda.snitt), names(x.snitt.d))][col(d_lambda.snitt)]
 
 # write.csv(cbind(d_tilDEA$id,dea.faktisk.snitt.d$eff), file = "./Resultater/DEAeff1.csv")
 # write.csv(d_tilDEA, file = "./Resultater/d_DEAResultat_Data.csv")
 
-#Beregner normkostandel - dette er andelen av kostnadsnormen hver referent utgjør pr selskap
-d_normkostandel = d_kostbidrag/rowSums(d_kostbidrag)
-d_normkostandel.snitt = d_kostbidrag.snitt/rowSums(d_kostbidrag.snitt)
-
-
-#Legger til prefix på hver kolonne
-colnames(d_lambda) = paste("d_vekt_", colnames(d_lambda),sep="")
-colnames(d_kostbidrag) = paste("d_kostbidrag_", colnames(d_kostbidrag), sep="")
-colnames(d_normkostandel) = paste("d_normkostandel", colnames(d_normkostandel), sep="")
-colnames(d_lambda.snitt) = paste("sf_d_vekt_", colnames(d_lambda.snitt),sep="")
-colnames(d_kostbidrag.snitt) = paste("sf_d_kostbidrag_", colnames(d_kostbidrag.snitt), sep="")
-colnames(d_normkostandel.snitt) = paste("sf_d_normkostandel", colnames(d_normkostandel.snitt), sep="")
-
-#Kombinerer fire df til én
-d_vekter.temp = data.frame(cbind(d_DEA_id, d_lambda, d_normkostandel, d_kostbidrag))
-d_vekter.temp.snitt = data.frame(cbind(d_DEA_id, d_lambda.snitt, d_normkostandel.snitt, d_kostbidrag.snitt))
-#Fjerner alle kolonner som ikke har sum større enn 0
-d_vekter.faktisk = d_vekter.temp[, colSums(d_vekter.temp) > 0]
-d_vekter.snitt = d_vekter.temp.snitt[, colSums(d_vekter.temp.snitt) > 0]
-#Fjerner midlertidege dfs
-rm(d_kostbidrag, d_lambda, d_normkostandel, d_vekter.temp)
-rm(d_kostbidrag.snitt, d_lambda.snitt, d_normkostandel.snitt, d_vekter.temp.snitt)
-#Lager liste av IDer for referenter i D-nett
-d_ref.alle = as.list(colnames(d_vekter.faktisk))
-d_ref.alle = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref.alle), "[^0-9]+")))))
-d_ref.snitt.alle = as.list(colnames(d_vekter.snitt))
-d_ref.snitt.alle = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref.snitt.alle), "[^0-9]+")))))
-#Selskaper som er referenter i R-nett
-d_ref = subset(d_ref.alle, d_ref.alle %in% d_normal)
-d_ref.snitt = subset(d_ref.snitt.alle, d_ref.snitt.alle %in% d_normal)
-#Selskaper i R-nett som er referenter for seg selv.
-d_ref.sep = subset(d_ref.alle, d_ref.alle %in% d_separat_dmuer)
-d_ref.snitt.sep = subset(d_ref.snitt.alle, d_ref.snitt.alle %in% d_separat_dmuer)
+# #Beregner normkostandel - dette er andelen av kostnadsnormen hver referent utgjør pr selskap
+# d_normkostandel = d_kostbidrag/rowSums(d_kostbidrag)
+# d_normkostandel.snitt = d_kostbidrag.snitt/rowSums(d_kostbidrag.snitt)
 # 
-# #Lage logisk sjekk for å sjekke dref=drefsnitt
+# 
+# #Legger til prefix på hver kolonne
+# colnames(d_lambda) = paste("d_vekt_", colnames(d_lambda),sep="")
+# colnames(d_kostbidrag) = paste("d_kostbidrag_", colnames(d_kostbidrag), sep="")
+# colnames(d_normkostandel) = paste("d_normkostandel", colnames(d_normkostandel), sep="")
+# colnames(d_lambda.snitt) = paste("sf_d_vekt_", colnames(d_lambda.snitt),sep="")
+# colnames(d_kostbidrag.snitt) = paste("sf_d_kostbidrag_", colnames(d_kostbidrag.snitt), sep="")
+# colnames(d_normkostandel.snitt) = paste("sf_d_normkostandel", colnames(d_normkostandel.snitt), sep="")
+# 
+# #Kombinerer fire df til én
+# d_vekter.temp = data.frame(cbind(d_DEA_id, d_lambda, d_normkostandel, d_kostbidrag))
+# d_vekter.temp.snitt = data.frame(cbind(d_DEA_id, d_lambda.snitt, d_normkostandel.snitt, d_kostbidrag.snitt))
+# #Fjerner alle kolonner som ikke har sum større enn 0
+# d_vekter.faktisk = d_vekter.temp[, colSums(d_vekter.temp) > 0]
+# d_vekter.snitt = d_vekter.temp.snitt[, colSums(d_vekter.temp.snitt) > 0]
+# #Fjerner midlertidege dfs
+# rm(d_kostbidrag, d_lambda, d_normkostandel, d_vekter.temp)
+# rm(d_kostbidrag.snitt, d_lambda.snitt, d_normkostandel.snitt, d_vekter.temp.snitt)
+# #Lager liste av IDer for referenter i D-nett
+# d_ref.alle = as.list(colnames(d_vekter.faktisk))
+# d_ref.alle = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref.alle), "[^0-9]+")))))
+# d_ref.snitt.alle = as.list(colnames(d_vekter.snitt))
+# d_ref.snitt.alle = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref.snitt.alle), "[^0-9]+")))))
+# #Selskaper som er referenter i R-nett
+# d_ref = subset(d_ref.alle, d_ref.alle %in% d_normal)
+# d_ref.snitt = subset(d_ref.snitt.alle, d_ref.snitt.alle %in% d_normal)
+# #Selskaper i R-nett som er referenter for seg selv.
+# d_ref.sep = subset(d_ref.alle, d_ref.alle %in% d_separat_dmuer)
+# d_ref.snitt.sep = subset(d_ref.snitt.alle, d_ref.snitt.alle %in% d_separat_dmuer)
+# # 
+# # #Lage logisk sjekk for å sjekke dref=drefsnitt
 
 
 
