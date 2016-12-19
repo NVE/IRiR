@@ -1,3 +1,41 @@
+#-------------------------------------------------------------------------------
+# BACON-test
+# Multivariate outlier test written by ANDERSSON, J.. Based on Algorithm 3 in
+# "BACON: blocked adaptive computationally efficient outlier nominators",
+#  Billor et al (2000), p. 286
+#
+bacon=function(X,alpha=0.15,const=4, ID)
+{
+        p=ncol(X)
+        n=nrow(X)
+        rownames(X)=ID
+        m=const*p
+        mx=colMeans(X)
+        Sx=var(X)
+        d=sqrt(mahalanobis(X,center=mx,cov=Sx))
+        o=order(d)
+        Xs=X[o[1:m],]
+        test=TRUE
+        while(test)
+        {
+                m=colMeans(Xs)
+                S=var(Xs)
+                d=sqrt(mahalanobis(X,center=m,cov=S))
+                h=floor((n+p+1)/2)
+                r=nrow(Xs)
+                chr=max(0,(h-r)/(h+r))
+                cnp=1+(p+1)/(n-1)+2/(n-1-3*p)
+                cnpr=chr+cnp
+                crit=cnpr*qchisq(1-alpha,df=p)
+                ind=d<crit
+                Xs=X[ind,]
+                test=r!=sum(ind)
+        }
+        return(data.frame(X=X,outlier=ind,dist=d))
+}
+
+
+
 #compensating for z-variables based on two-stage methods
 #----- begin function two.stage
 # x is a vector of input values (n_dmu x 1)
@@ -44,21 +82,30 @@ two.stage <- function(x,z,eff,lambda)
 #----------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------
 
-# x = x.snitt.r
-# z = r_tilDEA$rr_Geo3
-# y = y.snitt.r
-# eff = dea(x,y,RTS="crs")$eff
-# lambda = dea(x,y,RTS="crs")$lambda
+# x = x.snitt.d
+# z = z=cbind(d_tilDEA$dr_hsjordand, d_tilDEA$dr_s4, d_tilDEA$dr_Geo1, d_tilDEA$dr_Geo2, d_tilDEA$dr_Geo3)
+# y = y.snitt.d
+# eff = d_tilDEA$d_bs_correst_e3
+# lambda = d_lambda.snitt
 # id = names(x)
-# id.ut = as.character(r_separat_dmuer)
-# eff = ifelse(id == "62",0.1,eff)
+# id.ut = as.character(d_separat_dmuer)
 # coeff = res.rvk1$regr.coeff.NVE
-# 
-# res.rvk1 = rvk1(x,z,eff,lambda,id,id.ut)
-# 
-# res.rvk2 = rvk2(eff,id,coeff,z,lambda)
-        
+#----------------------------------------------------------------------------------------------
 
+
+#Lage Geo-variabler
+
+
+z.est = function (geovar.in, restricted.obs = NULL)
+        {
+        geovar.in = as.matrix(geovar.in)
+        pca = (prcomp(geovar.in, scale. = TRUE))
+        geovar.ut = predict(pca, newdata = restricted.obs)[,1]*-1
+        return(geovar.ut)
+        }
+
+
+#----------------------------------------------------------------------------------------------
 #NY VERSJON TILPASSET NVE
 # x is a vector of input values (n_dmu dx 1)
 # z is a matrix with values of environmental variables (n_dmu x n_z)
@@ -82,26 +129,27 @@ rvk1 <- function(x,z,eff,lambda,id,id.ut)
         
         #cost norm for each dmu  
         x.norm = lambda %*% x  
-        #norm contribution for each reference dmu  
+        #norm contribution for each reference dmu  - kostnadsbidrag 
         x.norm.contrib = lambda %*% diag(x)  
-        #weight for each reference dmu  
+        #weight for each reference dmu  - normkostandel
         w.ref = x.norm.contrib / rowSums(x.norm.contrib)
         #differences versus reference dmus  
         z.diff = z - w.ref %*% z  
         #outlier-test
-        # outlier.d <- BEM(baconvar.d, alpha = 0.15)
-        outlier.dX <- mvBACON(cbind(eff, z.diff), alpha = 0.00001, init.sel = "Mahalanobis", m=4)
-        id.ut = union(id.ut,which(!outlier.dX$subset))
+        outlier.X <- bacon(cbind(eff, z.diff), alpha = 0.15, const=4, ID = id)
+        id.ut = union(id.ut,row.names(outlier.X[outlier.X$outlier == FALSE,]))
         #regression for stage 2 based on differences  
-        res.regr.NVE <- lm(eff ~ z.diff,subset = setdiff(id,id.ut)) 
+        res.regr.NVE <- lm(eff ~ z.diff,subset = setdiff(id,id.ut))
+        coeff=res.regr.NVE$coefficients
+        names(coeff)=c("constant",colnames(z.diff))
         
-        res <- list(regr.coeff.NVE=res.regr.NVE$coefficients,z.diff=z.diff)
+        res <- list(coeff=coeff,z.diff=z.diff, id.ut=id.ut)
         return(res)  
         }
 #----------------------------------------------------------------------------------------------
 #calculate final efficiency scores based on updated z-differences  
 
-rvk2 <- function(eff,id,coeff,z,lambda)
+rvk2 <- function(x,eff,id,coeff,z,lambda)
         {
         #data types  
         x <- as.vector(x)  
