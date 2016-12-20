@@ -19,6 +19,7 @@ Geo3.comp =cbind(d_tilDEA[,c("dr_snog", "dr_brgrad_gjsn", "dr_is_gjsn", "dr_temp
 d_tilDEA$dr_Geo3 = z.est(geovar.in = Geo3.comp, restricted.obs = Geo3.comp)
 rm(Geo3.comp)
 
+
 #effektivitetsscores må være en vektor med navn inn i funksjonen
 d_eff.bs = d_tilDEA$d_score_bs100
 names(d_eff.bs) = names(x.snitt.d)
