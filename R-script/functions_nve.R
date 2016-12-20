@@ -1,14 +1,13 @@
-#-------------------------------------------------------------------------------
+x=#-------------------------------------------------------------------------------
 # BACON-test
 # Multivariate outlier test written by ANDERSSON, J.. Based on Algorithm 3 in
 # "BACON: blocked adaptive computationally efficient outlier nominators",
 #  Billor et al (2000), p. 286
 #
-bacon=function(X,alpha=0.15,const=4, ID)
+bacon=function(X,alpha=0.15,const=4)
 {
         p=ncol(X)
         n=nrow(X)
-        rownames(X)=ID
         m=const*p
         mx=colMeans(X)
         Sx=var(X)
@@ -116,11 +115,10 @@ rvk1 <- function(x,z,eff,lambda,id,id.ut)
         #data types  
         x <- as.vector(x)  
         z <- as.matrix(z)  
-        eff <- as.vector(eff)  
         lambda <- as.matrix(lambda)
         names(x) = id
         rownames(z) = id
-        names(eff) = id
+        
         
         #correction based on NVEs "difference" method  
         # AMUNDSVEEN, R.; KORDAHL, O.-P.; KVILE, H. M. & LANGSET, T.  
@@ -135,9 +133,12 @@ rvk1 <- function(x,z,eff,lambda,id,id.ut)
         w.ref = x.norm.contrib / rowSums(x.norm.contrib)
         #differences versus reference dmus  
         z.diff = z - w.ref %*% z  
+        #Only companys defining the technology included in regression
+        tech = setdiff(id, id.ut)
+        z.diff = z.diff[tech, ]
         #outlier-test
-        outlier.X <- bacon(cbind(eff, z.diff), alpha = 0.15, const=4, ID = id)
-        id.ut = union(id.ut,row.names(outlier.X[outlier.X$outlier == FALSE,]))
+        outlier.X <- bacon(cbind(eff, z.diff), alpha = 0.15, const=4)
+        id.ut = union(id.ut,rownames(outlier.X[which(!outlier.X$outlier),]))
         #regression for stage 2 based on differences  
         res.regr.NVE <- lm(eff ~ z.diff,subset = setdiff(id,id.ut))
         coeff=res.regr.NVE$coefficients

@@ -12,9 +12,9 @@ d_tilDEA = merge.data.frame(d_tilDEA, d_bs, by="idaar", all.x = T)
 manglende.bs <- dat[is.na(d_tilDEA$correst),]
 #Får du følgende melding, "<0 rows> (or 0-length row.names)", har alle selskap fått
 #importert Bootstrap-estimat for snitt mot snitt beregnet escore
-manglende.bs[c("selskap", "orgnr")] 
+#manglende.bs[c("selskap", "orgnr")] 
 #Legg inn logisk sjekk på at den er tom
-rm(manglende.bs)
+#rm(manglende.bs)
 
 #endrer navn på variablene importert fra bootstrap
 #"e3"-indikerer hvilke forutsetninger som er valgt i Fritsch
@@ -67,12 +67,12 @@ r_bs = read.csv("./Data/Bootstrap/r_bs_031215.csv",sep=",")
 r_tilDEA = merge.data.frame(r_tilDEA, r_bs, by="idaar", all.x = T)
 
 
-manglende.bs <- dat[is.na(r_tilDEA$correst),]
+manglende.r.bs <- dat[is.na(r_tilDEA$correst),]
 #Får du følgende melding, "<0 rows> (or 0-length row.names)", har alle selskap fått
 #importert Bootstrap-estimat for snitt mot snitt beregnet escore
 manglende.bs[c("selskap", "orgnr")]
 #Legg inn logisk sjekk på at den er tom
-rm(manglende.bs)
+rm(manglende.r.bs)
 
 #endrer navn på variablene importert fra bootstrap
 #"e3"-indikerer hvilke forutsetninger som er valgt i Fritsch
