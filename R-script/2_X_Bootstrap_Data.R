@@ -68,20 +68,14 @@ r_bs = read.csv("./Data/Bootstrap/r_bs_031215.csv",sep=",")
 r_tilDEA = merge.data.frame(r_tilDEA, r_bs, by="idaar", all.x = T)
 
 
-<<<<<<< HEAD
 manglende.r.bs <- dat[is.na(r_tilDEA$correst),]
-=======
-manglende.bs <- dat[is.na(r_tilDEA$correst),]
->>>>>>> 823439727bf14e3b60cb3084455d4dc68011b566
+
 #Får du følgende melding, "<0 rows> (or 0-length row.names)", har alle selskap fått
 #importert Bootstrap-estimat for snitt mot snitt beregnet escore
-manglende.bs[c("selskap", "orgnr")]
+manglende.r.bs[c("selskap", "orgnr")]
 #Legg inn logisk sjekk på at den er tom
-<<<<<<< HEAD
+
 rm(manglende.r.bs)
-=======
-rm(manglende.bs)
->>>>>>> 823439727bf14e3b60cb3084455d4dc68011b566
 
 #endrer navn på variablene importert fra bootstrap
 #"e3"-indikerer hvilke forutsetninger som er valgt i Fritsch
