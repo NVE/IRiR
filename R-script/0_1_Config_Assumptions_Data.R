@@ -106,6 +106,9 @@ snitt.aar = 2010:2014
 faktisk.aar = 2014
 IR.aar = faktisk.aar + 2
 hist.pensj.aar = 2007:2013
+#KPI-faktorer brukes til 
+faktisk.aar.kpiafaktor = kpia[as.character(IR.aar)]/kpia[as.character(faktisk.aar)]
+faktisk.aar.kpifaktor = kpi[as.character(IR.aar)]/kpi[as.character(faktisk.aar)]
 
 # Varsel/Vedtak
 vedtak = 0 # 1 ved vedtak, 0 ved varsel
