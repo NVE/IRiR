@@ -7,4 +7,4 @@ d_tilDEA$d_kostnadsgrlag <- ((d_tilDEA$fp_d_DV*faktisk.aar.kpiafaktor) + (d_tilD
 
 
 
-
+d_calib=NVE_cal(eff=d_tilDEA$d_deares_til_kal, cost_base=d_tilDEA$d_kostnadsgrlag, RAB=d_tilDEA$d_akg)
