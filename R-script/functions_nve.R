@@ -212,3 +212,30 @@ calibrate <- function(eff,totex,weight=NULL)
 
   return(list(eff.cal=eff.cal,industry.avg=industry.avg,calibration.amount=calibration.amount))
   }
+#------------------------------------------------------------------------------
+
+NVE_cal = function(eff, cost_base, RAB)
+{
+        eff = as.vector(eff)
+        cost_base = as.matrix(cost_base)
+        RAB = as.matrix(RAB)
+        #eff is the Geo-adjusted efficency-scores
+        #cost_base is an "estimated" cost base, estimated from future CPI-values
+        #RAB is the regulatory asset base
+        
+        cost_norm = eff*cost_base
+        tot.cost_base = sum(cost_base)
+        tot.cost_norm = sum(cost_norm)
+        tot.RAB = sum(RAB)
+        
+        cost_norm.calRAB = cost_norm + (tot.cost_base - tot.cost_norm) * (RAB/tot.RAB)
+        cost_norm.supp =  (tot.cost_base - tot.cost_norm) * (RAB/tot.RAB)
+        
+        eff.cal = cost_norm.calRAB / cost_base
+        ind.av.eff = tot.cost_norm/tot.cost_base
+        
+        res = list(eff.cal=eff.cal, cost_norm=cost_norm, cost_norm.supp=cost_norm.supp,
+                   tot.cost_base=tot.cost_base,tot.RAB=tot.RAB, ind.av.eff=ind.av.eff,
+                   cost_norm.calRAB)
+
+}

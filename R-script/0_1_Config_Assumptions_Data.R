@@ -67,7 +67,7 @@ r_dea_til_gjsnitt <- (c(116, 542, 685, 852))
 
 
 # KPI-data
-kpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.8, 144.6)
+kpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.7, 143.8)
 names(kpi) = 2004:2016
 
 kpia = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.4, 221.6)
@@ -106,6 +106,9 @@ snitt.aar = 2010:2014
 faktisk.aar = 2014
 IR.aar = faktisk.aar + 2
 hist.pensj.aar = 2007:2013
+#KPI-faktorer brukes til 
+faktisk.aar.kpiafaktor = kpia[as.character(IR.aar)]/kpia[as.character(faktisk.aar)]
+faktisk.aar.kpifaktor = kpi[as.character(IR.aar)]/kpi[as.character(faktisk.aar)]
 
 # Varsel/Vedtak
 vedtak = 0 # 1 ved vedtak, 0 ved varsel
