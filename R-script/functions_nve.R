@@ -236,6 +236,6 @@ NVE_cal = function(eff, cost_base, RAB)
         
         res = list(eff.cal=eff.cal, cost_norm=cost_norm, cost_norm.supp=cost_norm.supp,
                    tot.cost_base=tot.cost_base,tot.RAB=tot.RAB, ind.av.eff=ind.av.eff,
-                   cost_norm.calRAB)
+                   cost_norm.calRAB=cost_norm.calRAB)
 
 }

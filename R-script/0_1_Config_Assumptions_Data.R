@@ -96,6 +96,12 @@ rm(hfmo)
 v15 = read.csv("./Data/Grunnlagsdata/Varsel15.csv", sep = ",")
 v15dv = read.csv("./Data/Grunnlagsdata/dv_totxdea_varsel15.csv", sep = ",")
 
+# Importerer data med områdepriser fra t-2
+omraadepris_t2 = read.csv("./Data/Grunnlagsdata/omraadepris_t2.csv", sep = ",")
+dat = merge.data.frame(dat, omraadepris_t2, by="idaar", all.x = TRUE)
+
+dat$omraadepris_t2[dat$idaar==8722014] = 244.24
+dat$omraadepris_t2[dat$idaar==9002014] = 273.92
 
 #### Definerer parametre i analysen ####
 
