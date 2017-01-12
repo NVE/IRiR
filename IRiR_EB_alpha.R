@@ -47,7 +47,7 @@ source("./R-script/2_0_Stage2_GeoCorrection.R")
 
 #### Selskaper utenfor DEA ####
 
-source("./R-script/X_X_OOTO_model.R")
+source("./R-script/X_X_OOTO-model.R")
 
 
 #### Trinn 3 - Kalibrering av kostnadsnormer ####

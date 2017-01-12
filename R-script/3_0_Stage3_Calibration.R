@@ -13,3 +13,5 @@ r_tilDEA$r_kostnadsgrlag <- ((r_tilDEA$fp_r_DV*faktisk.aar.kpiafaktor) + (r_tilD
                                      r_tilDEA$r_avs + (r_tilDEA$r_kile*faktisk.aar.kpifaktor))
 
 r_calib=NVE_cal(eff=r_tilDEA$r_deares_tilkal, cost_base = r_tilDEA$r_kostnadsgrlag, RAB = r_tilDEA$r_akg)
+
+

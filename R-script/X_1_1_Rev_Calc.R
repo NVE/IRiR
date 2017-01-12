@@ -77,3 +77,24 @@ r_cncR = cbind(r_tilDEA[,c("id", "r_cost_norm.calRAB")])
 tilIR  = dplyr::full_join(tilIR, d_cncR, by="id")
 tilIR  = dplyr::full_join(tilIR, r_cncR, by="id")
 rm(d_cncR, r_cncR)
+
+#Henter inn kostnadsnormer fra OOTO-model. disse gis navn som indikerer
+#at de er inkludert i kalibreringen selvom de ikke er det. Dette for å få
+#de inn i samme rad som normale selskaper når IR beregnes
+
+d_OOTO.cncR = cbind(d_OOTO[,c("id", "d_kostnadsnorm")])
+names(d_OOTO.cncR)[names(d_OOTO.cncR)=="d_kostnadsnorm"]="d_cost_norm.calRAB"
+
+#Legger til kostnadsnormer fra OOTO i tilIR basert på matchende ider
+tilIR$d_cost_norm.calRAB[is.na(tilIR$d_cost_norm.calRAB)] = 
+        d_OOTO.cncR$d_cost_norm.calRAB[match(tilIR$id[is.na(tilIR$d_cost_norm.calRAB)],d_OOTO.cncR$id)]
+
+rm(d_OOTO.cncR)
+
+r_OOTO.cncR = cbind(r_OOTO[,c("id", "r_kostnadsnorm")])
+names(r_OOTO.cncR)[names(r_OOTO.cncR)=="r_kostnadsnorm"]="r_cost_norm.calRAB"
+
+tilIR$r_cost_norm.calRAB[is.na(tilIR$r_cost_norm.calRAB)] = 
+        r_OOTO.cncR$r_cost_norm.calRAB[match(tilIR$id[is.na(tilIR$r_cost_norm.calRAB)],r_OOTO.cncR$id)]
+
+rm(r_OOTO.cncR)
