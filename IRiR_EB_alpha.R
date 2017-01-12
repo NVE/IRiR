@@ -45,6 +45,10 @@ source("./R-script/2_X_Bootstrap_Data.R")
 
 source("./R-script/2_0_Stage2_GeoCorrection.R")
 
+#### Selskaper utenfor DEA ####
+
+source("./R-script/X_X_OOTO_model.R")
+
 
 #### Trinn 3 - Kalibrering av kostnadsnormer ####
        

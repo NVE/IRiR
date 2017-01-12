@@ -62,8 +62,18 @@ tilIR$drs_cost.RC.ex.ntR.og.utrR = round(tilIR$drs_cost.RC - tilIR$fp_r_utred, d
 
 #Faktiske kostnader i "faktisk.aar"
 
-tilIR$drs_cost.faktisk = (tilIR$d_dv_2012 - tilIR$fp_d_391) +
-                        (tilIR$r_dv_2012 - tilIR$fp_r_391) +
+tilIR$drs_cost.faktisk = (tilIR$d_dv_2012 - tilIR$fp_d_391 - tilIR$fp_d_utred) +
+                        (tilIR$r_dv_2012 - tilIR$fp_r_391 - tilIR$fp_r_utred) +
                         (tilIR$s_dv_2012 - tilIR$fp_s_391) +
                         (tilIR$fp_d_kile + tilIR$fp_r_kile + tilIR$fp_s_kile) +
+                        tilIR$fp_d_utred + tilIR$fp_r_utred +
                         tilIR$d_nettap*tilIR$omraadepris_t2
+
+
+## Deretter skal normkostnader beregnes
+d_cncR = cbind(d_tilDEA[,c("id", "d_cost_norm.calRAB")])
+r_cncR = cbind(r_tilDEA[,c("id", "r_cost_norm.calRAB")])
+
+tilIR  = dplyr::full_join(tilIR, d_cncR, by="id")
+tilIR  = dplyr::full_join(tilIR, r_cncR, by="id")
+rm(d_cncR, r_cncR)

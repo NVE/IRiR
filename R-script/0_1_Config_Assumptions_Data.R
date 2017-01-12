@@ -48,7 +48,7 @@ manglende.id[c("selskap", "orgnr")]
 rm(manglende.id, id)
 
 
-#### Fjerner bestemte selskap fra datasettet basert på id ####
+#### Fjerner bestemte selskap fra datasettet basert på id ##
 
 ## Selskaper som av diverse årsaker er unntat vanlig DEA- eller IR-regulering
 # D-nett
@@ -102,6 +102,7 @@ dat = merge.data.frame(dat, omraadepris_t2, by="idaar", all.x = TRUE)
 
 dat$omraadepris_t2[dat$idaar==8722014] = 244.24
 dat$omraadepris_t2[dat$idaar==9002014] = 273.92
+dat$omraadepris_t2 = dat$omraadepris_t2/1000
 
 #### Definerer parametre i analysen ####
 
