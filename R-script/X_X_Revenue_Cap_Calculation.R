@@ -130,5 +130,12 @@ tilIR$drs_IR.precal = (1-rho)*tilIR$drs_cost.RC + rho*(tilIR$drs_cost_norm.preca
 tilIR$drs_DR.precal = tilIR$drs_IR.precal - tilIR$drs_sum.cost #Driftsresultat før kalibrering
 tilIR$drs_AVK.precal = tilIR$drs_DR.precal / (tilIR$d_akg + tilIR$r_akg + tilIR$s_akg) #Avkastning før kalibrering
 
+#### Så kalibreres det slik at sum inntektsramme er lik kostnadsgrunnlaget
+drs_TOTIR.precal = sum(tilIR$drs_IR.precal)
+drs_TOTCost.precal = sum(tilIR$drs_cost.RC)
+drs_TOTakg = sum(tilIR$d_akg + tilIR$r_akg + tilIR$s_akg)
+
+drs_calfact.1 = (drs_TOTIR.precal - drs_TOTCost.precal) / drs_TOTakg
+drs_cal.norm = (drs_TOTIR.precal - drs_TOTCost.precal)
 
 
