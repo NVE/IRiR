@@ -65,6 +65,10 @@ r_separat_dmuer <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 
 
 r_dea_til_gjsnitt <- (c(116, 542, 685, 852))
 
+#NVE-renter - brukes i RC-calc
+nve_rente = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # 2015 og 2016 er estimat pr 01.12.15
+names(nve_rente) = 2009:2016
+
 
 # KPI-data
 kpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.7, 143.8)
@@ -132,3 +136,6 @@ nve.rente.t = 0.0639
 arb.kap.paaslag = 1.01
 rho = 0.6
 grs_pris = 1
+
+# Estimert kostnad for faktisk.aar (i dette tilfellet med justering for arbeidsgiveravgift)
+drs_IR_vedtak.faktisk.aar = 9265621 + 19666

@@ -32,6 +32,7 @@ tilIR$d_sum.cost = tilIR$fp_d_DV*faktisk.aar.kpiafaktor +
                         tilIR$d_nettap*nettapspris.ir
 #R-nett
 tilIR$r_sum.cost = tilIR$fp_r_DV*faktisk.aar.kpiafaktor +
+                        tilIR$fp_r_utred*faktisk.aar.kpiafaktor +
                         tilIR$fp_r_kile*faktisk.aar.kpifaktor + tilIR$r_avs +
                         tilIR$r_nettap*nettapspris.ir
 #S-nett
@@ -48,7 +49,8 @@ tilIR$d_cost.RC = tilIR$fp_d_DV*faktisk.aar.kpiafaktor +
                         tilIR$d_akg*rente.ir + tilIR$d_nettap*nettapspris.ir
 
 
-tilIR$r_cost.RC = tilIR$fp_r_DV*faktisk.aar.kpiafaktor + 
+tilIR$r_cost.RC = tilIR$fp_r_DV*faktisk.aar.kpiafaktor +
+                        tilIR$fp_r_utred*faktisk.aar.kpiafaktor +
                         tilIR$fp_r_kile*faktisk.aar.kpifaktor + tilIR$r_avs +
                         tilIR$r_akg*rente.ir + tilIR$r_nettap*nettapspris.ir
 
@@ -71,6 +73,8 @@ tilIR$drs_cost.faktisk = (tilIR$d_dv_2012 - tilIR$fp_d_391 - tilIR$fp_d_utred) +
                         tilIR$fp_d_utred + tilIR$fp_r_utred +
                         (tilIR$d_nettap + tilIR$r_nettap)*tilIR$omraadepris_t2
 
+#Regner total sum av faktiske kostnader i "faktisk.aar", avrundet for konsistens med Stata
+drs_TOT.cost.faktisk = round(sum(tilIR$drs_cost.faktisk), digits = 0)
 
 ## Deretter skal normkostnader beregnes
 d_cncR = cbind(d_tilDEA[,c("id", "d_cost_norm.calRAB")])
@@ -118,7 +122,8 @@ tilIR$r_cost_norm.calRAB[is.na(tilIR$r_cost_norm.calRAB)] =
 
 #Kostnadsnormer
 tilIR$d_cost_norm.precal = tilIR$d_cost_norm.calRAB + (tilIR$d_grs.cost*faktisk.aar.kpifaktor)
-tilIR$r_cost_norm.precal = tilIR$r_cost_norm.calRAB + (tilIR$r_nettap*nettapspris.ir)
+tilIR$r_cost_norm.precal = tilIR$r_cost_norm.calRAB + (tilIR$r_nettap*nettapspris.ir) +
+                            tilIR$fp_r_utred*faktisk.aar.kpiafaktor
 #Kostnadsdekning for alt S-nett
 tilIR$s_cost_norm.precal = tilIR$s_cost.RC
 
@@ -130,12 +135,16 @@ tilIR$drs_IR.precal = (1-rho)*tilIR$drs_cost.RC + rho*(tilIR$drs_cost_norm.preca
 tilIR$drs_DR.precal = tilIR$drs_IR.precal - tilIR$drs_sum.cost #Driftsresultat før kalibrering
 tilIR$drs_AVK.precal = tilIR$drs_DR.precal / (tilIR$d_akg + tilIR$r_akg + tilIR$s_akg) #Avkastning før kalibrering
 
-#### Så kalibreres det slik at sum inntektsramme er lik kostnadsgrunnlaget
+#### Så rekalibreres det slik at sum inntektsramme er lik kostnadsgrunnlaget
 drs_TOTIR.precal = sum(tilIR$drs_IR.precal)
 drs_TOTCost.precal = sum(tilIR$drs_cost.RC)
-drs_TOTakg = sum(tilIR$d_akg + tilIR$r_akg + tilIR$s_akg)
+tilIR$drs_RAB = tilIR$d_akg + tilIR$r_akg + tilIR$s_akg
+drs_TOTRAB = sum(tilIR$drs_RAB)
 
-drs_calfact.1 = (drs_TOTIR.precal - drs_TOTCost.precal) / drs_TOTakg
-drs_cal.norm = (drs_TOTIR.precal - drs_TOTCost.precal)
+drs_recal.fact1 = (drs_TOTIR.precal - drs_TOTCost.precal) / drs_TOTRAB
+drs_recal.norm = (drs_TOTIR.precal - drs_TOTCost.precal)
 
+drs_recal.TOT = drs_IR_vedtak.faktisk.aar - drs_TOT.cost.faktisk
+drs_recal.fact2 = (drs_recal.TOT*(1+nve_rente[as.character(faktisk.aar)])*(1+nve_rente[as.character(faktisk.aar+1)])) / drs_TOTRAB
 
+drs_recal.TOT.int = drs_recal.TOT*(1+nve_rente[as.character(faktisk.aar)])*(1+nve_rente[as.character(faktisk.aar+1)])
