@@ -144,7 +144,16 @@ drs_TOTRAB = sum(tilIR$drs_RAB)
 drs_recal.fact1 = (drs_TOTIR.precal - drs_TOTCost.precal) / drs_TOTRAB
 drs_recal.norm = (drs_TOTIR.precal - drs_TOTCost.precal)
 
-drs_recal.TOT = drs_IR_vedtak.faktisk.aar - drs_TOT.cost.faktisk
+drs_recal.TOT = drs_IR_vedtak.faktisk.aar - drs_TOT.cost.faktisk #Totalt beløp til rekalibrering eks renter
 drs_recal.fact2 = (drs_recal.TOT*(1+nve_rente[as.character(faktisk.aar)])*(1+nve_rente[as.character(faktisk.aar+1)])) / drs_TOTRAB
 
-drs_recal.TOT.int = drs_recal.TOT*(1+nve_rente[as.character(faktisk.aar)])*(1+nve_rente[as.character(faktisk.aar+1)])
+drs_recal.TOT.int = drs_recal.TOT*(1+nve_rente[as.character(faktisk.aar)])*(1+nve_rente[as.character(faktisk.aar+1)]) # beløp til rekal. inkl renter
+#Kostnadsnorm etter kalibrering
+tilIR$drs_cost_norm.poscal = tilIR$drs_cost_norm.precal - ((tilIR$drs_RAB * (drs_recal.fact1 + drs_recal.fact2)) / rho)
+#Inntektsramme etter kalibrering
+tilIR$drs_IR.poscal = (1 - rho) * tilIR$drs_cost.RC + rho * tilIR$drs_cost_norm.poscal
+drs_TOTIR.poscal = sum(tilIR$drs_IR.poscal)
+#Driftsresultat etter kalibrering
+tilIR$drs_DR.poscal = tilIR$drs_IR.poscal - tilIR$drs_sum.cost
+#Avkastning etter kalibrering
+tilIR$drs_AVK.poscal = tilIR$drs_DR.poscal / tilIR$drs_RAB
