@@ -234,8 +234,8 @@ NVE_cal = function(eff, cost_base, RAB)
         eff.cal = cost_norm.calRAB / cost_base
         ind.av.eff = tot.cost_norm/tot.cost_base
         
-        res = list(eff.cal=eff.cal, cost_norm=cost_norm, cost_norm.supp=cost_norm.supp,
+        res = list(eff.cal=as.vector(eff.cal), cost_norm=as.vector(cost_norm), cost_norm.supp=as.vector(cost_norm.supp),
                    tot.cost_base=tot.cost_base,tot.RAB=tot.RAB, ind.av.eff=ind.av.eff,
-                   cost_norm.calRAB)
+                   cost_norm.calRAB=as.vector(cost_norm.calRAB))
 
 }

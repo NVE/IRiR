@@ -40,7 +40,7 @@ source("./R-script/0_3_Company_Selection.R")
 #### Trinn 1 - DEA ####
 source("./R-script/1_0_DEA.R")
 
-####  Trinn 2 - RVK-justering vha regresjon ####
+#### Trinn 2 - RVK-justering vha regresjon ####
 source("./R-script/2_X_Bootstrap_Data.R")
 
 source("./R-script/2_0_Stage2_GeoCorrection.R")
@@ -51,18 +51,14 @@ source("./R-script/2_0_Stage2_GeoCorrection.R")
 source("./R-script/3_0_Stage3_Calibration.R")
 
 
- #D-nett
-source("./R-script/3_1_1_OOTO-model.R")
-source("./R-script/3_5 Kalibrering_D3.R")
+#### Selskaper utenfor DEA ####
 
-# #kalibrerer kostnadsnormer basert på avkastningsgrunnlag
-res.stage3 = calibrate(res.faktisk.snitt.r$eff,x.faktisk,weight=kap.faktisk)
-# #vis gjennomsnittlig kostnadsvektet effektivitet
-res.stage3$industry.avg
-# #plott kalibrerte effektivitetstall
-plot(sort(res.stage3$eff.cal))
-# #sjekk at sum kalibrert kostnadsnorm = sum kostnad
-x%*%res.stage3$eff.cal
-sum(x)
+source("./R-script/X_X_OOTO-model.R") # Ytterligere spesialbehandling av 35, 162 & 173
+source("./R-script/X_X_COREC-model.R")
+
+#### Faktisk beregning av IR ####
+source("./R-script/X_X_Revenue_Cap_Calculation.R")
+
+
 
 source("X_4_Excel_export.R")

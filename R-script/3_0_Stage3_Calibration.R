@@ -1,7 +1,7 @@
 # Stage 3 - calibration
 
 #Oppretter kostnadsgrunnlag til kalibrering
-d_tilDEA$d_kostnadsgrlag <- ((d_tilDEA$fp_d_DV*faktisk.aar.kpiafaktor) + (d_tilDEA$d_akg*nve.rente.t) + 
+d_tilDEA$d_kostnadsgrlag <- ((d_tilDEA$fp_d_DV*faktisk.aar.kpiafaktor) + (d_tilDEA$d_akg*rente.ir) + 
                                      d_tilDEA$d_avs + (d_tilDEA$d_kile*faktisk.aar.kpifaktor) + 
                                      (d_tilDEA$d_nettap*nettapspris.ir) - (d_tilDEA$d_grs.cost*faktisk.aar.kpifaktor))
 
@@ -13,3 +13,5 @@ r_tilDEA$r_kostnadsgrlag <- ((r_tilDEA$fp_r_DV*faktisk.aar.kpiafaktor) + (r_tilD
                                      r_tilDEA$r_avs + (r_tilDEA$r_kile*faktisk.aar.kpifaktor))
 
 r_calib=NVE_cal(eff=r_tilDEA$r_deares_tilkal, cost_base = r_tilDEA$r_kostnadsgrlag, RAB = r_tilDEA$r_akg)
+
+

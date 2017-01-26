@@ -48,7 +48,7 @@ manglende.id[c("selskap", "orgnr")]
 rm(manglende.id, id)
 
 
-#### Fjerner bestemte selskap fra datasettet basert på id ####
+#### Fjerner bestemte selskap fra datasettet basert på id ##
 
 ## Selskaper som av diverse årsaker er unntat vanlig DEA- eller IR-regulering
 # D-nett
@@ -64,6 +64,10 @@ r_spesial <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184,
 r_separat_dmuer <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669))  # 14, 753 
 
 r_dea_til_gjsnitt <- (c(116, 542, 685, 852))
+
+#NVE-renter - brukes i RC-calc
+nve_rente = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # 2015 og 2016 er estimat pr 01.12.15
+names(nve_rente) = 2009:2016
 
 
 # KPI-data
@@ -96,6 +100,13 @@ rm(hfmo)
 v15 = read.csv("./Data/Grunnlagsdata/Varsel15.csv", sep = ",")
 v15dv = read.csv("./Data/Grunnlagsdata/dv_totxdea_varsel15.csv", sep = ",")
 
+# Importerer data med områdepriser fra t-2
+omraadepris_t2 = read.csv("./Data/Grunnlagsdata/omraadepris_t2.csv", sep = ",")
+dat = merge.data.frame(dat, omraadepris_t2, by="idaar", all.x = TRUE)
+
+dat$omraadepris_t2[dat$idaar==8722014] = 244.24
+dat$omraadepris_t2[dat$idaar==9002014] = 273.92
+dat$omraadepris_t2 = dat$omraadepris_t2/1000
 
 #### Definerer parametre i analysen ####
 
@@ -125,3 +136,6 @@ nve.rente.t = 0.0639
 arb.kap.paaslag = 1.01
 rho = 0.6
 grs_pris = 1
+
+# Estimert kostnad for faktisk.aar (i dette tilfellet med justering for arbeidsgiveravgift)
+drs_IR_vedtak.faktisk.aar = 9265621 + 19666
