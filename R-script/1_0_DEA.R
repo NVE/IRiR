@@ -27,51 +27,50 @@ rownames(y.faktisk.d) = d_DEA_id
 
 # R-nett
 x.faktisk.r = dat[dat$orgnr %in% r_tilDEA$orgnr & dat$aar == faktisk.aar,"r_TOTXDEA"]
-rownames(x.faktisk.r)
 y.faktisk.r = dat[dat$orgnr %in% r_tilDEA$orgnr & dat$aar == faktisk.aar,c("r_vluft","r_vjord","r_vsjo","r_vgrs")]
 
 #Navngir rader for data til DEA slik at disse er gjenkjennelige i resultater
 names(x.faktisk.r) = r_DEA_id
 rownames(y.faktisk.r) = r_DEA_id
 
-#Removing decimals for inputs and outputs
-x.snitt.d <- round(x.snitt.d, digits = 0) 
-y.snitt.d = y.snitt.d %>% mutate_each(funs(round(.,0)), sf_d_ab, sf_d_ns, sf_d_hs)
-x.faktisk.d <- round(x.faktisk.d, digits = 0)
-y.faktisk.d = y.faktisk.d %>% mutate_each(funs(round(.,0)), d_ab, d_ns, d_hs)
-x.snitt.r <- round(x.snitt.r, digits = 0)  
-y.snitt.r = y.snitt.r %>% mutate_each(funs(round(.,0)), sf_r_vluft, sf_r_vjord, sf_r_vsjo, sf_r_vgrs)
-x.faktisk.r <- round(x.faktisk.r, digits = 0) 
-y.faktisk.r = y.faktisk.r %>% mutate_each(funs(round(.,0)), r_vluft, r_vjord, r_vsjo, r_vgrs)
-
-
-
-# #Disse får definere teknologien (fronten) i hovedkjøringen
-# x.snitt.d <- round(x.snitt.d, digits = 0)  
-# y.snitt.d$sf_d_ab  <- round(y.snitt.d$sf_d_ab, digits = 0)  
-# y.snitt.d$sf_d_ns <- round(y.snitt.d$sf_d_ns, digits = 0)  
-# y.snitt.d$sf_d_hs <- round(y.snitt.d$sf_d_hs, digits = 0)
-# 
-# #Disse måles mot fronten og gir gjeldende DEA-score
-# x.faktisk.d <- round(x.faktisk.d, digits = 0) 
-# y.faktisk.d$d_ab  <- round(y.faktisk.d$d_ab, digits = 0)  
-# y.faktisk.d$d_ns <- round(y.faktisk.d$d_ns, digits = 0)  
-# y.faktisk.d$d_hs <- round(y.faktisk.d$d_hs, digits = 0) 
-# 
-# #Runder av data til DEA til "hele tusen"  
-# #Disse får definere teknologien (fronten) i hovedkjøringen
+# #Removing decimals for inputs and outputs
+# x.snitt.d <- round(x.snitt.d, digits = 0) 
+# y.snitt.d = y.snitt.d %>% mutate_each(funs(round(.,0)), sf_d_ab, sf_d_ns, sf_d_hs)
+# x.faktisk.d <- round(x.faktisk.d, digits = 0)
+# y.faktisk.d = y.faktisk.d %>% mutate_each(funs(round(.,0)), d_ab, d_ns, d_hs)
 # x.snitt.r <- round(x.snitt.r, digits = 0)  
-# y.snitt.r$sf_r_vluft  <- round(y.snitt.r$sf_r_vluft, digits = 0)  
-# y.snitt.r$sf_r_vjord <- round(y.snitt.r$sf_r_vjord, digits = 0)  
-# y.snitt.r$sf_r_vsjo <- round(y.snitt.r$sf_r_vsjo, digits = 0)
-# y.snitt.r$sf_r_vgrs <- round(y.snitt.r$sf_r_vgrs, digits = 0)
-# 
-# #Disse måles mot fronten og gir gjeldende DEA-score
+# y.snitt.r = y.snitt.r %>% mutate_each(funs(round(.,0)), sf_r_vluft, sf_r_vjord, sf_r_vsjo, sf_r_vgrs)
 # x.faktisk.r <- round(x.faktisk.r, digits = 0) 
-# y.faktisk.r$r_vluft  <- round(y.faktisk.r$r_vluft, digits = 0)  
-# y.faktisk.r$r_vjord <- round(y.faktisk.r$r_vjord, digits = 0)  
-# y.faktisk.r$r_vsjo <- round(y.faktisk.r$r_vsjo, digits = 0)
-# y.faktisk.r$r_vgrs <- round(y.faktisk.r$r_vgrs, digits = 0)
+# y.faktisk.r = y.faktisk.r %>% mutate_each(funs(round(.,0)), r_vluft, r_vjord, r_vsjo, r_vgrs)
+
+
+
+#Disse får definere teknologien (fronten) i hovedkjøringen
+x.snitt.d <- round(x.snitt.d, digits = 0)
+y.snitt.d$sf_d_ab  <- round(y.snitt.d$sf_d_ab, digits = 0)
+y.snitt.d$sf_d_ns <- round(y.snitt.d$sf_d_ns, digits = 0)
+y.snitt.d$sf_d_hs <- round(y.snitt.d$sf_d_hs, digits = 0)
+
+#Disse måles mot fronten og gir gjeldende DEA-score
+x.faktisk.d <- round(x.faktisk.d, digits = 0)
+y.faktisk.d$d_ab  <- round(y.faktisk.d$d_ab, digits = 0)
+y.faktisk.d$d_ns <- round(y.faktisk.d$d_ns, digits = 0)
+y.faktisk.d$d_hs <- round(y.faktisk.d$d_hs, digits = 0)
+
+#Runder av data til DEA til "hele tusen"
+#Disse får definere teknologien (fronten) i hovedkjøringen
+x.snitt.r <- round(x.snitt.r, digits = 0)
+y.snitt.r$sf_r_vluft  <- round(y.snitt.r$sf_r_vluft, digits = 0)
+y.snitt.r$sf_r_vjord <- round(y.snitt.r$sf_r_vjord, digits = 0)
+y.snitt.r$sf_r_vsjo <- round(y.snitt.r$sf_r_vsjo, digits = 0)
+y.snitt.r$sf_r_vgrs <- round(y.snitt.r$sf_r_vgrs, digits = 0)
+
+#Disse måles mot fronten og gir gjeldende DEA-score
+x.faktisk.r <- round(x.faktisk.r, digits = 0)
+y.faktisk.r$r_vluft  <- round(y.faktisk.r$r_vluft, digits = 0)
+y.faktisk.r$r_vjord <- round(y.faktisk.r$r_vjord, digits = 0)
+y.faktisk.r$r_vsjo <- round(y.faktisk.r$r_vsjo, digits = 0)
+y.faktisk.r$r_vgrs <- round(y.faktisk.r$r_vgrs, digits = 0)
 
 #### DEA D-nett ####
 
