@@ -93,14 +93,12 @@ dea.faktisk.snitt.d = dea(X=x.faktisk.d, Y=y.faktisk.d, XREF=x.snitt.d[as.charac
 plot(sort(dea.faktisk.snitt.d$eff))
 #View(cbind(x.faktisk.d, y.snitt.d, dea.faktisk.snitt.d$eff)[order(dea.faktisk.snitt.d$eff)])
 d_tilDEA = data.frame(cbind(d_tilDEA, dea.faktisk.snitt.d$eff))
-#Endrer navn på variabelen som merges inn
 colnames(d_tilDEA)[colnames(d_tilDEA)=="dea.faktisk.snitt.d.eff"] <- "d_f_sf_eff"
 
 #Beregner ren snitt front
 dea.snitt.snitt.d = dea(X=x.snitt.d, Y=y.snitt.d, XREF=x.snitt.d[as.character(d_normal)], YREF=y.snitt.d[as.character(d_normal),], RTS="crs")
 plot(sort(dea.snitt.snitt.d$eff))
 d_tilDEA = data.frame(cbind(d_tilDEA, dea.snitt.snitt.d$eff))
-#Endrer navn på variabelen som merges inn
 colnames(d_tilDEA)[colnames(d_tilDEA)=="dea.snitt.snitt.d.eff"] <- "d_sf_eff"
 
 
@@ -120,7 +118,7 @@ for(i in d_separat_dmuer)
 d_lambda = d_lambda[,order(as.numeric(colnames(d_lambda)))]
 
 
-#spesialkjøring for selskaper som bare kan være front for seg selv - blir noe feil med snitt-mot-snitt-kjøring
+#spesialkjøring for selskaper som bare kan være front for seg selv
 eff.snitt.snitt.d = dea.snitt.snitt.d$eff
 
 d_lambda.snitt = cbind(dea.snitt.snitt.d$lambda,matrix(NA,nrow=nrow(dea.snitt.snitt.d$lambda),ncol=length(d_separat_dmuer)))
@@ -140,26 +138,6 @@ d_lambda.snitt = d_lambda.snitt[,order(as.numeric(colnames(d_lambda.snitt)))]
 d_lambda[is.na(d_lambda)] <- 0
 d_lambda.snitt[is.na(d_lambda.snitt)] <- 0
 
-# #Beregner kostbidrag - dette er vekten for hver referent pr selskap ganget med referentens tilhørende snittkostnad.
-# d_kostbidrag = d_lambda*x.snitt.d[match(colnames(d_lambda), names(x.snitt.d))][col(d_lambda)]
-# d_kostbidrag.snitt = d_lambda.snitt*x.snitt.d[match(colnames(d_lambda.snitt), names(x.snitt.d))][col(d_lambda.snitt)]
-
-
-# #Beregner normkostandel - dette er andelen av kostnadsnormen hver referent utgjør pr selskap
-# d_normkostandel = d_kostbidrag/rowSums(d_kostbidrag)
-# d_normkostandel.snitt = d_kostbidrag.snitt/rowSums(d_kostbidrag.snitt)
-
-# #Lager liste av IDer for referenter i D-nett
-# d_ref.alle = as.list(colnames(d_vekter.faktisk))
-# d_ref.alle = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref.alle), "[^0-9]+")))))
-# d_ref.snitt.alle = as.list(colnames(d_vekter.snitt))
-# d_ref.snitt.alle = unique(na.omit(as.numeric(unlist(strsplit(unlist(d_ref.snitt.alle), "[^0-9]+")))))
-# #Selskaper som er referenter i R-nett
-# d_ref = subset(d_ref.alle, d_ref.alle %in% d_normal)
-# d_ref.snitt = subset(d_ref.snitt.alle, d_ref.snitt.alle %in% d_normal)
-# #Selskaper i R-nett som er referenter for seg selv.
-# d_ref.sep = subset(d_ref.alle, d_ref.alle %in% d_separat_dmuer)
-# d_ref.snitt.sep = subset(d_ref.snitt.alle, d_ref.snitt.alle %in% d_separat_dmuer)
 
 #### DEA R-nett ####
 
@@ -206,7 +184,7 @@ for(i in r_separat_dmuer)
 r_lambda = r_lambda[,order(as.numeric(colnames(r_lambda)))]
 
 
-#spesialkjøring for selskaper som bare kan være front for seg selv - blir noe feil med snitt-mot-snitt-kjøring
+#spesialkjøring for selskaper som bare kan være front for seg selv
 eff.snitt.snitt.r = dea.snitt.snitt.r$eff
 
 r_lambda.snitt = cbind(dea.snitt.snitt.r$lambda,matrix(NA,nrow=nrow(dea.snitt.snitt.r$lambda),ncol=length(r_separat_dmuer)))
@@ -226,46 +204,3 @@ r_lambda.snitt = r_lambda.snitt[,order(as.numeric(colnames(r_lambda.snitt)))]
 ##Setter alle NA-verdier i lambda(vekt-dataframes til 0.)
 r_lambda[is.na(r_lambda)] <- 0
 r_lambda.snitt[is.na(r_lambda.snitt)] <- 0
-
-# #Beregner kostbidrag - dette er vekten for hver referent pr selskap ganget med referentens tilhørende snittkostnad.
-# r_kostbidrag = r_lambda*x.snitt.r[match(colnames(r_lambda), names(x.snitt.r))][col(r_lambda)]
-# r_kostbidrag.snitt = r_lambda.snitt*x.snitt.r[match(colnames(r_lambda.snitt), names(x.snitt.r))][col(r_lambda.snitt)]
-# 
-# 
-# #Beregner normkostandel - dette er andelen av kostnadsnormen hver referent utgjør pr selskap
-# r_normkostandel = r_kostbidrag/rowSums(r_kostbidrag)
-# r_normkostandel.snitt = r_kostbidrag.snitt/rowSums(r_kostbidrag.snitt)
-# 
-# 
-# #Legger til prefix på hver kolonne
-# colnames(r_lambda) = paste("r_vekt_", colnames(r_lambda),sep="")
-# colnames(r_kostbidrag) = paste("r_kostbidrag_", colnames(r_kostbidrag), sep="")
-# colnames(r_normkostandel) = paste("r_normkostandel", colnames(r_normkostandel), sep="")
-# colnames(r_lambda.snitt) = paste("sf_r_vekt_", colnames(r_lambda.snitt),sep="")
-# colnames(r_kostbidrag.snitt) = paste("sf_r_kostbidrag_", colnames(r_kostbidrag.snitt), sep="")
-# colnames(r_normkostandel.snitt) = paste("sf_r_normkostandel", colnames(r_normkostandel.snitt), sep="")
-
-# #Kombinerer fire df til én
-# r_vekter.temp = data.frame(cbind(r_DEA_id, r_lambda, r_normkostandel, r_kostbidrag))
-# r_vekter.temp.snitt = data.frame(cbind(r_DEA_id, r_lambda.snitt, r_normkostandel.snitt, r_kostbidrag.snitt))
-# #Fjerner alle kolonner som ikke har sum større enn 0
-# r_vekter.faktisk = r_vekter.temp[, colSums(r_vekter.temp) > 0]
-# r_vekter.snitt = r_vekter.temp.snitt[, colSums(r_vekter.temp.snitt) > 0]
-# #Fjerner midlertidege dfs
-# rm(r_kostbidrag, r_lambda, r_normkostandel, r_vekter.temp)
-# rm(r_kostbidrag.snitt, r_lambda.snitt, r_normkostandel.snitt, r_vekter.temp.snitt)
-# #Lager liste av IDer for referenter i D-nett
-# r_ref.alle = as.list(colnames(r_vekter.faktisk))
-# r_ref.alle = unique(na.omit(as.numeric(unlist(strsplit(unlist(r_ref.alle), "[^0-9]+")))))
-# r_ref.snitt.alle = as.list(colnames(r_vekter.snitt))
-# r_ref.snitt.alle = unique(na.omit(as.numeric(unlist(strsplit(unlist(r_ref.snitt.alle), "[^0-9]+")))))
-# #Selskaper som er referenter i R-nett
-# r_ref = subset(r_ref.alle, r_ref.alle %in% r_normal)
-# r_ref.snitt = subset(r_ref.snitt.alle, r_ref.snitt.alle %in% r_normal)
-# #Selskaper i R-nett som er referenter for seg selv.
-# r_ref.sep = subset(r_ref.alle, r_ref.alle %in% r_separat_dmuer)
-# r_ref.snitt.sep = subset(r_ref.snitt.alle, r_ref.snitt.alle %in% r_separat_dmuer)
-# # 
-# # #Lage logisk sjekk for å sjekke dref=drefsnitt
-# 
-# rm(r_ref.snitt, r_ref.snitt.alle, r_ref.snitt.sep, r_ref.alle)

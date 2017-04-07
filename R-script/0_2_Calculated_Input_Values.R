@@ -1,20 +1,5 @@
 #### 1.1 Calculates Input Values for DEA ####
 
-#### Frontlov ####
-# Konstruerer frontlov-variabel
-dat$frontlov = "."
-
-# Velger deretter korrekte renter avhengig om kjøringen er i varsel eller vedtaksmodus
-if (vedtak == 1)  {
-        rente.dea       = nve.rente.t2
-        rente.ir        = nve.rente.t
-        nettapspris.dea = systempris.t2
-} else {
-        rente.dea       = nve.rente.t2
-        rente.ir        = nve.rente.estimert
-        nettapspris.dea = systempris.t2
-}
-
 
 #### Grensesnittvariabel ####
 # Må også ta hensyn til grensesnittkostnadene
@@ -26,7 +11,6 @@ for (i in which(dat$id %in% d_dea_til_gjsnitt | dat$id %in% d_spesial)){
 # Priser inn grensesnittvariabelen
 dat$d_grs.cost = 0
 dat$d_grs.cost = ifelse(dat$d_grs.dummy == 1, dat$d_grs * grs_pris, 0)
-
 
 #### KPI ####
 # KPI-justering

@@ -1,3 +1,5 @@
+#"Harmony Income -  Root File"
+
 
 ## IRiR
 
@@ -28,7 +30,10 @@ library(plot3D)
 source("./R-script/functions_nve.R")
 # Ønsker å vise store tall som fulle verdier, ikke som potenser
 options(scipen = 100)
+##Insert organization numbers of merging companies
+merg.comp = c(SETT INN VEKTOR MED ORGNR)
 
+#1st - Regular Revenue Cap Calculation ------------------------------------------------------------
 #### Grunnlag for DEA ####
 
 source("./R-script/0_1_Config_Assumptions_Data.R")
@@ -47,7 +52,7 @@ source("./R-script/2_0_Stage2_GeoCorrection.R")
 
 
 #### Trinn 3 - Kalibrering av kostnadsnormer ####
-       
+
 source("./R-script/3_0_Stage3_Calibration.R")
 
 
@@ -59,6 +64,5 @@ source("./R-script/X_X_COREC-model.R")
 #### Faktisk beregning av IR ####
 source("./R-script/X_X_Revenue_Cap_Calculation.R")
 
+#2nd - Merge comapnies ----------------------------------------------------------------------------
 
-
-source("X_4_Excel_export.R")

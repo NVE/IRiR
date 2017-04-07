@@ -14,8 +14,8 @@ tilIR = subset.data.frame(dat, subset = aar == faktisk.aar,
                 select=c(selskap, id, aar, idaar, fp_d_DV, fp_r_DV, fp_s_DV,
                          d_dv_2012, r_dv_2012, s_dv_2012,
                          fp_d_kile, fp_r_kile, fp_s_kile,
-                         d_akg, r_akg, s_akg, # Dette er sum av verdier i fp
-                         d_avs, r_avs, s_avs, # Dette er sum av verdier i fp
+                         d_akg, r_akg, s_akg,
+                         d_avs, r_avs, s_avs,
                          fp_d_391,fp_r_391, fp_s_391,
                          fp_d_utred, fp_r_utred,
                          d_nettap, r_nettap,
