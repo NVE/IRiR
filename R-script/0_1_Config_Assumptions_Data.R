@@ -1,5 +1,51 @@
 #### Oppsett, forutsetninger og dataimport ####
 
+#### Definerer parametre i analysen ####
+
+# Parametre
+kraftpris = 0.26135
+nettapspris.ir = 0.20133 
+snitt.aar = 2010:2014
+faktisk.aar = 2014
+IR.aar = faktisk.aar + 2
+hist.pensj.aar = 2007:2013
+
+#NVE-renter - brukes i RC-calc
+nve_rente = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # 2015 og 2016 er estimat pr 01.12.15
+names(nve_rente) = 2009:2016
+
+# Varsel/Vedtak
+vedtak = 0 # 1 ved vedtak, 0 ved varsel
+
+# Varsel
+nve.rente.t2 = nve_rente[as.character(faktisk.aar)]
+nve.rente.estimert = nve_rente[as.character(IR.aar)]
+systempris.t2 = 0.26135
+
+# Vedtak
+nve.rente.t = nve_rente[as.character(IR.aar)]
+
+# Økonomiske forutsetniger
+arb.kap.paaslag = 1.01
+rho = 0.6
+grs_pris = 1
+
+
+
+# Velger deretter korrekte renter avhengig om kjøringen er i varsel eller vedtaksmodus
+if (vedtak == 1)  {
+        rente.dea       = nve.rente.t2
+        rente.ir        = nve.rente.t
+        nettapspris.dea = systempris.t2
+} else {
+        rente.dea       = nve.rente.t2
+        rente.ir        = nve.rente.t
+        nettapspris.dea = systempris.t2
+}
+
+# Estimert kostnad for faktisk.aar (i dette tilfellet med justering for arbeidsgiveravgift)
+drs_IR_vedtak.faktisk.aar = 9265621 + 19666
+
 #### Importerer data ####
 
 # Read data set from csv-file
@@ -44,9 +90,23 @@ dat <- dat[!(dat$orgnr==962986633),]
 # Sjekker om noen selskaper mangler id
 manglende.id <- dat[is.na(dat$id),]
 manglende.id[c("selskap", "orgnr")]
-
+stopifnot(nrow(manglende.id) == 0)
 rm(manglende.id, id)
 
+### Utvalg av selskaper ####
+# Endre metoden
+# Diverse utvalg av selskaper, basert på orgnr
+#  De som skal måles:
+eval.r = dat$id[dat$r_TOTXDEA >= 7000 & dat$r_vluft > 0 & dat$aar == faktisk.aar]
+#  De som kan danne fronten:
+front.r = dat$id[dat$r_TOTXDEA >= 15000 & dat$aar == faktisk.aar]
+#  De som skal evalueres, men ikke kan være på fronten:
+sep.eval.r = setdiff(eval.r,front.r)
+
+
+# Roar metoden
+### Denne metoden baserer seg på å angi dummyverdier for selskapene som skal
+### være med i DEA basert på listene av selskap i fil "1_0_Config_Assumptions_Data.R"
 
 #### Fjerner bestemte selskap fra datasettet basert på id ##
 
@@ -57,6 +117,7 @@ d_dea_til_gjsnitt <- (c(187, 294, 652, 852))
 d_separat_dmuer <- (c())
 d_ikkeIR <- (c(134, 348, 521, 612, 638, 696)) # IDene finnes ikke
 
+
 # R/S-nett
 r_spesial <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
                 204, 222, 238, 274, 287, 307, 343, 349, 447, 484, 512, 
@@ -64,10 +125,6 @@ r_spesial <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184,
 r_separat_dmuer <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669))  # 14, 753 
 
 r_dea_til_gjsnitt <- (c(116, 542, 685, 852))
-
-#NVE-renter - brukes i RC-calc
-nve_rente = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # 2015 og 2016 er estimat pr 01.12.15
-names(nve_rente) = 2009:2016
 
 
 # KPI-data
@@ -77,8 +134,6 @@ names(kpi) = 2004:2016
 kpia = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.4, 221.6)
 names(kpia) = 2004:2016
 
-# curr_aar_kpiafaktor = kpia2016/kpia2014 # Hardkodet til bruk i trinn 3
-# curr_aar_kpifaktor = kpi2016/kpi2014 # Hardkodet til bruk i trinn 3
 
 # Data for Hammerfest
 hfmo = read.csv("./Data/Grunnlagsdata/Hammerfest_Melkoya.csv", sep = ",")
@@ -96,9 +151,6 @@ dat$tempbfv <- NULL
 dat$tempavs <- NULL
 rm(hfmo)
 
-# Data fra Varsel 15
-v15 = read.csv("./Data/Grunnlagsdata/Varsel15.csv", sep = ",")
-v15dv = read.csv("./Data/Grunnlagsdata/dv_totxdea_varsel15.csv", sep = ",")
 
 # Importerer data med områdepriser fra t-2
 omraadepris_t2 = read.csv("./Data/Grunnlagsdata/omraadepris_t2.csv", sep = ",")
@@ -108,34 +160,7 @@ dat$omraadepris_t2[dat$idaar==8722014] = 244.24
 dat$omraadepris_t2[dat$idaar==9002014] = 273.92
 dat$omraadepris_t2 = dat$omraadepris_t2/1000
 
-#### Definerer parametre i analysen ####
 
-# Parametre
-kraftpris = 0.26135
-nettapspris.ir = 0.20133 
-snitt.aar = 2010:2014
-faktisk.aar = 2014
-IR.aar = faktisk.aar + 2
-hist.pensj.aar = 2007:2013
-#KPI-faktorer brukes til 
+#CPI factors are used in revenue cap-calculations (part 4)
 faktisk.aar.kpiafaktor = kpia[as.character(IR.aar)]/kpia[as.character(faktisk.aar)]
 faktisk.aar.kpifaktor = kpi[as.character(IR.aar)]/kpi[as.character(faktisk.aar)]
-
-# Varsel/Vedtak
-vedtak = 0 # 1 ved vedtak, 0 ved varsel
-
-# Varsel
-nve.rente.t2 = 0.0661
-nve.rente.estimert = 0.0639
-systempris.t2 = 0.26135
-
-# Vedtak
-nve.rente.t = 0.0639
-
-# Økonomiske forutsetniger
-arb.kap.paaslag = 1.01
-rho = 0.6
-grs_pris = 1
-
-# Estimert kostnad for faktisk.aar (i dette tilfellet med justering for arbeidsgiveravgift)
-drs_IR_vedtak.faktisk.aar = 9265621 + 19666
