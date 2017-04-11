@@ -3,7 +3,7 @@
 #### Definerer parametre i analysen ####
 
 # Parametre
-kraftpris = 0.26135
+#kraftpris = 0.26135
 nettapspris.ir = 0.20133 
 snitt.aar = 2010:2014
 faktisk.aar = 2014
@@ -39,7 +39,7 @@ if (vedtak == 1)  {
         nettapspris.dea = systempris.t2
 } else {
         rente.dea       = nve.rente.t2
-        rente.ir        = nve.rente.t
+        rente.ir        = nve.rente.estimert
         nettapspris.dea = systempris.t2
 }
 
