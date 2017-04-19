@@ -170,7 +170,7 @@ rvk2 <- function(x,eff,id,coeff,z,lambda)
         #differences versus reference dmus
         z.diff = z - w.ref %*% z
 
-        #beregner justerte effektivitetstall
+        #Adjusts efficiency score
         eff.corr <- as.vector(eff - z.diff%*%coeff[2:(ncol(z)+1)])
 
         res <- list(eff.corr=eff.corr,z.diff=z.diff)
