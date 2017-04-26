@@ -45,8 +45,6 @@ fun.comps = c(fun.comp1, fun.comp2)
 ## Years in data set
 
 
-dat.harm$dr_fusj.ruter = dat.harm$dr_antall.ruter
-dat.harm$rr_fusj.ruter = dat.harm$rr_antall.ruter
 
 harm.var_sum = c("d_391", "d_DVxL", "d_ab", "d_abavs", "d_abbfv", "d_aoey1", "d_avs",
                  "d_bfv", "d_grs", "d_hs", "d_hsjord", "d_hsll", "d_hssjo", "d_impl",
@@ -59,33 +57,57 @@ harm.var_sum = c("d_391", "d_DVxL", "d_ab", "d_abavs", "d_abbfv", "d_aoey1", "d_
                  "s_pensjek", "s_vgrs", "s_vjord", "s_vluft", "s_vsjo", "dr_fusj.ruter",
                  "rr_fusj.ruter")
 
+dat.harm$dr_aruter_sum = dat.harm$dr_antall.ruter
+
 
 dr_harm.var_ruter = c("dr_antall_ruter", "d_score_bs100_pre", "dr_brgrad_gjsn",
                       "dr_he1", "dr_is_gjsn", "dr_k2lukk", "dr_s4", "dr_s7",
                       "dr_snog", "dr_temp", "dr_vr")
+dr_test.var_ruter = c("dr_antall.ruter", "dr_snog", "dr_temp", "dr_vr")
 
 rr_harm.var_ruter = c("rr_antall_ruter", "r_score_bs100_pre", "rr_he", "rr_s12")
 
-#Gjør L70-75 til en funksjon
-tilleg = as.data.frame(matrix(NA,ncol = ncol(df.test), nrow = length(unique(df.test$aar))))
-colnames(tilleg)=colnames(df.test)
-tilleg$orgnr = 999999999
-tilleg$id = 999
-tilleg$idaar = as.numeric(paste(tilleg$id, tilleg$aar, sep = ""))
+df.test = dat.harm[,c("orgnr", "aar", "id", "idaar", "d_391", "d_DVxL", "d_ab", "dr_antall.ruter", "dr_aruter_sum", "dr_snog", "dr_temp", "dr_vr")]
+
+test.var.sum = c("d_391", "d_DVxL", "d_ab", "dr_aruter_sum")
+
+#Gjør L70-74 til en funksjon
+
+test.til_fusj = filter(df.test, df.test$orgnr %in% fun.comps)
+
+                
+                
+tvsd = as.data.frame(test.til_fusj %>%
+                                group_by(aar) %>%
+                                summarise_each(funs(sum), one_of(as.character(test.var.sum))))
 
 
-# # KPIA-justering
-# > var_kpia = c("d_391", "r_391", "s_391", "d_pensj", "r_pensj", "s_pensj", "d_pensjek", "r_pensjek", "s_pensjek", 
-#                +              "d_impl", "r_impl", "s_impl", "d_DVxL", "d_utred", "r_DVxL", "r_utred", "s_DVxL", "d_lonn", 
-#                +              "d_lonnakt", "r_lonn", "r_lonnakt", "s_lonn", "s_lonnakt")
-# > fp_var_kpia = paste("fp_", var_kpia, sep = "")
-# > dat.harm = cbind(dat.harm, t(matrix(NA, ncol = nrow(dat.harm), nrow = length(var_kpia), dimnames = list(var_kpia = fp_var_kpia))))
-# > for(c in 1:length(var_kpia))
-#         +   for(r in 1:nrow(dat.harm))
-#                 +     dat.harm[r, fp_var_kpia[c]] = dat.harm[r, var_kpia[c]] * kpia[as.character(faktisk.aar)] / kpia[as.character(dat.harm[r, "aar"])]
+tvsd$orgnr = 999999999
+tvsd$id = 999
+tvsd$idaar = as.numeric(paste(tvsd$id, tvsd$aar, sep = ""))
+
+comp.info = c("orgnr", "aar", "id", "idaar")
 
 
+tvvd1 = select(test.til_fusj, one_of(dr_test.var_ruter))
+tvvd1$multip.col = tvvd1$dr_antall.ruter
+tvvd1 = as.data.frame(bind_cols(tvvd1, select(test.til_fusj, one_of(comp.info))))
 
-df.test = dat.harm[,c("orgnr", "aar", "id", "idaar", "d_391", "d_DVxL", "d_ab")]
-## Years in data set
+tvvd1[dr_test.var_ruter] = tvvd1[dr_test.var_ruter] * tvvd1$multip.col
 
+tvvd2 = as.data.frame(tvvd1 %>%
+                             group_by(aar) %>%
+                             summarise_each(funs(sum), one_of(as.character(dr_test.var_ruter))))
+
+
+tvvd2$id = 999
+tvvd2$idaar = as.numeric(paste(tvsd$id, tvsd$aar, sep = ""))
+tvvd2$id = NULL
+tvvd2$aar = NULL
+#df.test = bind_rows(df.test, tvsd)
+
+tvsd = inner_join(tvsd, tvvd2, by = "idaar")
+tvsd[dr_test.var_ruter] = tvsd[dr_test.var_ruter] / tvsd$dr_aruter_sum
+
+df.test = bind_rows(df.test, tvsd)
+df.test = df.test[!(df.test$orgnr %in% fun.comps),]
