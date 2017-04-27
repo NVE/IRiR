@@ -5,8 +5,8 @@
 # Parametre
 #kraftpris = 0.26135
 nettapspris.ir = 0.20133 
-snitt.aar = 2010:2014
-faktisk.aar = 2014
+snitt.aar = 2011:2015
+faktisk.aar = 2015
 IR.aar = faktisk.aar + 2
 hist.pensj.aar = 2007:2013
 
@@ -50,14 +50,14 @@ drs_IR_vedtak.faktisk.aar = 9265621 + 19666
 
 # Read data set from csv-file
 # Grunnlagsdata
-dat.harm = read.csv("./Data/Grunnlagsdata/Grunnlagsdata_faktiskvarsel.csv",sep=",")
+dat.harm = read.csv("./Data/Grunnlagsdata/Grunnlagsdata_oppdatert_varsel_HI_2017.csv",sep=",")
 
 # ID-er
-id = read.csv("./Data/Grunnlagsdata/id.csv", sep = ",")
+id = read.csv("./Data/Grunnlagsdata/HI_id_2017.csv", sep = ",")
 # Tilegner ID-er til Grunnlagsdata vha merge
-dat.harm = merge.data.frame(dat.harm, id, by = "orgnr", all.x = TRUE)
 dat.harm$selskap <- as.character(dat.harm$selskap)
-dat.harm$navn<- as.character(dat.harm$navn)
+id$navn<- as.character(id$navn)
+dat.harm = merge.data.frame(dat.harm, id, by = "orgnr", all.x = TRUE)
 
 # Legger manuelt til IDer til selskapene som mangler
 # IDer basert på Stata-kode
@@ -70,6 +70,18 @@ dat.harm$navn[dat.harm$orgnr == 996325458] <- "Lyse Sentralnett"
 # Angir ny ID for Mørenett
 dat.harm$id[dat.harm$orgnr == 912631532] <- 460
 dat.harm$navn[dat.harm$orgnr == 912631532] <- "Morenett"
+# Angir ny ID for Fosen Nett
+dat.harm$id[dat.harm$orgnr == 814943852] <- 53
+dat.harm$navn[dat.harm$orgnr == 814943852] <- "Fosen Nett"
+# Angir ny ID for Lier Nett
+dat.harm$id[dat.harm$orgnr == 815299302] <- 102
+dat.harm$navn[dat.harm$orgnr == 815299302] <- "Lier Nett"
+# Angir ny ID for ISE Nett
+dat.harm$id[dat.harm$orgnr == 914385261] <- 42
+dat.harm$navn[dat.harm$orgnr == 914385261] <- "ISE Nett"
+# Angir ny ID for Fosen Nett
+dat.harm$id[dat.harm$orgnr == 916319908] <- 295
+dat.harm$navn[dat.harm$orgnr == 916319908] <- "Gudbrandsdal Energi Nett"
 
 # Lager idaar og orgnraar variabler og endrer type for disse
 dat.harm$idaar <- paste(dat.harm$id, dat.harm$aar, sep="")
@@ -151,13 +163,13 @@ dat.harm$tempavs <- NULL
 rm(hfmo)
 
 
-# Importerer data med områdepriser fra t-2
-omraadepris_t2 = read.csv("./Data/Grunnlagsdata/omraadepris_t2.csv", sep = ",")
-dat.harm = merge.data.frame(dat.harm, omraadepris_t2, by="idaar", all.x = TRUE)
-
-dat.harm$omraadepris_t2[dat.harm$idaar==8722014] = 244.24
-dat.harm$omraadepris_t2[dat.harm$idaar==9002014] = 273.92
-dat.harm$omraadepris_t2 = dat.harm$omraadepris_t2/1000
+# # Importerer data med områdepriser fra t-2
+# omraadepris_t2 = read.csv("./Data/Grunnlagsdata/omraadepris_t2.csv", sep = ",")
+# dat.harm = merge.data.frame(dat.harm, omraadepris_t2, by="idaar", all.x = TRUE)
+# 
+# dat.harm$omraadepris_t2[dat.harm$idaar==8722014] = 244.24
+# dat.harm$omraadepris_t2[dat.harm$idaar==9002014] = 273.92
+# dat.harm$omraadepris_t2 = dat.harm$omraadepris_t2/1000
 
 
 #CPI factors are used in revenue cap-calculations (part 4)
