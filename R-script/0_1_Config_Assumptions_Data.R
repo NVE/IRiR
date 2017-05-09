@@ -2,7 +2,7 @@
 
 #### Definerer parametre i analysen ####
 
-# Parametre
+# Parameters
 #kraftpris = 0.26135
 nettapspris.ir = 0.20133 
 snitt.aar = 2010:2014
