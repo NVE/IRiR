@@ -1,7 +1,8 @@
 
-## IRiR
+## IRiR - InntektsRammer i R##
+## RevenueCap calculation in R##
 
-#### R-teknisk oppsett ####
+#### R set up ####
 
 # Remove all objects from memory
 remove(list=ls())
@@ -29,7 +30,7 @@ source("./R-script/functions_nve.R")
 # Ønsker å vise store tall som fulle verdier, ikke som potenser
 options(scipen = 100)
 
-#### Grunnlag for DEA ####
+#### Preperation stage - Configurations, data import, data preparation ####
 
 source("./R-script/0_1_Config_Assumptions_Data.R")
 

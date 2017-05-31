@@ -4,26 +4,26 @@
 
 # Parameters
 #kraftpris = 0.26135
-nettapspris.ir = 0.20133 
-snitt.aar = 2010:2014
-faktisk.aar = 2014
-IR.aar = faktisk.aar + 2
-hist.pensj.aar = 2007:2013
+pnl.rc = 0.20133  # Price of network losses in RC
+y.avg = 2010:2014 # Relevant years for calculation of average values
+y.cb = 2014 # The cost base year, t-2
+y.rc = y.cb + 2 # The revenue cap year, t
+y.hist.pen = 2007:2013 #Transition period for smoothing of pension costs, see variable list for further explenation
 
 #NVE-renter - brukes i RC-calc
-nve_rente = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # 2015 og 2016 er estimat pr 01.12.15
-names(nve_rente) = 2009:2016
+NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # 2015 & 2016 estimates pr 01.12.15
+names(NVE.ir) = 2009:2016
 
 # Varsel/Vedtak
-vedtak = 0 # 1 ved vedtak, 0 ved varsel
+decision = 0 # 1 ved vedtak, 0 ved varsel
 
 # Varsel
-nve.rente.t2 = nve_rente[as.character(faktisk.aar)]
-nve.rente.estimert = nve_rente[as.character(IR.aar)]
+NVE.ir.t_2 = NVE.ir[as.character(y.cb)]
+nve.rente.estimert = NVE.ir[as.character(y.rc)]
 systempris.t2 = 0.26135
 
 # Vedtak
-nve.rente.t = nve_rente[as.character(IR.aar)]
+nve.rente.t = NVE.ir[as.character(y.rc)]
 
 # Økonomiske forutsetniger
 arb.kap.paaslag = 1.01
@@ -33,12 +33,12 @@ grs_pris = 1
 
 
 # Velger deretter korrekte renter avhengig om kjøringen er i varsel eller vedtaksmodus
-if (vedtak == 1)  {
-        rente.dea       = nve.rente.t2
+if (decision == 1)  {
+        rente.dea       = NVE.ir.t-2
         rente.ir        = nve.rente.t
         nettapspris.dea = systempris.t2
 } else {
-        rente.dea       = nve.rente.t2
+        rente.dea       = NVE.ir.t-2
         rente.ir        = nve.rente.estimert
         nettapspris.dea = systempris.t2
 }
@@ -97,9 +97,9 @@ rm(manglende.id, id)
 # Endre metoden
 # Diverse utvalg av selskaper, basert på orgnr
 #  De som skal måles:
-eval.r = dat$id[dat$r_TOTXDEA >= 7000 & dat$r_vluft > 0 & dat$aar == faktisk.aar]
+eval.r = dat$id[dat$r_TOTXDEA >= 7000 & dat$r_vluft > 0 & dat$aar == y.cb]
 #  De som kan danne fronten:
-front.r = dat$id[dat$r_TOTXDEA >= 15000 & dat$aar == faktisk.aar]
+front.r = dat$id[dat$r_TOTXDEA >= 15000 & dat$aar == y.cb]
 #  De som skal evalueres, men ikke kan være på fronten:
 sep.eval.r = setdiff(eval.r,front.r)
 
@@ -162,5 +162,5 @@ dat$omraadepris_t2 = dat$omraadepris_t2/1000
 
 
 #CPI factors are used in revenue cap-calculations (part 4)
-faktisk.aar.kpiafaktor = kpia[as.character(IR.aar)]/kpia[as.character(faktisk.aar)]
-faktisk.aar.kpifaktor = kpi[as.character(IR.aar)]/kpi[as.character(faktisk.aar)]
+faktisk.aar.kpiafaktor = kpia[as.character(IR.aar)]/kpia[as.character(y.cb)]
+faktisk.aar.kpifaktor = kpi[as.character(IR.aar)]/kpi[as.character(y.cb)]
