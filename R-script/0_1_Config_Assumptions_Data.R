@@ -10,133 +10,130 @@ y.cb = 2014 # The cost base year, t-2
 y.rc = y.cb + 2 # The revenue cap year, t
 y.hist.pen = 2007:2013 #Transition period for smoothing of pension costs, see variable list for further explenation
 
-#NVE-renter - brukes i RC-calc
+#NVE interest rates - used in revenue cap calculation
+# https://www.nve.no/energy-market-and-regulation/revenue-regulation/the-wacc-model/
+# https://www.nve.no/elmarkedstilsynet-marked-og-monopol/okonomisk-regulering-av-nettselskap/reguleringsmodellen/referanserenten/
 NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # 2015 & 2016 estimates pr 01.12.15
 names(NVE.ir) = 2009:2016
 
-# Varsel/Vedtak
-decision = 0 # 1 ved vedtak, 0 ved varsel
+# Decision/Notice - different prices and interests are used
+decision = 0 # 1 if decision mode, 0 notice mode
 
-# Varsel
+# Notice
 NVE.ir.t_2 = NVE.ir[as.character(y.cb)]
-nve.rente.estimert = NVE.ir[as.character(y.rc)]
-systempris.t2 = 0.26135
+NVE.ir.est = NVE.ir[as.character(y.rc)]
+sysp.t_2 = 0.26135
 
-# Vedtak
-nve.rente.t = NVE.ir[as.character(y.rc)]
+# Decision
+NVE.ir.t = NVE.ir[as.character(y.rc)]
 
-# Økonomiske forutsetniger
-arb.kap.paaslag = 1.01
-rho = 0.6
-grs_pris = 1
+# Economic assumptions (? - improve)
+wcp = 1.01 # working capital premium
+rho = 0.6 # Norm cost share in revenue cap 
+gci.p = 1 # Price of grid components in interface, regional and local distribution grids
 
 
 
-# Velger deretter korrekte renter avhengig om kjøringen er i varsel eller vedtaksmodus
+# Choosing correct interest rates and prices dependent on notice or decision mode
 if (decision == 1)  {
-        rente.dea       = NVE.ir.t-2
-        rente.ir        = nve.rente.t
-        nettapspris.dea = systempris.t2
+        ir.dea                  = NVE.ir.t_2
+        NVE.ir.RC               = NVE.ir.t
+        pnl.dea                 = sysp.t_2
 } else {
-        rente.dea       = NVE.ir.t-2
-        rente.ir        = nve.rente.estimert
-        nettapspris.dea = systempris.t2
+        ir.dea                  = NVE.ir.t_2
+        NVE.ir.RC               = NVE.ir.est
+        pnl.dea                 = sysp.t_2
 }
 
-# Estimert kostnad for faktisk.aar (i dette tilfellet med justering for arbeidsgiveravgift)
-drs_IR_vedtak.faktisk.aar = 9265621 + 19666
+# Estimated cost for cost base year (y.cb)
+# in this calcualtion with adjustment for "payroll tax" (19666)
+lrt_RC_dec.y.cb = 9265621 + 19666
 
-#### Importerer data ####
+#### Importing data ####
 
 # Read data set from csv-file
-# Grunnlagsdata
-dat = read.csv("./Data/Grunnlagsdata/Grunnlagsdata_faktiskvarsel.csv",sep=",")
+# Base-data with costs and assets
+dat = read.csv("./Data/BaseData/BaseData_FinalNotice.csv",sep=",")
 
 
-# ID-er
-id = read.csv("./Data/Grunnlagsdata/id.csv", sep = ",")
-# Tilegner ID-er til Grunnlagsdata vha merge
-dat = merge.data.frame(dat, id, by = "orgnr", all.x = TRUE)
-dat$selskap <- as.character(dat$selskap)
-dat$navn<- as.character(dat$navn)
+# IDs to simplify scripts and aid analysts
+id = read.csv("./Data/BaseData/id.csv", sep = ",")
+# Dedicate IDs to base data using merge
+dat = merge.data.frame(dat, id, by = "orgn", all.x = TRUE)
+dat$comp <- as.character(dat$comp)
+dat$name <- as.character(dat$comp)
 
-# Legger manuelt til IDer til selskapene som mangler
-# IDer basert på Stata-kode
-# Angir ny ID for Gassco
-dat$id[dat$orgnr == 983452841] <- 900
-dat$navn[dat$orgnr == 983452841] <- "Gassco"
-# Angir ny ID for Lyse sentralnett
-dat$id[dat$orgnr == 996325458] <- 872
-dat$navn[dat$orgnr == 996325458] <- "Lyse Sentralnett"
-# Angir ny ID for Mørenett
-dat$id[dat$orgnr == 912631532] <- 460
-dat$navn[dat$orgnr == 912631532] <- "Morenett"
+# Manualy adding IDs for missing companies
+# Asign ID for Gassco
+dat$id[dat$orgn == 983452841] <- 900
+dat$name[dat$orgn == 983452841] <- "Gassco"
+# Asign ID for Lyse sentralnett
+dat$id[dat$orgn == 996325458] <- 872
+dat$name[dat$orgn == 996325458] <- "Lyse Sentralnett"
+# Asign ID for Mørenett
+dat$id[dat$orgn == 912631532] <- 460
+dat$name[dat$orgn == 912631532] <- "Morenett"
 
-# Lager idaar og orgnraar variabler og endrer type for disse
-dat$idaar <- paste(dat$id, dat$aar, sep="")
-dat$orgnraar <- paste(dat$aar, dat$orgnr, sep="")
-dat$idaar <- as.numeric(dat$idaar)
-dat$orgnraar <- as.numeric(dat$orgnraar)
+# Create id.y og orgn.y variable
+dat$id.y <- paste(dat$id, dat$y, sep="")
+dat$orgn.y <- paste(dat$y, dat$orgn, sep="")
+dat$id.y <- as.numeric(dat$id.y)
+dat$orgn.y <- as.numeric(dat$orgn.y)
 
-# Endrer d_ab for MIP i direkte i datarket
-dat$d_ab[dat$idaar == 7432010] <- 248
-dat$d_ab[dat$idaar == 7432011] <- 246
-dat$d_ab[dat$idaar == 7432012] <- 246
-dat$d_ab[dat$idaar == 7432013] <- 245
+# Impute subscriber values for Mo Industripark (id 743)
+dat$ld_sub[dat$id.y == 7432010] <- 248
+dat$ld_sub[dat$id.y == 7432011] <- 246
+dat$ld_sub[dat$id.y == 7432012] <- 246
+dat$ld_sub[dat$id.y == 7432013] <- 245
 
-# Sletter observasjoner fra Statnett
-dat <- dat[!(dat$orgnr==962986633),] 
+# Remove Statnett SFs observations from dataset (TSO)
+dat <- dat[!(dat$orgn==962986633),] 
 
-# Sjekker om noen selskaper mangler id
-manglende.id <- dat[is.na(dat$id),]
-manglende.id[c("selskap", "orgnr")]
-stopifnot(nrow(manglende.id) == 0)
-rm(manglende.id, id)
+# Logical check for companies that without ID
+missing.id <- dat[is.na(dat$id),]
+missing.id[c("comp", "orgn")]
+stopifnot(nrow(missing.id) == 0)
+rm(missing.id, id)
 
-### Utvalg av selskaper ####
-# Endre metoden
-# Diverse utvalg av selskaper, basert på orgnr
-#  De som skal måles:
-eval.r = dat$id[dat$r_TOTXDEA >= 7000 & dat$r_vluft > 0 & dat$aar == y.cb]
-#  De som kan danne fronten:
-front.r = dat$id[dat$r_TOTXDEA >= 15000 & dat$aar == y.cb]
-#  De som skal evalueres, men ikke kan være på fronten:
-sep.eval.r = setdiff(eval.r,front.r)
+### Selecting companies for different evaluation types ####
 
 
-# Roar metoden
-### Denne metoden baserer seg på å angi dummyverdier for selskapene som skal
-### være med i DEA basert på listene av selskap i fil "1_0_Config_Assumptions_Data.R"
-
-#### Fjerner bestemte selskap fra datasettet basert på id ##
-
-## Selskaper som av diverse årsaker er unntat vanlig DEA- eller IR-regulering
-# D-nett
-d_spesial <- (c(10, 108, 121, 167, 222, 512, 686, 743))
-d_dea_til_gjsnitt <- (c(187, 294, 652, 852))
-d_separat_dmuer <- (c())
-d_ikkeIR <- (c(134, 348, 521, 612, 638, 696)) # IDene finnes ikke
+# # Based on values (Improve - insert reference) - yet to be implemented
+# #  De som skal måles:
+# eval.r = dat$id[dat$r_TOTXDEA >= 7000 & dat$r_vluft > 0 & dat$y == y.cb]
+# #  De som kan danne fronten:
+# front.r = dat$id[dat$r_TOTXDEA >= 15000 & dat$y == y.cb]
+# #  De som skal evalueres, men ikke kan være på fronten:
+# sep.eval.r = setdiff(eval.r,front.r)
 
 
-# R/S-nett
-r_spesial <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
+# Manually defining group memberships 
+# Local Distribution Grid
+ld_OOTO <- (c(10, 108, 121, 167, 222, 512, 686, 743)) #Companies Out Of The Ordinary
+ld_av.eff <- (c(187, 294, 652, 852)) # Companies set to average efficency
+ld_sep.eval <- (c()) # Companies included in DEA, but only allowed to be peers for themselves
+d_no.rc <- (c(134, 348, 521, 612, 638, 696)) # Companies exluded from revenue cap calc
+
+
+# Regional distribution grid (+ some transmission)
+rd_OOTO <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
                 204, 222, 238, 274, 287, 307, 343, 349, 447, 484, 512, 
                 659, 686, 743)) # prøver, 10, her 
-r_separat_dmuer <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669))  # 14, 753 
 
-r_dea_til_gjsnitt <- (c(116, 542, 685, 852))
+rd_av.eff <- (c(116, 542, 685, 852)) 
 
+rd_sep.eval <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669))  # 14, 753 
 
-# KPI-data
-kpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.7, 143.8)
-names(kpi) = 2004:2016
+# CPI
+cpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.7, 143.8)
+names(cpi) = 2004:2016
 
-kpia = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.4, 221.6)
-names(kpia) = 2004:2016
+cpiw = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.4, 221.6)
+names(cpiw) = 2004:2016
 
 
 # Data for Hammerfest
-hfmo = read.csv("./Data/Grunnlagsdata/Hammerfest_Melkoya.csv", sep = ",")
+hfmo = read.csv("./Data/BaseData/Hammerfest_Melkoya.csv", sep = ",")
 # Inkluderer bokførte verdier for Hammerfest
 dat = merge.data.frame(dat, hfmo, by="idaar", all.x = TRUE)
 ### Her er det klønete kode Endre kan hjelpe oss med
@@ -153,14 +150,14 @@ rm(hfmo)
 
 
 # Importerer data med områdepriser fra t-2
-omraadepris_t2 = read.csv("./Data/Grunnlagsdata/omraadepris_t2.csv", sep = ",")
+omraadepris_t2 = read.csv("./Data/BaseData/omraadepris_t2.csv", sep = ",")
 dat = merge.data.frame(dat, omraadepris_t2, by="idaar", all.x = TRUE)
 
-dat$omraadepris_t2[dat$idaar==8722014] = 244.24
-dat$omraadepris_t2[dat$idaar==9002014] = 273.92
+dat$omraadepris_t2[dat$id.y==8722014] = 244.24
+dat$omraadepris_t2[dat$id.y==9002014] = 273.92
 dat$omraadepris_t2 = dat$omraadepris_t2/1000
 
 
 #CPI factors are used in revenue cap-calculations (part 4)
-faktisk.aar.kpiafaktor = kpia[as.character(IR.aar)]/kpia[as.character(y.cb)]
-faktisk.aar.kpifaktor = kpi[as.character(IR.aar)]/kpi[as.character(y.cb)]
+faktisk.aar.cpiwfaktor = cpiw[as.character(IR.aar)]/cpiw[as.character(y.cb)]
+faktisk.aar.cpifaktor = cpi[as.character(IR.aar)]/cpi[as.character(y.cb)]

@@ -15,7 +15,7 @@ getwd()
 my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
 setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
-# Følgende pakker benyttes
+# Following packages are used
 # Benchmarking, xlsx, plyr, dplyr
 library(Benchmarking)
 library(xlsx)
@@ -26,8 +26,9 @@ library(FactoMineR) # Kan fjernes?
 library(outliers)
 library(plot3D)
 
-source("./R-script/functions_nve.R")
-# Ønsker å vise store tall som fulle verdier, ikke som potenser
+source("./R-script/functions_nve.R") # File containing functions created for/by NVE
+
+# Avoid showing large numbers in scientific mode
 options(scipen = 100)
 
 #### Preperation stage - Configurations, data import, data preparation ####
