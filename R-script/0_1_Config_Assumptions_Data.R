@@ -27,7 +27,7 @@ sysp.t_2 = 0.26135
 # Decision
 NVE.ir.t = NVE.ir[as.character(y.rc)]
 
-# Economic assumptions (? - improve)
+# Economic assumptions (? - Improve)
 wcp = 1.01 # working capital premium
 rho = 0.6 # Norm cost share in revenue cap 
 gci.p = 1 # Price of grid components in interface, regional and local distribution grids
@@ -89,7 +89,7 @@ dat$ld_sub[dat$id.y == 7432013] <- 245
 # Remove Statnett SFs observations from dataset (TSO)
 dat <- dat[!(dat$orgn==962986633),] 
 
-# Logical check for companies that without ID
+# Check for companies that without ID
 missing.id <- dat[is.na(dat$id),]
 missing.id[c("comp", "orgn")]
 stopifnot(nrow(missing.id) == 0)
@@ -133,31 +133,29 @@ names(cpiw) = 2004:2016
 
 
 # Data for Hammerfest
+# Special treatment of CAPEX associated with LNG facility on Melkoya (Improve - ref?)
 hfmo = read.csv("./Data/BaseData/Hammerfest_Melkoya.csv", sep = ",")
-# Inkluderer bokførte verdier for Hammerfest
-dat = merge.data.frame(dat, hfmo, by="idaar", all.x = TRUE)
-### Her er det klønete kode Endre kan hjelpe oss med
-dat$r_abbfv_melk[is.na(dat$r_abbfv_melk)] <- 0
-dat$r_abavs_melk[is.na(dat$r_abavs_melk)] <- 0
-
-dat$tempbfv <- dat$r_abbfv
-dat$tempavs <- dat$r_abavs
-dat$r_abbfv = dat$tempbfv - dat$r_abbfv_melk
-dat$r_abavs = dat$tempavs - dat$r_abavs_melk
-dat$tempbfv <- NULL
-dat$tempavs <- NULL
+dat = merge.data.frame(dat, hfmo, by="id.y", all.x = TRUE)
+dat$rd_bv.gf_melk[is.na(dat$rd_bv.gf_melk)] <- 0
+dat$rd_dep.gf_melk[is.na(dat$rd_dep.gf_melk)] <- 0
+dat$tempbv <- dat$rd_bv.gf
+dat$tempdep <- dat$rd_dep.gf
+dat$rd_bv.gf = dat$tempbv - dat$rd_bv.gf_melk
+dat$rd_dep.gf = dat$tempdep - dat$rd_dep.gf_melk
+dat$tempbv <- NULL
+dat$tempdep <- NULL
 rm(hfmo)
 
 
-# Importerer data med områdepriser fra t-2
-omraadepris_t2 = read.csv("./Data/BaseData/omraadepris_t2.csv", sep = ",")
-dat = merge.data.frame(dat, omraadepris_t2, by="idaar", all.x = TRUE)
+# Import area prices pr company from cost base year
+ap.t_2 = read.csv("./Data/BaseData/areaprices_t_2.csv", sep = ",")
+dat = merge.data.frame(dat, ap.t_2, by="id.y", all.x = TRUE)
 
-dat$omraadepris_t2[dat$id.y==8722014] = 244.24
-dat$omraadepris_t2[dat$id.y==9002014] = 273.92
-dat$omraadepris_t2 = dat$omraadepris_t2/1000
+dat$ap.t_2[dat$id.y==8722014] = 244.24
+dat$ap.t_2[dat$id.y==9002014] = 273.92
+dat$ap.t_2 = dat$ap.t_2/1000
 
 
 #CPI factors are used in revenue cap-calculations (part 4)
-faktisk.aar.cpiwfaktor = cpiw[as.character(IR.aar)]/cpiw[as.character(y.cb)]
-faktisk.aar.cpifaktor = cpi[as.character(IR.aar)]/cpi[as.character(y.cb)]
+faktisk.aar.cpiwfaktor = cpiw[as.character(y.rc)]/cpiw[as.character(y.cb)]
+faktisk.aar.cpifaktor = cpi[as.character(y.rc)]/cpi[as.character(y.cb)]
