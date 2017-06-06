@@ -1,35 +1,39 @@
 #### 1.1 Calculates Input Values for DEA ####
 
 
-#### Grensesnittvariabel ####
-# Må også ta hensyn til grensesnittkostnadene
-dat$d_grs.dummy = 1
-for (i in which(dat$id %in% d_dea_til_gjsnitt | dat$id %in% d_spesial)){
-        dat[i, "d_grs.dummy"] = 0 
+## Variable for costs associated with assests
+## in interface between local and regional distribution
+
+dat$ld_gci.dummy = 1
+for (i in which(dat$id %in% ld_av.eff | dat$id %in% ld_OOTO)){
+        dat[i, "ld_gci.dummy"] = 0 
 }
 
 # Priser inn grensesnittvariabelen
-dat$d_grs.cost = 0
-dat$d_grs.cost = ifelse(dat$d_grs.dummy == 1, dat$d_grs * grs_pris, 0)
+dat$ld_gci.cost = 0
+dat$ld_gci.cost = ifelse(dat$ld_gci.dummy == 1, dat$ld_gci * gci.p, 0)
 
-#### KPI ####
-# KPI-justering
-var_kpi = c("d_kile", "r_kile", "s_kile")
-fp_var_kpi = paste("fp_", var_kpi, sep = "")
-dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(var_kpi), dimnames = list(var_kpi = fp_var_kpi))))
-for(c in 1:length(var_kpi))
+#### CPI ####
+# CPI adjustment
+v_cpi = c("ld_cens", "rd_cens", "t_cens")
+fp_v_cpi = paste("fp_", v_cpi, sep = "")
+dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(v_cpi), dimnames = list(v_cpi = fp_v_cpi))))
+for(c in 1:length(v_cpi))
         for(r in 1:nrow(dat))
-                dat[r, fp_var_kpi[c]] = dat[r, var_kpi[c]] * kpi[as.character(faktisk.aar)] / kpi[as.character(dat[r, "aar"])]
+                dat[r, fp_v_cpi[c]] = dat[r, v_cpi[c]] * cpi[as.character(y.cb)] / cpi[as.character(dat[r, "y"])]
 
-# KPIA-justering
-var_kpia = c("d_391", "r_391", "s_391", "d_pensj", "r_pensj", "s_pensj", "d_pensjek", "r_pensjek", "s_pensjek", 
-             "d_impl", "r_impl", "s_impl", "d_DVxL", "d_utred", "r_DVxL", "r_utred", "s_DVxL", "d_lonn", 
-             "d_lonnakt", "r_lonn", "r_lonnakt", "s_lonn", "s_lonnakt")
-fp_var_kpia = paste("fp_", var_kpia, sep = "")
-dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(var_kpia), dimnames = list(var_kpia = fp_var_kpia))))
-for(c in 1:length(var_kpia))
+#### CPI.L ####
+# CPI.L adjustment
+# Adjusting variables with CPI by delivery sector, services where labor dominates Statistics Norwat table 11118 A/O 2017
+# https://www.ssb.no/en/priser-og-prisindekser/statistikker/kpi
+v_cpi.l = c("ld_391", "rd_391", "t_391", "ld_pens", "rd_pens", "t_pens", "ld_pens.eq", "rd_pens.eq", "t_pens.eq", 
+            "ld_impl", "rd_impl", "t_impl", "ld_OPEXxS", "ld_cga", "rd_OPEXxS", "rd_cga", "t_OPEXxS", "ld_sal", 
+            "ld_sal.cap", "rd_sal", "rd_sal.cap", "t_sal", "t_sal.cap")
+fp_v_cpi.l = paste("fp_", v_cpi.l, sep = "")
+dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(v_cpi.l), dimnames = list(v_cpi.l = fp_v_cpi.l))))
+for(c in 1:length(v_cpi.l))
         for(r in 1:nrow(dat))
-                dat[r, fp_var_kpia[c]] = dat[r, var_kpia[c]] * kpia[as.character(faktisk.aar)] / kpia[as.character(dat[r, "aar"])]
+                dat[r, fp_v_cpi.l[c]] = dat[r, v_cpi.l[c]] * cpi.l[as.character(y.cb)] / cpi.l[as.character(dat[r, "y"])]
 
 
 #### Pensjonskostnadsgrunnlag ####

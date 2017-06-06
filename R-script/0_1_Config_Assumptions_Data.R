@@ -112,7 +112,7 @@ rm(missing.id, id)
 ld_OOTO <- (c(10, 108, 121, 167, 222, 512, 686, 743)) #Companies Out Of The Ordinary
 ld_av.eff <- (c(187, 294, 652, 852)) # Companies set to average efficency
 ld_sep.eval <- (c()) # Companies included in DEA, but only allowed to be peers for themselves
-d_no.rc <- (c(134, 348, 521, 612, 638, 696)) # Companies exluded from revenue cap calc
+ld_no.rc <- (c(134, 348, 521, 612, 638, 696)) # Companies exluded from revenue cap calc
 
 
 # Regional distribution grid (+ some transmission)
@@ -128,8 +128,8 @@ rd_sep.eval <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669)
 cpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.7, 143.8)
 names(cpi) = 2004:2016
 
-cpiw = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.4, 221.6)
-names(cpiw) = 2004:2016
+cpi.l = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.4, 221.6)
+names(cpi.l) = 2004:2016
 
 
 # Data for Hammerfest
@@ -157,5 +157,5 @@ dat$ap.t_2 = dat$ap.t_2/1000
 
 
 #CPI factors are used in revenue cap-calculations (part 4)
-faktisk.aar.cpiwfaktor = cpiw[as.character(y.rc)]/cpiw[as.character(y.cb)]
+faktisk.aar.cpi.lfaktor = cpi.l[as.character(y.rc)]/cpi.l[as.character(y.cb)]
 faktisk.aar.cpifaktor = cpi[as.character(y.rc)]/cpi[as.character(y.cb)]
