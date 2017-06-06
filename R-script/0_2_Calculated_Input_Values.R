@@ -1,4 +1,4 @@
-#### 1.1 Calculates Input Values for DEA ####
+#### 0.2 Calculates Input Values for DEA ####
 
 
 ## Variable for costs associated with assests
@@ -36,68 +36,79 @@ for(c in 1:length(v_cpi.l))
                 dat[r, fp_v_cpi.l[c]] = dat[r, v_cpi.l[c]] * cpi.l[as.character(y.cb)] / cpi.l[as.character(dat[r, "y"])]
 
 
-#### Pensjonskostnadsgrunnlag ####
-# Historiske snittverdier for 2007-2013 (kun for pensjon)
-var_hist = c("fp_d_pensj", "fp_d_pensjek", "fp_d_impl", "fp_r_pensj", "fp_r_pensjek", "fp_r_impl", "fp_s_pensj", "fp_s_pensjek", "fp_s_impl")
-names_hist = c("d_pensj", "d_pensjek", "d_impl", "r_pensj", "r_pensjek", "r_impl", "s_pensj", "s_pensjek", "s_impl")
+
+#### Pension costs ####
+# Historical averages 2007-2013, smoother revenue caps over time
+# See NVE public hearing 4/2015, p.24 NOR, https://www.nve.no/media/2567/hoeringsdokument2015_04-tariffer-ved-sammenslaaing.pdf
+
+v_hist = c("fp_ld_pens", "fp_ld_pens.eq", "fp_rd_impl", "fp_rd_pens", "fp_rd_pens.eq", "fp_rd_impl", "fp_t_pens", "fp_t_pens.eq", "fp_t_impl")
+names_hist = c("ld_pens", "ld_pens.eq", "ld_impl", "rd_pens", "rd_pens.eq", "rd_impl", "t_pens", "t_pens.eq", "t_impl")
 hist = paste("hist_", names_hist, sep = "")
-dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(var_hist), dimnames = list(var_hist = hist))))
-for(c in 1:length(var_hist))
+dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(v_hist), dimnames = list(v_hist = hist))))
+for(c in 1:length(v_hist))
         for(r in 1:nrow(dat)){
-                if (dat[r, "aar"] <= 2013)
-                        dat[r, hist[c]] = mean(dat[dat$orgnr == dat$orgnr[r] & dat$aar %in% hist.pensj.aar,var_hist[c]], na.rm = T)
-                if (dat[r, "aar"] > 2013)
-                        dat[r, hist[c]] = dat[r, var_hist[c]]
-}
+                if (dat[r, "y"] <= 2013)
+                        dat[r, hist[c]] = mean(dat[dat$orgn == dat$orgn[r] & dat$y %in% y.hist.pen,v_hist[c]], na.rm = T)
+                if (dat[r, "y"] > 2013)
+                        dat[r, hist[c]] = dat[r, v_hist[c]]
+        }
 
-# Femårige snittverdier (kun for pensjon)
-var_avg = c("hist_d_pensj", "hist_d_pensjek", "hist_d_impl", "hist_r_pensj", "hist_r_pensjek", "hist_r_impl", "hist_s_pensj", "hist_s_pensjek", "hist_s_impl", "d_grs")
-names_avg = c("d_pensj", "d_pensjek", "d_impl", "r_pensj", "r_pensjek", "r_impl", "s_pensj", "s_pensjek", "s_impl", "d_grs")
+# Five year historical averages of pension costs
+v_av.pen = c("hist_ld_pens", "hist_ld_pens.eq", "hist_ld_impl", "hist_rd_pens", "hist_rd_pens.eq", "hist_rd_impl", "hist_t_pens", "hist_t_pens.eq", "hist_t_impl", "ld_gci")
+names_avg = c("ld_pens", "ld_pens.eq", "ld_impl", "rd_pens", "rd_pens.eq", "rd_impl", "t_pens", "t_pens.eq", "t_impl", "ld_gci")
 avg = paste("av_", names_avg,sep = "")
-dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(var_avg), dimnames = list(var_avg = avg))))
-for(c in 1:length(var_avg))
+dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(v_av.pen), dimnames = list(v_av.pen = avg))))
+for(c in 1:length(v_av.pen))
         for(r in 1:nrow(dat))
-                if (dat[r,"aar"] %in% snitt.aar)
-                        dat[r, avg[c]] = mean(dat[dat$orgnr == dat$orgnr[r] & dat$aar %in% snitt.aar,var_avg[c]], na.rm = T)
+                if (dat[r,"y"] %in% y.avg)
+                        dat[r, avg[c]] = mean(dat[dat$orgn == dat$orgn[r] & dat$y %in% y.avg,v_av.pen[c]], na.rm = T)
 
-# Pensjonskostnadsgrunnlag
-dat$fp_d_pensjkostgrlag = dat$av_d_pensj + dat$av_d_pensjek - dat$av_d_impl
-dat$fp_r_pensjkostgrlag = dat$av_r_pensj + dat$av_r_pensjek - dat$av_r_impl
-dat$fp_s_pensjkostgrlag = dat$av_s_pensj + dat$av_s_pensjek - dat$av_s_impl
+# Pension cost base, included in OPEX
+dat$fp_ld_pcb = dat$av_ld_pens + dat$av_ld_pens.eq - dat$av_ld_impl
+dat$fp_rd_pcb = dat$av_rd_pens + dat$av_rd_pens.eq - dat$av_rd_impl
+dat$fp_t_pcb = dat$av_t_pens + dat$av_t_pens.eq - dat$av_t_impl
 
 
-#### Kostnadsgrunnlag ####
-# Compute TOTXDEA for D-nett
-dat$fp_d_dv     = dat$fp_d_DVxL + dat$fp_d_lonn - dat$fp_d_lonnakt + dat$fp_d_pensjkostgrlag
-dat$fp_d_DV     = dat$fp_d_dv - dat$fp_d_391 - dat$fp_d_utred
-dat$d_akg       = dat$d_bfv * arb.kap.paaslag
-dat$d_abakg     = dat$d_abbfv * arb.kap.paaslag
-dat$d_AKG       = dat$d_akg + dat$d_abakg
-dat$d_AVS       = dat$d_avs + dat$d_abavs
-dat$d_nettapkr  = dat$d_nettap * nettapspris.dea
-dat$d_TOTXDEA   = dat$fp_d_DV + (dat$d_AKG * rente.dea) + dat$d_AVS + dat$fp_d_kile + dat$d_nettapkr - dat$d_grs.cost
+#### Cost base ####
+# Compute TOTXDEA local distribution
+dat$fp_ld_opex     = dat$fp_ld_OPEXxS + dat$fp_ld_sal - dat$fp_ld_sal.cap + dat$fp_ld_pcb
+dat$fp_ld_OPEX     = dat$fp_ld_opex - dat$fp_ld_391 - dat$fp_ld_cga
+dat$ld_rab.sf       = dat$ld_bv.sf * wcp
+dat$ld_rab.gf     = dat$ld_bv.gf * wcp
+dat$ld_RAB       = dat$ld_rab.sf + dat$ld_rab.gf
+dat$ld_DEP       = dat$ld_dep.sf + dat$ld_dep.gf
+dat$ld_nl.NOK  = dat$ld_nl * pnl.dea
+dat$ld_TOTXDEA   = dat$fp_ld_OPEX + (dat$ld_RAB * ir.dea) + dat$ld_DEP + dat$fp_ld_cens + dat$ld_nl.NOK - dat$ld_gci.cost
 
-# Compute TOTXDEA for R-nett
-dat$fp_r_dv     = dat$fp_r_DVxL + dat$fp_r_lonn - dat$fp_r_lonnakt + dat$fp_r_pensjkostgrlag 
-dat$fp_r_DV     = dat$fp_r_dv - dat$fp_r_391 - dat$fp_r_utred
-dat$r_akg       = dat$r_bfv * arb.kap.paaslag
-dat$r_abakg     = dat$r_abbfv * arb.kap.paaslag
-dat$r_AKG       = dat$r_akg + dat$r_abakg
-dat$r_AVS       = dat$r_avs + dat$r_abavs
-dat$r_TOTXDEA   = dat$fp_r_DV + (dat$r_AKG * rente.dea) + dat$r_AVS + dat$fp_r_kile
+# Compute TOTXDEA for regional distribution
+        #network losses not included in benchmarked costs
+dat$fp_rd_opex     = dat$fp_rd_OPEXxS + dat$fp_rd_sal - dat$fp_rd_sal.cap + dat$fp_rd_pcb
+dat$fp_rd_OPEX     = dat$fp_rd_opex - dat$fp_rd_391 - dat$fp_rd_cga
+dat$rd_rab.sf       = dat$rd_bv.sf * wcp
+dat$rd_rab.gf     = dat$rd_bv.gf * wcp
+dat$rd_RAB       = dat$rd_rab.sf + dat$rd_rab.gf
+dat$rd_DEP       = dat$rd_dep.sf + dat$rd_dep.gf
+dat$rd_TOTXDEA   = dat$fp_rd_OPEX + (dat$rd_RAB * ir.dea) + dat$rd_DEP + dat$fp_rd_cens
 
-# Compute TOTXDEA for S-nett
-dat$fp_s_dv     = dat$fp_s_DVxL + dat$fp_s_lonn - dat$fp_s_lonnakt + dat$fp_s_pensjkostgrlag
-dat$fp_s_DV    = dat$fp_s_dv - dat$fp_s_391
-dat$s_akg       = dat$s_bfv * arb.kap.paaslag 
-dat$s_TOTXDEA   = dat$fp_s_DV + (dat$s_akg * rente.dea) + dat$s_avs + dat$fp_s_kile
+# Compute TOTXDEA for transmission grid
+dat$fp_t_opex     = dat$fp_t_OPEXxS + dat$fp_t_sal - dat$fp_t_sal.cap + dat$fp_t_pcb
+dat$fp_t_OPEX    = dat$fp_t_opex - dat$fp_t_391
+dat$t_rab       = dat$t_bv * wcp 
+dat$t_TOTXDEA   = dat$fp_t_OPEX + (dat$t_rab * ir.dea) + dat$t_dep + dat$fp_t_cens
 
-# Femårige snittverdier (totalkostnad og outputs)
-var_sf = c("d_TOTXDEA", "d_ab", "d_hs", "d_ns", "r_TOTXDEA", "r_vluft", "r_vjord", "r_vsjo", "r_vgrs")
-sf = paste("sf_", var_sf, sep="")
-dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(var_sf), dimnames = list(var_sf = sf))))
-for(c in 1:length(var_sf))
+
+#Peers determined by five year historical average data
+# Discribed in NVE report 7/2012, p. 37 NOR http://publikasjoner.nve.no/rapport/2012/rapport2012_71.pdf
+# Purpose: Stabilize front by smoothing cost variation within last five year.
+# Increases comparability as all companies are compared against historical average, including peers.
+
+v_fha = c("ld_TOTXDEA", "ld_sub", "ld_hv", "ld_ss", "rd_TOTXDEA", "rd_wv.ol", "rd_wv.uc", "rd_wv.sc", "rd_wv.ss")
+fha = paste("fha_", v_fha, sep="")
+dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(v_fha), dimnames = list(v_fha = fha))))
+for(c in 1:length(v_fha))
         for(r in 1:nrow(dat))
-                if (dat[r,"aar"] %in% snitt.aar)
-                        dat[r, sf[c]] = mean(dat[dat$orgnr == dat$orgnr[r] & dat$aar %in% snitt.aar, var_sf[c]], na.rm = T)
+                if (dat[r,"y"] %in% y.avg)
+                        dat[r, fha[c]] = mean(dat[dat$orgn == dat$orgn[r] & dat$y %in% y.avg, v_fha[c]], na.rm = T)
+
+
 
