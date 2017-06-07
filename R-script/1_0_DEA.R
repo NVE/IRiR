@@ -75,65 +75,65 @@ Y.cb.rd$rd_wv.ss <- round(Y.cb.rd$rd_wv.ss, digits = 0)
 
 ### DEA input
 write.csv(cbind(ld_EVAL$id, X.avg.ld, Y.avg.ld,X.cb.ld, Y.cb.ld), file = "./Results/ld_InputDEA.csv")
+#Companies that can only be their own peers
+ld_sep.eval
+
+#### Actual calculations of efficiency scores using
+# dea command from Benchmarking package by P. Bogetoft & L. Otto
+# https://cran.r-project.org/web/packages/Benchmarking/Benchmarking.pdf
 
 
-#selskapene som kun kan danne front for seg selv er disse
-d_separat_dmuer
+#Local distribution grid
+# Cost base year observations, peers determined by average data
+dea.cb.avg.ld = dea(X=X.cb.ld, Y=Y.cb.ld, XREF=X.avg.ld[as.character(ld_eval)], YREF=Y.avg.ld[as.character(ld_eval),], RTS="crs")
+plot(sort(dea.cb.avg.ld$eff))
+#View(cbind(X.cb.ld, Y.avg.ld, dea.cb.avg.ld$eff)[order(dea.cb.avg.ld$eff)])
+ld_EVAL = data.frame(cbind(ld_EVAL, dea.cb.avg.ld$eff))
+colnames(ld_EVAL)[colnames(ld_EVAL)=="dea.cb.avg.ld.eff"] <- "ld_eff.s1.cb"
 
-#id for alle selskapene som ikke er spesialmodell
-
-# Hovedkjøring trinn 1
-# Merk at fronten defineres av de radene i X.avg.ld og Y.avg.ld, deascore beregnes som 
-# årets observasjoner av kostnader (X.cb.ld) og oppgaver Y.cb.ld
-#D-nett
-dea.faktisk.snitt.d = dea(X=X.cb.ld, Y=Y.cb.ld, XREF=X.avg.ld[as.character(d_normal)], YREF=Y.avg.ld[as.character(d_normal),], RTS="crs")
-plot(sort(dea.faktisk.snitt.d$eff))
-#View(cbind(X.cb.ld, Y.avg.ld, dea.faktisk.snitt.d$eff)[order(dea.faktisk.snitt.d$eff)])
-ld_EVAL = data.frame(cbind(ld_EVAL, dea.faktisk.snitt.d$eff))
-colnames(ld_EVAL)[colnames(ld_EVAL)=="dea.faktisk.snitt.d.eff"] <- "d_f_sf_eff"
-
-#Beregner ren snitt front
-dea.snitt.snitt.d = dea(X=X.avg.ld, Y=Y.avg.ld, XREF=X.avg.ld[as.character(d_normal)], YREF=Y.avg.ld[as.character(d_normal),], RTS="crs")
-plot(sort(dea.snitt.snitt.d$eff))
-ld_EVAL = data.frame(cbind(ld_EVAL, dea.snitt.snitt.d$eff))
-colnames(ld_EVAL)[colnames(ld_EVAL)=="dea.snitt.snitt.d.eff"] <- "d_sf_eff"
+#Calculating effeciency, only including average observations
+dea.avg.avg.ld = dea(X=X.avg.ld, Y=Y.avg.ld, XREF=X.avg.ld[as.character(ld_eval)], YREF=Y.avg.ld[as.character(ld_eval),], RTS="crs")
+plot(sort(dea.avg.avg.ld$eff))
+ld_EVAL = data.frame(cbind(ld_EVAL, dea.avg.avg.ld$eff))
+colnames(ld_EVAL)[colnames(ld_EVAL)=="dea.avg.avg.ld.eff"] <- "ld_eff.s1.avg"
 
 
-#spesialkjøring for selskaper som bare kan være front for seg selv
-eff.faktisk.snitt.d = dea.faktisk.snitt.d$eff
 
-d_lambda = cbind(dea.faktisk.snitt.d$lambda,matrix(NA,nrow=nrow(dea.faktisk.snitt.d$lambda),ncol=length(d_separat_dmuer)))
-colnames(d_lambda) = c(d_normal,d_separat_dmuer)
-for(i in d_separat_dmuer)
+#Adapted calculation for companies only allowed to be their own peers, cost base data
+eff.cb.avg.ld = dea.cb.avg.ld$eff
+
+ld_lambda = cbind(dea.cb.avg.ld$lambda,matrix(NA,nrow=nrow(dea.cb.avg.ld$lambda),ncol=length(ld_sep.eval)))
+colnames(ld_lambda) = c(ld_eval,ld_sep.eval)
+for(i in ld_sep.eval)
 {
-        dea.sep.faktisk.snitt.d = dea(X=X.cb.ld,Y=Y.cb.ld,RTS="crs",XREF=X.avg.ld[as.character(c(d_normal,i))],YREF=Y.avg.ld[as.character(c(d_normal,i)),])
-        eff.faktisk.snitt.d[as.character(i)] = dea.sep.faktisk.snitt.d$eff[as.character(i)] 
-        for(j in c(d_normal,i))
-                d_lambda[as.character(i),as.character(j)] = dea.sep.faktisk.snitt.d$lambda[as.character(i),paste("L_",as.character(j),sep="")]
+        dea.sep.cb.avg.ld = dea(X=X.cb.ld,Y=Y.cb.ld,RTS="crs",XREF=X.avg.ld[as.character(c(ld_eval,i))],YREF=Y.avg.ld[as.character(c(ld_eval,i)),])
+        eff.cb.avg.ld[as.character(i)] = dea.sep.cb.avg.ld$eff[as.character(i)] 
+        for(j in c(ld_eval,i))
+                ld_lambda[as.character(i),as.character(j)] = dea.sep.cb.avg.ld$lambda[as.character(i),paste("L_",as.character(j),sep="")]
 }
 
-d_lambda = d_lambda[,order(as.numeric(colnames(d_lambda)))]
+ld_lambda = ld_lambda[,order(as.numeric(colnames(ld_lambda)))]
 
 
-#spesialkjøring for selskaper som bare kan være front for seg selv
-eff.snitt.snitt.d = dea.snitt.snitt.d$eff
+#Adapted calculation for companies only allowed to be their own peers, average data only
+eff.avg.avg.ld = dea.avg.avg.ld$eff
 
-d_lambda.snitt = cbind(dea.snitt.snitt.d$lambda,matrix(NA,nrow=nrow(dea.snitt.snitt.d$lambda),ncol=length(d_separat_dmuer)))
-colnames(d_lambda.snitt) = c(d_normal,d_separat_dmuer)
-for(i in d_separat_dmuer)
+ld_lambda.avg = cbind(dea.avg.avg.ld$lambda,matrix(NA,nrow=nrow(dea.avg.avg.ld$lambda),ncol=length(ld_sep.eval)))
+colnames(ld_lambda.avg) = c(ld_eval,ld_sep.eval)
+for(i in ld_sep.eval)
 {
-        dea.sep.snitt.snitt.d = dea(X=X.avg.ld,Y=Y.avg.ld,RTS="crs",XREF=X.avg.ld[as.character(c(d_normal,i))],YREF=Y.avg.ld[as.character(c(d_normal,i)),])
-        eff.snitt.snitt.d[as.character(i)] = dea.sep.snitt.snitt.d$eff[as.character(i)]
-        for(j in c(d_normal,i))
-                d_lambda.snitt[as.character(i),as.character(j)] = dea.sep.snitt.snitt.d$lambda[as.character(i),paste("L_",as.character(j),sep="")]
+        dea.sep.avg.avg.ld = dea(X=X.avg.ld,Y=Y.avg.ld,RTS="crs",XREF=X.avg.ld[as.character(c(ld_eval,i))],YREF=Y.avg.ld[as.character(c(ld_eval,i)),])
+        eff.avg.avg.ld[as.character(i)] = dea.sep.avg.avg.ld$eff[as.character(i)]
+        for(j in c(ld_eval,i))
+                ld_lambda.avg[as.character(i),as.character(j)] = dea.sep.avg.avg.ld$lambda[as.character(i),paste("L_",as.character(j),sep="")]
 }
 
 
-d_lambda.snitt = d_lambda.snitt[,order(as.numeric(colnames(d_lambda.snitt)))]
+ld_lambda.avg = ld_lambda.avg[,order(as.numeric(colnames(ld_lambda.avg)))]
 
 ##Setter alle NA-verdier i lambda(vekt-dataframes til 0.)
-d_lambda[is.na(d_lambda)] <- 0
-d_lambda.snitt[is.na(d_lambda.snitt)] <- 0
+ld_lambda[is.na(ld_lambda)] <- 0
+ld_lambda.avg[is.na(ld_lambda.avg)] <- 0
 
 
 #### DEA R-nett ####
@@ -152,7 +152,7 @@ r_separat_dmuer
 #D-nett
 dea.faktisk.snitt.r = dea(X=X.cb.rd, Y=Y.cb.rd, XREF=X.avg.rd[as.character(r_normal)], YREF=Y.avg.rd[as.character(r_normal),], RTS="crs")
 plot(sort(dea.faktisk.snitt.r$eff))
-#View(cbind(X.cb.ld, Y.avg.ld, dea.faktisk.snitt.d$eff)[order(dea.faktisk.snitt.d$eff)])
+#View(cbind(X.cb.ld, Y.avg.ld, dea.cb.avg.ld$eff)[order(dea.cb.avg.ld$eff)])
 rd_EVAL = data.frame(cbind(rd_EVAL, dea.faktisk.snitt.r$eff))
 #Endrer navn på variabelen som merges inn
 colnames(rd_EVAL)[colnames(rd_EVAL)=="dea.faktisk.snitt.r.eff"] <- "r_f_sf_eff"

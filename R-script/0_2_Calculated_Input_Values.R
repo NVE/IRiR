@@ -81,7 +81,7 @@ dat$ld_nl.NOK  = dat$ld_nl * pnl.dea
 dat$ld_TOTXDEA   = dat$fp_ld_OPEX + (dat$ld_RAB * ir.dea) + dat$ld_DEP + dat$fp_ld_cens + dat$ld_nl.NOK - dat$ld_gci.cost
 
 # Compute TOTXDEA for regional distribution
-        #network losses not included in benchmarked costs
+#network losses not included in benchmarked costs
 dat$fp_rd_opex     = dat$fp_rd_OPEXxS + dat$fp_rd_sal - dat$fp_rd_sal.cap + dat$fp_rd_pcb
 dat$fp_rd_OPEX     = dat$fp_rd_opex - dat$fp_rd_391 - dat$fp_rd_cga
 dat$rd_rab.sf       = dat$rd_bv.sf * wcp
