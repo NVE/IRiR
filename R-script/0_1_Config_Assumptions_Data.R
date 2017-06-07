@@ -1,6 +1,6 @@
-#### Oppsett, forutsetninger og dataimport ####
+#### 0.1 Configuration, assumptions and data import ####
 
-#### Definerer parametre i analysen ####
+#### Defining parameters in model####
 
 # Parameters
 #kraftpris = 0.26135
@@ -117,8 +117,8 @@ ld_no.rc <- (c(134, 348, 521, 612, 638, 696)) # Companies exluded from revenue c
 
 # Regional distribution grid (+ some transmission)
 rd_OOTO <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
-                204, 222, 238, 274, 287, 307, 343, 349, 447, 484, 512, 
-                659, 686, 743)) # prøver, 10, her 
+              204, 222, 238, 274, 287, 307, 343, 349, 447, 484, 512, 
+              659, 686, 743)) # prøver, 10, her 
 
 rd_av.eff <- (c(116, 542, 685, 852)) 
 
