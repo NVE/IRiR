@@ -1,4 +1,4 @@
-#### 1.0 Calculates  ####
+#### 1.0 Calculates DEA scores before Z-factors  - Stage 1 ####
 
 ## Five year historical averages are used for defining the efficient frontier
 
@@ -70,8 +70,8 @@ Y.cb.rd$rd_wv.uc <- round(Y.cb.rd$rd_wv.uc, digits = 0)
 Y.cb.rd$rd_wv.sc <- round(Y.cb.rd$rd_wv.sc, digits = 0)
 Y.cb.rd$rd_wv.ss <- round(Y.cb.rd$rd_wv.ss, digits = 0)
 
-#### DEA D-nett ####
 
+#### DEA calculations local distribution ####
 
 ### DEA input
 write.csv(cbind(ld_EVAL$id, X.avg.ld, Y.avg.ld,X.cb.ld, Y.cb.ld), file = "./Results/ld_InputDEA.csv")
@@ -131,73 +131,66 @@ for(i in ld_sep.eval)
 
 ld_lambda.avg = ld_lambda.avg[,order(as.numeric(colnames(ld_lambda.avg)))]
 
-##Setter alle NA-verdier i lambda(vekt-dataframes til 0.)
+# Impute 0 in all cells containing NA in lambda matrix
 ld_lambda[is.na(ld_lambda)] <- 0
 ld_lambda.avg[is.na(ld_lambda.avg)] <- 0
 
 
-#### DEA R-nett ####
+#### DEA calculations regional distribution ####
 
 ### DEA input
-write.csv(cbind(rd_EVAL$id, X.avg.rd, Y.avg.rd, X.cb.rd, Y.cb.rd), file = "./Resultater/r_InputDEA.csv")
+write.csv(cbind(rd_EVAL$id, X.avg.rd, Y.avg.rd, X.cb.rd, Y.cb.rd), file = "./Results/rd_InputDEA.csv")
 
-#selskapene som kun kan danne front for seg selv er disse
-r_separat_dmuer
+#Companies only allowed to be their own peers are in this group
+rd_sep.eval
 
-#id for alle selskapene som ikke er spesialmodell
-
-# Hovedkjøring trinn 1
-# Merk at fronten defineres av de radene i X.avg.ld og Y.avg.ld, deascore beregnes som 
-# årets observasjoner av kostnader (X.cb.ld) og oppgaver Y.cb.ld
-#D-nett
-dea.faktisk.snitt.r = dea(X=X.cb.rd, Y=Y.cb.rd, XREF=X.avg.rd[as.character(r_normal)], YREF=Y.avg.rd[as.character(r_normal),], RTS="crs")
-plot(sort(dea.faktisk.snitt.r$eff))
+# Cost base year observations, peers determined by average data
+dea.cb.avg.rd = dea(X=X.cb.rd, Y=Y.cb.rd, XREF=X.avg.rd[as.character(rd_eval)], YREF=Y.avg.rd[as.character(rd_eval),], RTS="crs")
+plot(sort(dea.cb.avg.rd$eff))
 #View(cbind(X.cb.ld, Y.avg.ld, dea.cb.avg.ld$eff)[order(dea.cb.avg.ld$eff)])
-rd_EVAL = data.frame(cbind(rd_EVAL, dea.faktisk.snitt.r$eff))
-#Endrer navn på variabelen som merges inn
-colnames(rd_EVAL)[colnames(rd_EVAL)=="dea.faktisk.snitt.r.eff"] <- "r_f_sf_eff"
+rd_EVAL = data.frame(cbind(rd_EVAL, dea.cb.avg.rd$eff))
+colnames(rd_EVAL)[colnames(rd_EVAL)=="dea.cb.avg.rd.eff"] <- "rd_eff.s1.cb"
 
-#Beregner ren snitt front
-dea.snitt.snitt.r = dea(X=X.avg.rd, Y=Y.avg.rd, XREF=X.avg.rd[as.character(r_normal)], YREF=Y.avg.rd[as.character(r_normal),], RTS="crs")
-plot(sort(dea.snitt.snitt.r$eff))
-rd_EVAL = data.frame(cbind(rd_EVAL, dea.snitt.snitt.r$eff))
-#Endrer navn på variabelen som merges inn
-colnames(rd_EVAL)[colnames(rd_EVAL)=="dea.snitt.snitt.r.eff"] <- "r_sf_eff"
+#Calculating effeciency, only including average observations
+dea.avg.avg.rd = dea(X=X.avg.rd, Y=Y.avg.rd, XREF=X.avg.rd[as.character(rd_eval)], YREF=Y.avg.rd[as.character(rd_eval),], RTS="crs")
+plot(sort(dea.avg.avg.rd$eff))
+rd_EVAL = data.frame(cbind(rd_EVAL, dea.avg.avg.rd$eff))
+colnames(rd_EVAL)[colnames(rd_EVAL)=="dea.avg.avg.rd.eff"] <- "rd_eff.s1.avg"
 
 
-#spesialkjøring for selskaper som bare kan være front for seg selv
-eff.faktisk.snitt.r = dea.faktisk.snitt.r$eff
+#Adapted calculation for companies only allowed to be their own peers, cost base data
+eff.cb.avg.rd = dea.cb.avg.rd$eff
 
-r_lambda = cbind(dea.faktisk.snitt.r$lambda,matrix(NA,nrow=nrow(dea.faktisk.snitt.r$lambda),ncol=length(r_separat_dmuer)))
-colnames(r_lambda) = c(r_normal,r_separat_dmuer)
-for(i in r_separat_dmuer)
+rd_lambda = cbind(dea.cb.avg.rd$lambda,matrix(NA,nrow=nrow(dea.cb.avg.rd$lambda),ncol=length(rd_sep.eval)))
+colnames(rd_lambda) = c(rd_eval,rd_sep.eval)
+for(i in rd_sep.eval)
 {
-        dea.sep.faktisk.snitt.r = dea(X=X.cb.rd,Y=Y.cb.rd,RTS="crs",XREF=X.avg.rd[as.character(c(r_normal,i))],YREF=Y.avg.rd[as.character(c(r_normal,i)),])
-        eff.faktisk.snitt.r[as.character(i)] = dea.sep.faktisk.snitt.r$eff[as.character(i)] 
-        for(j in c(r_normal,i))
-                r_lambda[as.character(i),as.character(j)] = dea.sep.faktisk.snitt.r$lambda[as.character(i),paste("L_",as.character(j),sep="")]
+        dea.sep.cb.avg.rd = dea(X=X.cb.rd,Y=Y.cb.rd,RTS="crs",XREF=X.avg.rd[as.character(c(rd_eval,i))],YREF=Y.avg.rd[as.character(c(rd_eval,i)),])
+        eff.cb.avg.rd[as.character(i)] = dea.sep.cb.avg.rd$eff[as.character(i)] 
+        for(j in c(rd_eval,i))
+                rd_lambda[as.character(i),as.character(j)] = dea.sep.cb.avg.rd$lambda[as.character(i),paste("L_",as.character(j),sep="")]
 }
 
-r_lambda = r_lambda[,order(as.numeric(colnames(r_lambda)))]
+rd_lambda = rd_lambda[,order(as.numeric(colnames(rd_lambda)))]
 
 
-#spesialkjøring for selskaper som bare kan være front for seg selv
-eff.snitt.snitt.r = dea.snitt.snitt.r$eff
+#Adapted calculation for companies only allowed to be their own peers, average data only
+eff.avg.avg.rd = dea.avg.avg.rd$eff
 
-r_lambda.snitt = cbind(dea.snitt.snitt.r$lambda,matrix(NA,nrow=nrow(dea.snitt.snitt.r$lambda),ncol=length(r_separat_dmuer)))
-colnames(r_lambda.snitt) = c(r_normal,r_separat_dmuer)
-for(i in r_separat_dmuer)
+rd_lambda.avg = cbind(dea.avg.avg.rd$lambda,matrix(NA,nrow=nrow(dea.avg.avg.rd$lambda),ncol=length(rd_sep.eval)))
+colnames(rd_lambda.avg) = c(rd_eval,rd_sep.eval)
+for(i in rd_sep.eval)
 {
-        dea.sep.snitt.snitt.r = dea(X=X.avg.rd,Y=Y.avg.rd,RTS="crs",XREF=X.avg.rd[as.character(c(r_normal,i))],YREF=Y.avg.rd[as.character(c(r_normal,i)),])
-        eff.snitt.snitt.r[as.character(i)] = dea.sep.snitt.snitt.r$eff[as.character(i)]
-        for(j in c(r_normal,i))
-                r_lambda.snitt[as.character(i),as.character(j)] = dea.sep.snitt.snitt.r$lambda[as.character(i),paste("L_",as.character(j),sep="")]
+        dea.sep.avg.avg.rd = dea(X=X.avg.rd,Y=Y.avg.rd,RTS="crs",XREF=X.avg.rd[as.character(c(rd_eval,i))],YREF=Y.avg.rd[as.character(c(rd_eval,i)),])
+        eff.avg.avg.rd[as.character(i)] = dea.sep.avg.avg.rd$eff[as.character(i)]
+        for(j in c(rd_eval,i))
+                rd_lambda.avg[as.character(i),as.character(j)] = dea.sep.avg.avg.rd$lambda[as.character(i),paste("L_",as.character(j),sep="")]
 }
 
 
-r_lambda.snitt = r_lambda.snitt[,order(as.numeric(colnames(r_lambda.snitt)))]
+rd_lambda.avg = rd_lambda.avg[,order(as.numeric(colnames(rd_lambda.avg)))]
 
 
-##Setter alle NA-verdier i lambda(vekt-dataframes til 0.)
-r_lambda[is.na(r_lambda)] <- 0
-r_lambda.snitt[is.na(r_lambda.snitt)] <- 0
+# Impute 0 in all cells containing NA in lambda matrix
+rd_lambda[is.na(rd_lambda)] <- 0
+rd_lambda.avg[is.na(rd_lambda.avg)] <- 0

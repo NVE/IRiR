@@ -1,4 +1,4 @@
-#### Import Bootstrap data
+#### Import Bootstrap data from Frisch DEA - TEMP
 
 #### D-nett  ####
 #Laster inn bootstrap resultater fra ekstern app 

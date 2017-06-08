@@ -39,11 +39,13 @@ source("./R-script/0_2_Calculated_Input_Values.R")
 
 source("./R-script/0_3_Company_Selection.R")
 
-#### Trinn 1 - DEA ####
+#### Stage 1 - DEA ####
+# As described in report 71/2012
+# NOR http://publikasjoner.nve.no/rapport/2012/rapport2012_71.pdf
 source("./R-script/1_0_DEA.R")
 
 #### Trinn 2 - RVK-justering vha regresjon ####
-source("./R-script/2_X_Bootstrap_Data.R")
+source("./R-script/2_X_Bootstrap_Data.R") # TEMP - new branch will be created for implementing bootstrap in R
 
 source("./R-script/2_0_Stage2_GeoCorrection.R")
 
