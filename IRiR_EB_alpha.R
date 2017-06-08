@@ -44,9 +44,13 @@ source("./R-script/0_3_Company_Selection.R")
 # NOR http://publikasjoner.nve.no/rapport/2012/rapport2012_71.pdf
 source("./R-script/1_0_DEA.R")
 
-#### Trinn 2 - RVK-justering vha regresjon ####
-source("./R-script/2_X_Bootstrap_Data.R") # TEMP - new branch will be created for implementing bootstrap in R
+#### Stage 2 - Z factor adjustment jusing regression ####
+# As described in report 71/2012, see above
+# Techincal description in: "Second stage adjustment for firm heterogeneity in DEA:
+# A novel approach used in regulation of Norwegian electricity DSOs, H.M. Kvile, O. Kordahl, T. Langset & R. Amundsveen, 2014"
+# see ENG: http://bit.ly/2sH5oLV
 
+source("./R-script/2_X_Bootstrap_Data.R") # TEMP - new branch will be created for implementing bootstrap in R
 source("./R-script/2_0_Stage2_GeoCorrection.R")
 
 
