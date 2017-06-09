@@ -87,12 +87,12 @@ two.stage <- function(x,z,eff,lambda)
 # eff = d_tilDEA$d_bs_correst_e3
 # lambda = d_lambda.snitt
 # id = names(x)
-# id.ut = as.character(d_separat_dmuer)
-# coeff = res.rvk1$regr.coeff.NVE
+# id.out = as.character(d_separat_dmuer)
+# coeff = res.Zvar1$regr.coeff.NVE
 #----------------------------------------------------------------------------------------------
 
 
-#Lage Geo-variabler
+#Create Geo variables used for estimating coefficients
 
 
 z.est = function (geovar.in, restricted.obs = NULL)
@@ -110,7 +110,7 @@ z.est = function (geovar.in, restricted.obs = NULL)
 # z is a matrix with values of environmental variables (n_dmu x n_z)
 # eff is a vector of unconditional efficiency scores (n_dmu x 1)
 # lambda is a matrix of reference weights (n_dmu x n_dmu)
-rvk1 <- function(x,z,eff,lambda,id,id.ut)
+Zvar1 <- function(x,z,eff,lambda,id,id.out)
         {
         #data types
         x <- as.vector(x)
@@ -134,17 +134,17 @@ rvk1 <- function(x,z,eff,lambda,id,id.ut)
         #differences versus reference dmus
         z.diff = z - w.ref %*% z
         #Only companys defining the technology included in regression
-        tech = setdiff(id, id.ut)
+        tech = setdiff(id, id.out)
         z.diff = z.diff[tech, ]
         #outlier-test
         outlier.X <- bacon(cbind(eff, z.diff), alpha = 0.15, const=4)
-        id.ut = union(id.ut,rownames(outlier.X[which(!outlier.X$outlier),]))
+        id.out = union(id.out,rownames(outlier.X[which(!outlier.X$outlier),]))
         #regression for stage 2 based on differences
-        res.regr.NVE <- lm(eff ~ z.diff,subset = setdiff(id,id.ut))
+        res.regr.NVE <- lm(eff ~ z.diff,subset = setdiff(id,id.out))
         coeff=res.regr.NVE$coefficients
         names(coeff)=c("constant",colnames(z.diff))
 
-        res <- list(coeff=coeff,z.diff=z.diff, id.ut=id.ut)
+        res <- list(coeff=coeff,z.diff=z.diff, id.out=id.out)
         return(res)
         }
 #----------------------------------------------------------------------------------------------
