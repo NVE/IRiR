@@ -1,4 +1,4 @@
-#### Import Bootstrap data from Frisch DEA - TEMP
+#### Import Bootstrap data from Frisch DEA - TEMP ####
 
 #### Local Distribution data-import ####
 #Load bootstrap corrected efficency scores from Frisch DEA
@@ -46,7 +46,7 @@ ld_EVAL$ldz_wind2_cod = ld_EVAL$ldz_wind2 / ld_EVAL$ldz_cod2c
 
 #### Regional Distribution Data Import  ####
 #Load bootstrap corrected efficency scores from Frisch DEA
-rd_bs = read.csv("./Data/Bootstrap/r_bs_031215.csv",sep=",")
+rd_bs = read.csv("./Data/Bootstrap/rd_bs_031215.csv",sep=",")
 
 #Merger disse estimerte DEA-resultatene med selskapene i rd_EVAL
 
@@ -57,7 +57,7 @@ missing.rd.bs <- dat[is.na(rd_EVAL$correst),]
 
 #Får du følgende melding, "<0 rows> (or 0-length row.names)", har alle selskap fått
 #importert Bootstrap-estimat for snitt mot snitt beregnet escore
-missing.rd.bs[c("selskap", "orgnr")]
+missing.rd.bs[c("comp", "orgn")]
 #Legg inn logisk sjekk på at den er tom
 
 rm(missing.rd.bs)

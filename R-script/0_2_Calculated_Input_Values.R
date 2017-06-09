@@ -41,7 +41,7 @@ for(c in 1:length(v_cpi.l))
 # Historical averages 2007-2013, smoother revenue caps over time
 # See NVE public hearing 4/2015, p.24 NOR, https://www.nve.no/media/2567/hoeringsdokument2015_04-tariffer-ved-sammenslaaing.pdf
 
-v_hist = c("fp_ld_pens", "fp_ld_pens.eq", "fp_rd_impl", "fp_rd_pens", "fp_rd_pens.eq", "fp_rd_impl", "fp_t_pens", "fp_t_pens.eq", "fp_t_impl")
+v_hist = c("fp_ld_pens", "fp_ld_pens.eq", "fp_ld_impl", "fp_rd_pens", "fp_rd_pens.eq", "fp_rd_impl", "fp_t_pens", "fp_t_pens.eq", "fp_t_impl")
 names_hist = c("ld_pens", "ld_pens.eq", "ld_impl", "rd_pens", "rd_pens.eq", "rd_impl", "t_pens", "t_pens.eq", "t_impl")
 hist = paste("hist_", names_hist, sep = "")
 dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(v_hist), dimnames = list(v_hist = hist))))

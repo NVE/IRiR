@@ -55,7 +55,7 @@ source("./R-script/2_0_Stage2_GeoCorrection.R")
 
 
 #### Trinn 3 - Kalibrering av kostnadsnormer ####
-       
+
 source("./R-script/3_0_Stage3_Calibration.R")
 
 
