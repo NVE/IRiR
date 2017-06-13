@@ -45,8 +45,8 @@ GeoR.comp = cbind(rd_EVAL[,c("rdz_f12", "rdz_inc.av")])
 row.names(GeoR.comp) = names(X.avg.rd)
 GeoR.tech = GeoR.comp[as.character(rd_eval),]
 #Estimates Helskog
-rd_EVAL$rr_Geo1 = z.est(geovar.in = GeoR.tech, restricted.obs = GeoR.comp)
-Geovar.r = cbind(rd_EVAL[,c("rr_Geo1")])
+rd_EVAL$rdz_Geo1 = z.est(geovar.in = GeoR.tech, restricted.obs = GeoR.comp)
+Geovar.r = cbind(rd_EVAL[,c("rdz_Geo1")])
 #Fjerner selskaper med NA-verdier i dr-bs
 r_eff.bs = rd_EVAL$r_score_bs100
 names(r_eff.bs) = names(X.avg.rd)
@@ -58,7 +58,7 @@ r.coeff = Zvar1(x=X.avg.rd,z=Geovar.r,eff=r_eff.bs,
                id.out = as.character(r_separat_dmuer))$coeff
 
 
-names(r.coeff)[2] = "rr_Geo1"
+names(r.coeff)[2] = "rdz_Geo1"
 r.coeff
 #Utfører rammevilkårskorrigering for D-nett
 rd_EVAL$r_deares_tilkal = Zvar2(x = X.avg.rd, eff=eff.faktisk.snitt.r, id=names(X.avg.rd),
