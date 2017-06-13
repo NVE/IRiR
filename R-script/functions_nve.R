@@ -150,7 +150,7 @@ Zvar1 <- function(x,z,eff,lambda,id,id.out)
 #----------------------------------------------------------------------------------------------
 #calculate final efficiency scores based on updated z-differences
 
-rvk2 <- function(x,eff,id,coeff,z,lambda)
+Zvar2 <- function(x,eff,id,coeff,z,lambda)
         {
         #data types
         x <- as.vector(x)
