@@ -35,7 +35,7 @@ ldz.coeff = Zvar1(x=X.avg.ld,z=Geovar.ldz,eff=ld_eff.bs,
 ldz.coeff
 
 #Adjusts efficiency scores from stage 1, using difference in Z value relative to target unit
-# See functions_nve.R for further details.
+# See functions_nve.R for further details. Local distribution grid
 ld_EVAL$ld_eff.s2.cb = Zvar2(x = X.avg.ld, eff = eff.cb.avg.ld, id = names(X.avg.ld),
                                 lambda = ld_lambda, coeff = ldz.coeff, z = Geovar.ldz)$eff.corr
 
@@ -47,19 +47,24 @@ GeoR.tech = GeoR.comp[as.character(rd_eval),]
 #Estimates Helskog
 rd_EVAL$rdz_Geo1 = z.est(geovar.in = GeoR.tech, restricted.obs = GeoR.comp)
 Geovar.r = cbind(rd_EVAL[,c("rdz_Geo1")])
-#Fjerner selskaper med NA-verdier i dr-bs
-r_eff.bs = rd_EVAL$r_score_bs100
-names(r_eff.bs) = names(X.avg.rd)
-r_eff.bs = r_eff.bs[!is.na(r_eff.bs)]
+#Remove companies not included in bootstrap for regional distribution grid
+rd_eff.bs = rd_EVAL$rd_eff.bs.is2.cZ
+names(rd_eff.bs) = names(X.avg.rd)
+rd_eff.bs = rd_eff.bs[!is.na(rd_eff.bs)]
 
-r.coeff = Zvar1(x=X.avg.rd,z=Geovar.r,eff=r_eff.bs,
-               lambda = r_lambda.snitt,
+rdz.coeff = Zvar1(x=X.avg.rd,z=Geovar.r,eff=rd_eff.bs,
+               lambda = rd_lambda.avg,
                id = names(X.avg.rd),
-               id.out = as.character(r_separat_dmuer))$coeff
+               id.out = as.character(rd_sep.eval))$coeff
 
 
-names(r.coeff)[2] = "rdz_Geo1"
-r.coeff
-#Utfører rammevilkårskorrigering for D-nett
-rd_EVAL$r_deares_tilkal = Zvar2(x = X.avg.rd, eff=eff.faktisk.snitt.r, id=names(X.avg.rd),
-        lambda = r_lambda, coeff=r.coeff, z=Geovar.r)$eff.corr
+names(rdz.coeff)[2] = "rdz_Geo1"
+rdz.coeff
+
+#Adjusts efficiency scores from stage 1, using difference in Z value relative to target unit
+# See functions_nve.R for further details. Regional distribution grid
+rd_EVAL$rd_eff.s2.cb = Zvar2(x = X.avg.rd, eff=eff.cb.avg.rd, id=names(X.avg.rd),
+                                lambda = rd_lambda, coeff=rdz.coeff, z=Geovar.r)$eff.corr
+                                
+                                
+        lambda = r_lambda, coeff=rd.coeff, z=Geovar.r)$eff.corr
