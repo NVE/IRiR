@@ -158,6 +158,6 @@ dat$ap.t_2[dat$id.y==9002014] = 273.92
 dat$ap.t_2 = dat$ap.t_2/1000
 
 
-#CPI factors are used in revenue cap-calculations (part 4)
-faktisk.aar.cpi.lfaktor = cpi.l[as.character(y.rc)]/cpi.l[as.character(y.cb)]
-faktisk.aar.cpifaktor = cpi[as.character(y.rc)]/cpi[as.character(y.cb)]
+#CPI factors are used in calibration and revenue cap-calculations (part 4)
+y.cb.cpi.l.factor = cpi.l[as.character(y.rc)]/cpi.l[as.character(y.cb)]
+y.cb.cpi.factor = cpi[as.character(y.rc)]/cpi[as.character(y.cb)]

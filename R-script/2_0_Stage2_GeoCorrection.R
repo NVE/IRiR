@@ -66,5 +66,3 @@ rdz.coeff
 rd_EVAL$rd_eff.s2.cb = Zvar2(x = X.avg.rd, eff=eff.cb.avg.rd, id=names(X.avg.rd),
                                 lambda = rd_lambda, coeff=rdz.coeff, z=Geovar.r)$eff.corr
                                 
-                                
-        lambda = r_lambda, coeff=rd.coeff, z=Geovar.r)$eff.corr
