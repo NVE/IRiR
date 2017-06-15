@@ -44,7 +44,7 @@ source("./R-script/0_3_Company_Selection.R")
 # NOR http://publikasjoner.nve.no/rapport/2012/rapport2012_71.pdf
 source("./R-script/1_0_DEA.R")
 
-#### Stage 2 - Z factor adjustment jusing regression ####
+#### Stage 2 - Z factor adjustment using regression ####
 # As described in report 71/2012, see above
 # Techincal description in: "Second stage adjustment for firm heterogeneity in DEA:
 # A novel approach used in regulation of Norwegian electricity DSOs, H.M. Kvile, O. Kordahl, T. Langset & R. Amundsveen, 2014"
@@ -63,9 +63,9 @@ source("./R-script/2_0_Stage2_GeoCorrection.R")
 source("./R-script/3_0_Stage3_Calibration.R")
 
 
-#### Selskaper utenfor DEA ####
+#### Companies exempted from DEA - Special models ####
 
-source("./R-script/X_X_OOTO-model.R") # Ytterligere spesialbehandling av 35, 162 & 173
+source("./R-script/Spec_OOTO-model.R") # Ytterligere spesialbehandling av 35, 162 & 173
 source("./R-script/X_X_COREC-model.R")
 
 #### Faktisk beregning av IR ####

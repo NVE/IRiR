@@ -107,9 +107,23 @@ rm(missing.id, id)
 # sep.eval.r = setdiff(eval.r,front.r)
 
 
-# Manually defining group memberships 
+# # Manually defining group memberships 
+#
+# # OOTO - Companies Out Of The Ordinary
+# These companies are compared to their own historical performance, cost in y.cb vs five year historical average cost in y.avg
+# Criterias in local distribution: Number of subscribers (ld_sub) < 500 or kilometers of high voltage grid (ld_hv) < 100
+# Criterias in regional distribution/transmission: Sum of all cost weights (rd_vw.ol + rd_wv.uc + rd_wv.sc + rd_wv.ss) < 4000
+# or 0 km high voltage grid in regional distribution (rd_vw.ol = 0)
+#
+## av.eff - Companies set to average efficiency
+# Companies with structural breaks in data. (Improve?)
+#
+## sep.eval - Companies included in DEA but allowed to be their own peers
+# Criterias in local distribution:
+# Criterias in regional distribution: TOTEX < 15000, .... ( Improve )  
+
 # Local Distribution Grid
-ld_OOTO <- (c(10, 108, 121, 167, 222, 512, 686, 743)) #Companies Out Of The Ordinary
+ld_OOTO <- (c(10, 108, 121, 167, 222, 512, 686, 743)) 
 ld_av.eff <- (c(187, 294, 652, 852)) # Companies set to average efficency
 ld_sep.eval <- (c()) # Companies included in DEA, but only allowed to be peers for themselves
 ld_no.rc <- (c(134, 348, 521, 612, 638, 696)) # Companies exluded from revenue cap calc

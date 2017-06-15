@@ -1,5 +1,5 @@
-#3_1_1 Out of the Ordinary (OOTO-model)
-#Selskapene i denne modellen er utenfor kalibreringen
+# 3.1 - OOTO model for companies Out Of The Ordinary
+# Companies in 
 ## Selskaper som av diverse årsaker er unntat vanlig DEA- eller IR-regulering
 # D-nett
 # d_spesial <- (c(10, 108, 121, 167, 222, 512, 686, 743))
