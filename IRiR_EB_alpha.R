@@ -65,7 +65,7 @@ source("./R-script/3_0_Stage3_Calibration.R")
 
 #### Companies exempted from DEA - Special models ####
 
-source("./R-script/Spec_OOTO-model.R") # Ytterligere spesialbehandling av 35, 162 & 173
+source("./R-script/Spec_OOTO-model.R") # Further special treatment of 35, 162 & 173
 source("./R-script/X_X_COREC-model.R")
 
 #### Faktisk beregning av IR ####

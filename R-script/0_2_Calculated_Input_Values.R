@@ -5,7 +5,7 @@
 ## in interface between local and regional distribution
 
 dat$ld_gci.dummy = 1
-for (i in which(dat$id %in% ld_av.eff | dat$id %in% ld_OOTO)){
+for (i in which(dat$id %in% ld_av.eff | dat$id %in% ld_ooto)){
         dat[i, "ld_gci.dummy"] = 0 
 }
 

@@ -1,114 +1,114 @@
-# 3.1 - OOTO model for companies Out Of The Ordinary
-# Companies in 
-## Selskaper som av diverse årsaker er unntat vanlig DEA- eller IR-regulering
-# D-nett
-# d_spesial <- (c(10, 108, 121, 167, 222, 512, 686, 743))
+#### 3.1 - OOTO model for companies Out Of The Ordinary ####
+# 
+# Companies exempted from normal evaluation
+# These companies are compared to their own historical performance, cost in y.cb vs five year historical average cost in y.avg
+# Criterias in local distribution: Number of subscribers (ld_sub) < 500 or kilometers of high voltage grid (ld_hv) < 100
+# Criterias in regional distribution/transmission: Sum of all cost weights (rd_vw.ol + rd_wv.uc + rd_wv.sc + rd_wv.ss) < 4000
+# or 0 km high voltage grid in regional distribution (rd_vw.ol = 0)
+# 
+# Cost norm for companies in OOTO-model (.._cn.cal.RAB) indicates that these values are included
+# in calibration. Contradictory to this, these companies are not included in the
+# calibration and is done to "gather the pieces" in the RC calculation
 
-dat$d_OOTO = 0
 
+## Local distribution ------
 
-for (i in which(dat$id %in% d_spesial)){  
-        dat[i,"d_OOTO"]  = 1   
+#Create dummy variable for OOTO model
+dat$ld_OOTO = 0
+
+#Asign dummy variable value for all companies in ld_ooto
+for (i in which(dat$id %in% ld_ooto)){  
+        dat[i,"ld_OOTO"]  = 1   
 } 
 
-for (i in which(dat$aar %in% snitt.aar)){
-        d_OOTO <-dat[dat$d_OOTO==1,]
+#Create data frame for companies in OOTO moidel
+for (i in which(dat$y == y.cb)){
+        ld_OOTO <-dat[dat$ld_OOTO==1 & dat$y == y.cb,]
 }
 
-#Dataframe med alle selskaper som skal være med i standard DEA-modell D-nettt
-d_OOTO <- subset.data.frame(d_OOTO, aar == faktisk.aar)
+# Prices from REN catalogue. opko funnet i notat fra 2009 (Improve - ?)
+ld_sub.NOK = 12
+ld_hv.NOK = 419
+ld_ss.NOK = 147
 
-#disse verdiene er antakelig hentet fra REN. opko funnet i notat fra 2009
-d_pris_ab = 12
-d_pris_hs = 419
-d_pris_ns = 147
+#Rounding values for outputs and input (costs)
+ld_OOTO$fha_ld_sub  <- round(ld_OOTO$fha_ld_sub, digits = 0)  
+ld_OOTO$fha_ld_ss <- round(ld_OOTO$fha_ld_ss, digits = 0)  
+ld_OOTO$fha_ld_hv <- round(ld_OOTO$fha_ld_hv, digits = 0) 
+ld_OOTO$fha_ld_TOTXDEA <- round(ld_OOTO$fha_ld_TOTXDEA, digits = 0) 
 
-#runder av snitt verdier for oppgaver og kostnader
-d_OOTO$sf_d_ab  <- round(d_OOTO$sf_d_ab, digits = 0)  
-d_OOTO$sf_d_ns <- round(d_OOTO$sf_d_ns, digits = 0)  
-d_OOTO$sf_d_hs <- round(d_OOTO$sf_d_hs, digits = 0) 
-d_OOTO$sf_d_TOTXDEA <- round(d_OOTO$sf_d_TOTXDEA, digits = 0) 
+# Output in local distribution grid
+#Cost base year
+ld_OOTO$ld_output = ld_OOTO$ld_sub*ld_sub.NOK + ld_OOTO$ld_hv*ld_hv.NOK + ld_OOTO$ld_ss*ld_ss.NOK
+#Average values
+ld_OOTO$fha_ld_output = ld_OOTO$fha_ld_sub*ld_sub.NOK + ld_OOTO$fha_ld_hv*ld_hv.NOK + ld_OOTO$fha_ld_ss*ld_ss.NOK
 
-#d_oppgave = oppgave i D-nett
-#faktisk
-d_OOTO$d_oppgave = d_OOTO$d_ab*d_pris_ab + d_OOTO$d_hs*d_pris_hs + d_OOTO$d_ns*d_pris_ns
-#snitt
-d_OOTO$d_sf_d_oppgave = d_OOTO$sf_d_ab*d_pris_ab + d_OOTO$sf_d_hs*d_pris_hs + d_OOTO$sf_d_ns*d_pris_ns
+#Calculate output pr NOK
+ld_OOTO$ld_output.NOK = ld_OOTO$ld_output/ld_OOTO$ld_TOTXDEA
+ld_OOTO$fha_ld_output.NOK = ld_OOTO$fha_ld_output/ld_OOTO$fha_ld_TOTXDEA
 
-#Beregner oppgaver pr krone
-d_OOTO$d_oppgave_kr = d_OOTO$d_oppgave/d_OOTO$d_TOTXDEA
-d_OOTO$d_sf_d_oppgave_kr = d_OOTO$d_sf_d_oppgave/d_OOTO$sf_d_TOTXDEA
+#Calculates efficiency score for companies in OOTO-model
+ld_OOTO$ld_eff.OOTO = ld_OOTO$ld_output.NOK/ld_OOTO$fha_ld_output.NOK
 
-#Beregner "DEA-resultat" til kalibrering for OOTO
-d_OOTO$d_effscore = d_OOTO$d_oppgave_kr/d_OOTO$d_sf_d_oppgave_kr
-
-# Selskaper utenfor DEA
-d_OOTO$d_kostnadsgrlag = ((d_OOTO$fp_d_DV*faktisk.aar.kpiafaktor) + (d_OOTO$d_akg*nve.rente.t) + 
-                                  d_OOTO$d_avs + (d_OOTO$d_kile*faktisk.aar.kpifaktor) + 
-                                  (d_OOTO$d_nettap*nettapspris.ir) - (d_OOTO$d_grs.cost*faktisk.aar.kpifaktor))
-# Kostnadsnorm for selskaper i OOTO-model får variabel navn som indikerer at
-# de inngår i kalibrering, selvom dette egentlig ikke er tilfelle. Dette gjøres
-# for å "samle trådene" i IR-beregningen
-d_OOTO$d_cost_norm.calRAB = d_OOTO$d_kostnadsgrlag*d_OOTO$d_effscore
+#Cost base 
+ld_OOTO$ld_cb <- ((ld_OOTO$fp_ld_OPEX*y.cb.cpi.l.factor) + (ld_OOTO$ld_rab.sf*NVE.ir.RC) + 
+                          ld_OOTO$ld_dep.sf + (ld_OOTO$ld_cens*y.cb.cpi.factor) + 
+                          (ld_OOTO$ld_nl*pnl.rc) - (ld_OOTO$ld_gci.cost*y.cb.cpi.factor))
 
 
-## R-nett
-#r_spesial <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
-#204, 222, 238, 274, 287, 307, 343, 349, 447, 484, 512, 
-#659, 686, 743)) # prøver, 10, her 
-
-dat$r_OOTO = 0
+# Cost norm
+ld_OOTO$ld_cn.cal.RAB = ld_OOTO$ld_cb*ld_OOTO$ld_eff.OOTO
 
 
-for (i in which(dat$id %in% r_spesial)){  
-        dat[i,"r_OOTO"]  = 1   
+## Regional distribution ----
+dat$rd_OOTO = 0
+
+
+for (i in which(dat$id %in% rd_ooto)){  
+        dat[i,"rd_OOTO"]  = 1   
 } 
 
-#Spesialbehandling av ider 35, 162 og 173---------------------------------------
-
-r_OOTO.spes = (c(35, 162, 173))
+#Further special treatment of Drangedal Everk KF (35), Rauma Energi AS (162) & Roros Elektrisietsverk AS (173) ----
+rd_OOTO.spes = (c(35, 162, 173))
 # Femårige snittverdier (totalkostnad og outputs)
-var_sf_r_OOTO = c("r_TOTXDEA", "r_vluft", "r_vjord", "r_vsjo", "r_vgrs")
-sf = paste("sf_", var_sf, sep="")
-dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(var_sf), dimnames = list(var_sf = sf))))
-for(c in 1:length(var_sf))
+v_fha_rd_OOTO = c("rd_TOTXDEA", "rd_wv.ol", "rd_wv.uc", "rd_wv.sc", "rd_wv.ss")
+fha = paste("fha_", v_fha, sep="")
+dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(v_fha), dimnames = list(v_fha = fha))))
+for(c in 1:length(v_fha))
         for(r in 1:nrow(dat))
-                if (dat[r,"aar"] %in% 2011:2014 & dat[r,"id"] %in% r_OOTO.spes)
-                        dat[r, sf[c]] = mean(dat[dat$orgnr == dat$orgnr[r] & dat$aar %in% 2011:2014, var_sf[c]], na.rm = T)
-#Normal OOTO fortsetter---------------------------------------------------------
+                if (dat[r,"y"] %in% 2011:2014 & dat[r,"id"] %in% rd_OOTO.spes)
+                        dat[r, fha[c]] = mean(dat[dat$orgn == dat$orgn[r] & dat$y %in% 2011:2014, v_fha[c]], na.rm = T)
+#Normal OOTO continues RD------------------------------------------------------------------------------------------
 
 
-for (i in which(dat$aar %in% snitt.aar)){
-        r_OOTO <-dat[dat$r_OOTO==1,]
+for (i in which(dat$y %in% y.avg)){
+        rd_OOTO <-dat[dat$rd_OOTO==1 & dat$y==y.cb,]
 }
 
 
-#Dataframe med alle selskaper som skal være med i spesialmodell R-nettt
-r_OOTO <- subset.data.frame(r_OOTO, aar == faktisk.aar)
 
+#Rounding values for outputs and input (costs)
+rd_OOTO$fha_rd_wv.ol  <- round(rd_OOTO$fha_rd_wv.ol, digits = 0)  
+rd_OOTO$fha_rd_wv.uc <- round(rd_OOTO$fha_rd_wv.uc, digits = 0)  
+rd_OOTO$fha_rd_wv.sc <- round(rd_OOTO$fha_rd_wv.sc, digits = 0)
+rd_OOTO$fha_rd_wv.ss <- round(rd_OOTO$fha_rd_wv.ss, digits = 0)
+rd_OOTO$fha_rd_TOTXDEA <- round(rd_OOTO$fha_rd_TOTXDEA, digits = 0)
 
-#runder av snitt verdier for oppgaver og kostnader
-r_OOTO$sf_r_vluft  <- round(r_OOTO$sf_r_vluft, digits = 0)  
-r_OOTO$sf_r_vjord <- round(r_OOTO$sf_r_vjord, digits = 0)  
-r_OOTO$sf_r_vsjo <- round(r_OOTO$sf_r_vsjo, digits = 0)
-r_OOTO$sf_r_vgrs <- round(r_OOTO$sf_r_vgrs, digits = 0)
-r_OOTO$sf_r_TOTXDEA <- round(r_OOTO$sf_r_TOTXDEA, digits = 0)
+# Output in regional distribution grid
+# Cost base year
+rd_OOTO$rd_output = rd_OOTO$rd_wv.ol + rd_OOTO$rd_wv.uc + rd_OOTO$rd_wv.sc + rd_OOTO$rd_wv.ss 
+# Average years
+rd_OOTO$fha_rd_output = rd_OOTO$fha_rd_wv.ol + rd_OOTO$fha_rd_wv.uc + rd_OOTO$fha_rd_wv.sc + rd_OOTO$fha_rd_wv.ss
 
-#r_oppgave = oppgave i D-nett
-#faktisk
-r_OOTO$r_oppgave = r_OOTO$r_vluft + r_OOTO$r_vjord + r_OOTO$r_vsjo + r_OOTO$r_vgrs 
-#snitt
-r_OOTO$r_sf_r_oppgave = r_OOTO$sf_r_vluft + r_OOTO$sf_r_vjord + r_OOTO$sf_r_vsjo + r_OOTO$sf_r_vgrs
+#Calculate output pr NOK
+rd_OOTO$rd_output.NOK = rd_OOTO$rd_output/rd_OOTO$rd_TOTXDEA
+rd_OOTO$fha_rd_output.NOK = rd_OOTO$fha_rd_output/rd_OOTO$fha_rd_TOTXDEA
 
-#Beregner oppgaver pr krone
-r_OOTO$r_oppgave_kr = r_OOTO$r_oppgave/r_OOTO$r_TOTXDEA
-r_OOTO$r_sf_r_oppgave_kr = r_OOTO$r_sf_r_oppgave/r_OOTO$sf_r_TOTXDEA
+#Calculates efficiency score for companies in OOTO-model
+rd_OOTO$rd_eff.OOTO = rd_OOTO$rd_output.NOK/rd_OOTO$fha_rd_output.NOK
 
-#Beregner effektivitetsscore
-r_OOTO$r_effscore = r_OOTO$r_oppgave_kr/r_OOTO$r_sf_r_oppgave_kr
-
-# Selskaper utenfor DEA
-r_OOTO$r_kostnadsgrlag = (r_OOTO$fp_r_DV*faktisk.aar.kpiafaktor) + (r_OOTO$r_akg*nve.rente.t) + 
-                                  r_OOTO$r_avs + (r_OOTO$r_kile*faktisk.aar.kpifaktor)
-
-r_OOTO$r_cost_norm.calRAB = r_OOTO$r_kostnadsgrlag * r_OOTO$r_effscore
+# Cost base
+rd_OOTO$rd_cb <- ((rd_OOTO$fp_rd_OPEX*y.cb.cpi.l.factor) + (rd_OOTO$rd_rab.sf*NVE.ir.RC) + 
+                          rd_OOTO$rd_dep.sf + (rd_OOTO$rd_cens*y.cb.cpi.factor))
+# Cost norm
+rd_OOTO$rd_cn.cal.RAB = rd_OOTO$rd_cb * rd_OOTO$rd_eff.OOTO

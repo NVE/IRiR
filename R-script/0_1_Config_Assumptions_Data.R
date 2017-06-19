@@ -123,14 +123,14 @@ rm(missing.id, id)
 # Criterias in regional distribution: TOTEX < 15000, .... ( Improve )  
 
 # Local Distribution Grid
-ld_OOTO <- (c(10, 108, 121, 167, 222, 512, 686, 743)) 
+ld_ooto <- (c(10, 108, 121, 167, 222, 512, 686, 743)) 
 ld_av.eff <- (c(187, 294, 652, 852)) # Companies set to average efficency
 ld_sep.eval <- (c()) # Companies included in DEA, but only allowed to be peers for themselves
 ld_no.rc <- (c(134, 348, 521, 612, 638, 696)) # Companies exluded from revenue cap calc
 
 
 # Regional distribution grid (+ some transmission)
-rd_OOTO <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
+rd_ooto <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
               204, 222, 238, 274, 287, 307, 343, 349, 447, 484, 512, 
               659, 686, 743)) # prøver, 10, her 
 
