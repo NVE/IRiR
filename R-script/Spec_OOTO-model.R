@@ -1,4 +1,4 @@
-#### 3.1 - OOTO model for companies Out Of The Ordinary ####
+#### Spec - OOTO model for companies Out Of The Ordinary ####
 # 
 # Companies exempted from normal evaluation
 # These companies are compared to their own historical performance, cost in y.cb vs five year historical average cost in y.avg
