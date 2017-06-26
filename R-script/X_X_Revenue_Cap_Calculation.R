@@ -40,90 +40,93 @@ RevCap$rd_sum.cost = RevCap$fp_rd_OPEX*y.cb.cpi.l.factor +
 RevCap$t_sum.cost = RevCap$fp_t_OPEX*y.cb.cpi.l.factor + 
                         RevCap$fp_t_cens*y.cb.cpi.factor + RevCap$t_dep.sf
 
-#Sum alle nettnivåer
+# Sum of all relevant costs for all grid levels
 RevCap$lrt_sum.cost = RevCap$ld_sum.cost + RevCap$rd_sum.cost + RevCap$t_sum.cost
 
-
-#Kostnadsgrunnlag til IR
+#Cost base used in Revenue cap calculation
 RevCap$ld_cost.RC = RevCap$fp_ld_OPEX*y.cb.cpi.l.factor + 
                         RevCap$fp_ld_cens*y.cb.cpi.factor + RevCap$ld_dep.sf +
-                        RevCap$d_akg*rente.ir + RevCap$ld_nl*pnl.rc
+                        RevCap$ld_rab.sf*NVE.ir.RC + RevCap$ld_nl*pnl.rc
 
 
 RevCap$rd_cost.RC = RevCap$fp_rd_OPEX*y.cb.cpi.l.factor +
                         RevCap$fp_rd_cga*y.cb.cpi.l.factor +
                         RevCap$fp_rd_cens*y.cb.cpi.factor + RevCap$rd_dep.sf +
-                        RevCap$r_akg*rente.ir + RevCap$rd_nl*pnl.rc
+                        RevCap$rd_rab.sf*NVE.ir.RC + RevCap$rd_nl*pnl.rc
 
 RevCap$t_cost.RC = RevCap$fp_t_OPEX*y.cb.cpi.l.factor + 
                         RevCap$fp_t_cens*y.cb.cpi.factor + RevCap$t_dep.sf +
-                        RevCap$s_akg*rente.ir
+                        RevCap$t_rab.sf*NVE.ir.RC
 
-RevCap$lrt_cost.RC =  RevCap$d_cost.RC + RevCap$r_cost.RC + RevCap$s_cost.RC
+RevCap$lrt_cost.RC =  RevCap$ld_cost.RC + RevCap$rd_cost.RC + RevCap$t_cost.RC
 
-# Faktiske genererte kostnader alle nettnivåer, ekslusive nettap R-nett
-# samt kostnader ved utredning og KDS i R-nett
-RevCap$lrt_cost.RC.ex.ntR.og.utrR = round(RevCap$lrt_cost.RC - RevCap$fp_rd_cga, digits = 0)
+# Actual inflicted costs in all grid levels, excluding network losses in regional distribution
+# as well as grid assetsments costs in regional distributioin
+RevCap$lrt_cost.RC.ex.nlR.og.cgaR = round(RevCap$lrt_cost.RC - RevCap$fp_rd_cga, digits = 0)
 
-#Faktiske kostnader i "faktisk.aar"
+# Inflicted costs in cost base year
 
-RevCap$lrt_cost.faktisk = (RevCap$d_dv_2012 - RevCap$fp_d_391 - RevCap$fp_d_utred) +
-                        (RevCap$r_dv_2012 - RevCap$fp_r_391 - RevCap$fp_rd_cga) +
-                        (RevCap$s_dv_2012 - RevCap$fp_s_391) +
+RevCap$lrt_cost.cby = (RevCap$ld_opex_2012 - RevCap$fp_ld_391 - RevCap$fp_ld_cga) +
+                        (RevCap$rd_opex_2012 - RevCap$fp_rd_391 - RevCap$fp_rd_cga) +
+                        (RevCap$t_opex_2012 - RevCap$fp_t_391) +
                         (RevCap$fp_ld_cens + RevCap$fp_rd_cens + RevCap$fp_t_cens) +
-                        RevCap$fp_d_utred + RevCap$fp_rd_cga +
-                        (RevCap$ld_nl + RevCap$rd_nl)*RevCap$omraadepris_t2
+                        RevCap$fp_ld_cga + RevCap$fp_rd_cga +
+                        (RevCap$ld_nl + RevCap$rd_nl)*RevCap$ap.t_2
 
 #Regner total sum av faktiske kostnader i "faktisk.aar", avrundet for konsistens med Stata
-lrt_TOT.cost.faktisk = round(sum(RevCap$lrt_cost.faktisk), digits = 0)
+# Sum of total cost of inflicted costs in cost base year, rounded for consistency with calculations i Stata (Improve ? - remove round?)
+lrt_TOT.cost.cby = round(sum(RevCap$lrt_cost.cby), digits = 0)
 
-## Deretter skal normkostnader beregnes
-d_cncR = cbind(ld_EVAL[,c("id", "d_cost_norm.calRAB")])
-r_cncR = cbind(rd_EVAL[,c("id", "r_cost_norm.calRAB")])
+## Cost norms
+ld_cncR = cbind(ld_EVAL[,c("id", "ld_cn.cal.RAB")])
+rd_cncR = cbind(rd_EVAL[,c("id", "rd_cn.cal.RAB")])
 
-RevCap  = dplyr::full_join(RevCap, d_cncR, by="id")
-RevCap  = dplyr::full_join(RevCap, r_cncR, by="id")
-rm(d_cncR, r_cncR)
+RevCap  = dplyr::full_join(RevCap, ld_cncR, by="id")
+RevCap  = dplyr::full_join(RevCap, rd_cncR, by="id")
+rm(ld_cncR, rd_cncR)
 
-#Henter inn kostnadsnormer fra OOTO-model. disse gis navn som indikerer
-#at de er inkludert i kalibreringen selvom de ikke er det. Dette for å få
-#de inn i samme rad som normale selskaper når IR beregnes
-
-d_OOTO.cncR = cbind(d_OOTO[,c("id", "d_cost_norm.calRAB")])
-
-
-#Legger til kostnadsnormer fra OOTO i RevCap basert på matchende ider
-RevCap$d_cost_norm.calRAB[is.na(RevCap$d_cost_norm.calRAB)] = 
-        d_OOTO.cncR$d_cost_norm.calRAB[match(RevCap$id[is.na(RevCap$d_cost_norm.calRAB)],d_OOTO.cncR$id)]
-
-rm(d_OOTO.cncR)
-
-r_OOTO.cncR = cbind(r_OOTO[,c("id", "r_cost_norm.calRAB")])
+# Retrive cost norms from OOTO-model.
+# .._cn.cal.RAB) indicates that these values are included in calibration.
+# Contradictory to this, these companies are not included in the
+# calibration and is done to "gather the pieces" in the RC calculation
 
 
-RevCap$r_cost_norm.calRAB[is.na(RevCap$r_cost_norm.calRAB)] = 
-        r_OOTO.cncR$r_cost_norm.calRAB[match(RevCap$id[is.na(RevCap$r_cost_norm.calRAB)],r_OOTO.cncR$id)]
+ld_OOTO.cncR = cbind(ld_OOTO[,c("id", "ld_cn.cal.RAB")])
 
-rm(r_OOTO.cncR)
+
+
+# Add cost norms for companies in OOTO to RevCap-frame based on matching id's
+RevCap$ld_cn.cal.RAB[is.na(RevCap$ld_cn.cal.RAB)] = 
+        ld_OOTO.cncR$ld_cn.cal.RAB[match(RevCap$id[is.na(RevCap$ld_cn.cal.RAB)],ld_OOTO.cncR$id)]
+
+rm(ld_OOTO.cncR)
+
+rd_OOTO.cncR = cbind(rd_OOTO[,c("id", "rd_cn.cal.RAB")])
+
+
+RevCap$rd_cn.cal.RAB[is.na(RevCap$rd_cn.cal.RAB)] = 
+        r_OOTO.cncR$rd_cn.cal.RAB[match(RevCap$id[is.na(RevCap$rd_cn.cal.RAB)],r_OOTO.cncR$id)]
+
+rm(rd_OOTO.cncR)
 
 #Setter kostnadsnorm til 0 for alle selskaper som ikke har kostnader i gitt
 # nettnivå.
 
 RevCap = within(RevCap, d_cost_norm.calRAB[is.na(d_cost_norm.calRAB)==TRUE & fp_ld_OPEX == 0] <- 0)
-RevCap = within(RevCap, r_cost_norm.calRAB[is.na(r_cost_norm.calRAB)==TRUE & fp_rd_OPEX == 0] <- 0)
+RevCap = within(RevCap, rd_cn.cal.RAB[is.na(rd_cn.cal.RAB)==TRUE & fp_rd_OPEX == 0] <- 0)
 
 
 #Legger til kostnadsnormer fra COREC-modellen i RevCap basert på matchende ider
 RevCap$d_cost_norm.calRAB[is.na(RevCap$d_cost_norm.calRAB)] = 
         d_COREC$d_cost_norm.calRAB[match(RevCap$id[is.na(RevCap$d_cost_norm.calRAB)], d_COREC$id)]
 
-RevCap$r_cost_norm.calRAB[is.na(RevCap$r_cost_norm.calRAB)] = 
-        r_COREC$r_cost_norm.calRAB[match(RevCap$id[is.na(RevCap$r_cost_norm.calRAB)], r_COREC$id)]
+RevCap$rd_cn.cal.RAB[is.na(RevCap$rd_cn.cal.RAB)] = 
+        r_COREC$rd_cn.cal.RAB[match(RevCap$id[is.na(RevCap$rd_cn.cal.RAB)], r_COREC$id)]
 
 
 #Kostnadsnormer
 RevCap$d_cost_norm.precal = RevCap$d_cost_norm.calRAB + (RevCap$d_grs.cost*y.cb.cpi.factor)
-RevCap$r_cost_norm.precal = RevCap$r_cost_norm.calRAB + (RevCap$rd_nl*pnl.rc) +
+RevCap$r_cost_norm.precal = RevCap$rd_cn.cal.RAB + (RevCap$rd_nl*pnl.rc) +
                             RevCap$fp_rd_cga*y.cb.cpi.l.factor
 #Kostnadsdekning for alt S-nett
 RevCap$s_cost_norm.precal = RevCap$s_cost.RC
@@ -134,12 +137,12 @@ RevCap$lrt_cost_norm.precal = RevCap$d_cost_norm.precal + RevCap$r_cost_norm.pre
 
 RevCap$lrt_IR.precal = (1-rho)*RevCap$lrt_cost.RC + rho*(RevCap$lrt_cost_norm.precal) #Inntektsramme før kalibrering
 RevCap$lrt_DR.precal = RevCap$lrt_IR.precal - RevCap$lrt_sum.cost #Driftsresultat før kalibrering
-RevCap$lrt_AVK.precal = RevCap$lrt_DR.precal / (RevCap$d_akg + RevCap$r_akg + RevCap$s_akg) #Avkastning før kalibrering
+RevCap$lrt_AVK.precal = RevCap$lrt_DR.precal / (RevCap$ld_rab.sf + RevCap$rd_rab.sf + RevCap$t_rab.sf) #Avkastning før kalibrering
 
 #### Så rekalibreres det slik at sum inntektsramme er lik kostnadsgrunnlaget
 lrt_TOTIR.precal = sum(RevCap$lrt_IR.precal)
 lrt_TOTCost.precal = sum(RevCap$lrt_cost.RC)
-RevCap$lrt_RAB = RevCap$d_akg + RevCap$r_akg + RevCap$s_akg
+RevCap$lrt_RAB = RevCap$ld_rab.sf + RevCap$rd_rab.sf + RevCap$t_rab.sf
 lrt_TOTRAB = sum(RevCap$lrt_RAB)
 
 lrt_recal.fact1 = (lrt_TOTIR.precal - lrt_TOTCost.precal) / lrt_TOTRAB

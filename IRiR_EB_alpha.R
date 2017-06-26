@@ -12,6 +12,7 @@ getwd()
 # The address can be copied from the address bar in Windows Explorer
 # Remember to change "\" to "/" or "\\" 
 #my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
+start.time =  Sys.time()
 my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
 setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
@@ -67,6 +68,9 @@ source("./R-script/3_0_Stage3_Calibration.R")
 
 source("./R-script/Spec_OOTO-model.R") # Further special treatment of 35, 162 & 173
 source("./R-script/Spec_AvEff-model.R")
+end.time =  Sys.time()
+calc.time = end.time - start.time
+calc.time
 
 #### Calculating Revenue caps ####
 source("./R-script/X_X_Revenue_Cap_Calculation.R")
