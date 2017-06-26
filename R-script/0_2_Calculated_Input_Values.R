@@ -93,8 +93,8 @@ dat$rd_TOTXDEA   = dat$fp_rd_OPEX + (dat$rd_RAB * ir.dea) + dat$rd_DEP + dat$fp_
 # Compute TOTXDEA for transmission grid
 dat$fp_t_opex     = dat$fp_t_OPEXxS + dat$fp_t_sal - dat$fp_t_sal.cap + dat$fp_t_pcb
 dat$fp_t_OPEX    = dat$fp_t_opex - dat$fp_t_391
-dat$t_rab       = dat$t_bv * wcp 
-dat$t_TOTXDEA   = dat$fp_t_OPEX + (dat$t_rab * ir.dea) + dat$t_dep + dat$fp_t_cens
+dat$t_rab.sf       = dat$t_bv.sf * wcp 
+dat$t_TOTXDEA   = dat$fp_t_OPEX + (dat$t_rab.sf * ir.dea) + dat$t_dep.sf + dat$fp_t_cens
 
 
 #Peers determined by five year historical average data
