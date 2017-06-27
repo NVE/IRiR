@@ -1,78 +1,71 @@
-#### Import Bootstrap data
+#### Import Bootstrap data from Frisch DEA - TEMP ####
 
-#### D-nett  ####
-#Laster inn bootstrap resultater fra ekstern app 
-d_bs = read.csv("./Data/Bootstrap/d_bs_031215.csv",sep=",")
+#### Local Distribution data-import ####
+#Load bootstrap corrected efficency scores from Frisch DEA
+ld_bs = read.csv("./Data/Bootstrap/ld_bs_031215.csv",sep=",")
 
-#Merger disse estimerte DEA-resultatene med selskapene i d_tilDEA
+#Merging bootstrap corrected scores into ld_EVAL
 
-d_tilDEA = merge.data.frame(d_tilDEA, d_bs, by="idaar", all.x = T)
-
-
-colnames(d_tilDEA)[colnames(d_tilDEA)=="estimate"] <- "d_bs_est_e3"
-colnames(d_tilDEA)[colnames(d_tilDEA)=="correst"] <- "d_bs_correst_e3"
-
-d_tilDEA$d_score_bs100 = d_tilDEA$d_bs_correst_e3
-
-d_tilDEA[is.na(d_tilDEA$d_skytelse)] = 0
-#Litt usikker på om dette er ok.
+ld_EVAL = merge.data.frame(ld_EVAL, ld_bs, by="id.y", all.x = T)
 
 
-#Lager ny variabel lik som småkraftytelse ihht Roars script
-d_tilDEA$dr_sky = d_tilDEA$d_skytelse
+colnames(ld_EVAL)[colnames(ld_EVAL)=="estimate"] <- "ld_bs.est"
+colnames(ld_EVAL)[colnames(ld_EVAL)=="correst"] <- "ld_bs.correst"
+
+ld_EVAL$ld_eff.bs.is2.cZ = ld_EVAL$ld_bs.correst
+
+ld_EVAL[is.na(ld_EVAL$ldz_cmpp)] = 0
 
 
-d_tilDEA$d_dea_til2trinn = d_tilDEA$d_f_sf_eff
-
-d_tilDEA$d_knorm = d_tilDEA$d_TOTXDEA * d_tilDEA$d_dea_til2trinn
-
-
-d_tilDEA$d_skala = d_tilDEA$d_knorm #Bruker norm som skaleringsfaktor
-
-#Beregner rammevilkårsvariabler
-d_tilDEA$d_hsluft = d_tilDEA$d_hs - d_tilDEA$d_hsjord - d_tilDEA$d_hssjo
-# d_tilDEA$d_hssjo = d_tilDEA$d_hssjou6kv + d_tilDEA$d_hssjoo6kv
-d_tilDEA$d_hs_jsl = d_tilDEA$d_hsjord + d_tilDEA$d_hssjo + d_tilDEA$d_hsluft # Disse variablene er HS.
-d_tilDEA$dr_hsjordand = d_tilDEA$d_hsjord / d_tilDEA$d_hs_jsl
-d_tilDEA$dr_hssjoand = d_tilDEA$d_hssjo / d_tilDEA$d_hs_jsl
-d_tilDEA$dr_hskabelandel = (d_tilDEA$d_hsjord + d_tilDEA$d_hssjo) / d_tilDEA$d_hs_jsl
+# Create new variable according to Stata script - Why? ( Improve )
+ld_EVAL$ldz_cmppII = ld_EVAL$ldz_cmpp
 
 
-d_tilDEA$dr_aoey1sz = d_tilDEA$d_aoey1 / d_tilDEA$d_skala
-colnames(d_tilDEA)[colnames(d_tilDEA)=="d_aoey1"] <- "dr_aoey1"
+ld_EVAL$ld_eff.bs.is2.aZ = ld_EVAL$ld_eff.s1.cb
 
-d_tilDEA$dr_skysz = d_tilDEA$d_skytelse / d_tilDEA$d_skala
-
-d_tilDEA$dr_vr2 = d_tilDEA$dr_vr * d_tilDEA$dr_vr
-d_tilDEA$dr_vr2_k2lukk = d_tilDEA$dr_vr2 / d_tilDEA$dr_k2lukk
-
-#### R-nett  ####
+ld_EVAL$ld_cnorm = ld_EVAL$ld_TOTXDEA * ld_EVAL$ld_eff.bs.is2.aZ
 
 
-#Laster inn bootstrap resultater fra ekstern app 
-r_bs = read.csv("./Data/Bootstrap/r_bs_031215.csv",sep=",")
+ld_EVAL$ld_scale = ld_EVAL$ld_cnorm #Bruker norm som skaleringsfaktor
 
-#Merger disse estimerte DEA-resultatene med selskapene i r_tilDEA
+#Calculate z-var imputs ( Improve - move to 2_0 ? ) 
+ld_EVAL$ld_hvol = ld_EVAL$ld_hv - ld_EVAL$ld_hvug - ld_EVAL$ld_hvsc
+# ld_EVAL$ld_hvsc = ld_EVAL$d_hssjou6kv + ld_EVAL$d_hssjoo6kv
+ld_EVAL$ld_hv_uso = ld_EVAL$ld_hvug + ld_EVAL$ld_hvsc + ld_EVAL$ld_hvol 
+ld_EVAL$ldz_hvug.s = ld_EVAL$ld_hvug / ld_EVAL$ld_hv_uso # ( Improve - Replace ld_hv_uso with ld_hv? )
+ld_EVAL$ldz_hvsc.s = ld_EVAL$ld_hvsc / ld_EVAL$ld_hv_uso
+ld_EVAL$ldz_hvc.s = (ld_EVAL$ld_hvug + ld_EVAL$ld_hvsc) / ld_EVAL$ld_hv_uso
 
-r_tilDEA = merge.data.frame(r_tilDEA, r_bs, by="idaar", all.x = T)
+
+ld_EVAL$ldz_isl.sz = ld_EVAL$ldz_isl / ld_EVAL$ld_scale
+
+ld_EVAL$ldz_cmpp.sz = ld_EVAL$ldz_cmpp / ld_EVAL$ld_scale
+
+ld_EVAL$ldz_wind2 = ld_EVAL$ldz_wind * ld_EVAL$ldz_wind
+ld_EVAL$ldz_wind2_cod = ld_EVAL$ldz_wind2 / ld_EVAL$ldz_cod2c
+
+#### Regional Distribution Data Import  ####
+#Load bootstrap corrected efficency scores from Frisch DEA
+rd_bs = read.csv("./Data/Bootstrap/rd_bs_031215.csv",sep=",")
+
+#Merger disse estimerte DEA-resultatene med selskapene i rd_EVAL
+
+rd_EVAL = merge.data.frame(rd_EVAL, rd_bs, by="id.y", all.x = T)
 
 
-manglende.r.bs <- dat[is.na(r_tilDEA$correst),]
+missing.rd.bs <- dat[is.na(rd_EVAL$correst),]
 
 #Får du følgende melding, "<0 rows> (or 0-length row.names)", har alle selskap fått
 #importert Bootstrap-estimat for snitt mot snitt beregnet escore
-manglende.r.bs[c("selskap", "orgnr")]
+missing.rd.bs[c("comp", "orgn")]
 #Legg inn logisk sjekk på at den er tom
 
-rm(manglende.r.bs)
+rm(missing.rd.bs)
 
-#endrer navn på variablene importert fra bootstrap
-#"e3"-indikerer hvilke forutsetninger som er valgt i Fritsch
+colnames(rd_EVAL)[colnames(rd_EVAL)=="estimate"] <- "rd_bs.est"
+colnames(rd_EVAL)[colnames(rd_EVAL)=="correst"] <- "rd_bs.correst"
 
-colnames(r_tilDEA)[colnames(r_tilDEA)=="estimate"] <- "r_bs_est_e3"
-colnames(r_tilDEA)[colnames(r_tilDEA)=="correst"] <- "r_bs_correst_e3"
-
-r_tilDEA$r_score_bs100 = r_tilDEA$r_bs_correst_e3
+rd_EVAL$rd_eff.bs.is2.cZ = rd_EVAL$rd_bs.correst
 
 #Geovariabel i R-nettet
 #rr_s12, skogvariabel

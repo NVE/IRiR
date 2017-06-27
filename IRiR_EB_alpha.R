@@ -1,7 +1,8 @@
 
-## IRiR
+## IRiR - InntektsRammer i R##
+## RevenueCap calculation in R##
 
-#### R-teknisk oppsett ####
+#### R set up ####
 
 # Remove all objects from memory
 remove(list=ls())
@@ -11,10 +12,11 @@ getwd()
 # The address can be copied from the address bar in Windows Explorer
 # Remember to change "\" to "/" or "\\" 
 #my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
+start.time =  Sys.time()
 my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
 setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
-# Følgende pakker benyttes
+# Following packages are used
 # Benchmarking, xlsx, plyr, dplyr
 library(Benchmarking)
 library(xlsx)
@@ -25,11 +27,12 @@ library(FactoMineR) # Kan fjernes?
 library(outliers)
 library(plot3D)
 
-source("./R-script/functions_nve.R")
-# Ønsker å vise store tall som fulle verdier, ikke som potenser
+source("./R-script/functions_nve.R") # File containing functions created for/by NVE
+
+# Avoid showing large numbers in scientific mode
 options(scipen = 100)
 
-#### Grunnlag for DEA ####
+#### Preperation stage - Configurations, data import, data preparation ####
 
 source("./R-script/0_1_Config_Assumptions_Data.R")
 
@@ -37,28 +40,41 @@ source("./R-script/0_2_Calculated_Input_Values.R")
 
 source("./R-script/0_3_Company_Selection.R")
 
-#### Trinn 1 - DEA ####
+#### Stage 1 - DEA ####
+# As described in report 71/2012
+# NOR http://publikasjoner.nve.no/rapport/2012/rapport2012_71.pdf
 source("./R-script/1_0_DEA.R")
 
-#### Trinn 2 - RVK-justering vha regresjon ####
-source("./R-script/2_X_Bootstrap_Data.R")
+#### Stage 2 - Z factor adjustment using regression ####
+# As described in report 71/2012, see above
+# Techincal description in: "Second stage adjustment for firm heterogeneity in DEA:
+# A novel approach used in regulation of Norwegian electricity DSOs, H.M. Kvile, O. Kordahl, T. Langset & R. Amundsveen, 2014"
+# ENG: http://bit.ly/2sH5oLV
 
+source("./R-script/2_X_Bootstrap_Data.R") # TEMP - new branch will be created for implementing bootstrap in R
 source("./R-script/2_0_Stage2_GeoCorrection.R")
 
 
-#### Trinn 3 - Kalibrering av kostnadsnormer ####
-       
+#### Stage 3 - Cost norm calibration ####
+# As described in circular 1/2013
+# NOR http://webfileservice.nve.no/API/PublishedFiles/Download/201607005/1944365
+# Based on analysis in report 11/2011
+# NOR http://publikasjoner.nve.no/rapport/2011/rapport2011_21.pdf
+
 source("./R-script/3_0_Stage3_Calibration.R")
 
 
-#### Selskaper utenfor DEA ####
+#### Companies exempted from DEA - Special models ####
 
-source("./R-script/X_X_OOTO-model.R") # Ytterligere spesialbehandling av 35, 162 & 173
-source("./R-script/X_X_COREC-model.R")
-
-#### Faktisk beregning av IR ####
-source("./R-script/X_X_Revenue_Cap_Calculation.R")
+source("./R-script/Spec_OOTO-model.R") # Further special treatment of 35, 162 & 173
+source("./R-script/Spec_AvEff-model.R")
 
 
+#### Calculating Revenue caps ####
+source("./R-script/4_0_Revenue_Cap_Calculation.R")
+
+end.time =  Sys.time()
+calc.time = end.time - start.time
+calc.time
 
 source("X_4_Excel_export.R")
