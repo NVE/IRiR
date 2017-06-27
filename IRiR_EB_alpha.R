@@ -68,13 +68,13 @@ source("./R-script/3_0_Stage3_Calibration.R")
 
 source("./R-script/Spec_OOTO-model.R") # Further special treatment of 35, 162 & 173
 source("./R-script/Spec_AvEff-model.R")
-end.time =  Sys.time()
-calc.time = end.time - start.time
-calc.time
+
 
 #### Calculating Revenue caps ####
 source("./R-script/X_X_Revenue_Cap_Calculation.R")
 
-
+end.time =  Sys.time()
+calc.time = end.time - start.time
+calc.time
 
 source("X_4_Excel_export.R")
