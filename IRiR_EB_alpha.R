@@ -71,7 +71,7 @@ source("./R-script/Spec_AvEff-model.R")
 
 
 #### Calculating Revenue caps ####
-source("./R-script/X_X_Revenue_Cap_Calculation.R")
+source("./R-script/4_0_Revenue_Cap_Calculation.R")
 
 end.time =  Sys.time()
 calc.time = end.time - start.time
