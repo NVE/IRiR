@@ -44,26 +44,15 @@ ld_EVAL$ldz_cmpp.sz = ld_EVAL$ldz_cmpp / ld_EVAL$ld_scale
 ld_EVAL$ldz_wind2 = ld_EVAL$ldz_wind * ld_EVAL$ldz_wind
 ld_EVAL$ldz_wind2_cod = ld_EVAL$ldz_wind2 / ld_EVAL$ldz_cod2c
 
-#### Regional Distribution Data Import  ####
-#Load bootstrap corrected efficency scores from Frisch DEA
-rd_bs = read.csv("./Data/Bootstrap/rd_bs_031215.csv",sep=",")
+#### Regional Distribution - Bootstrap ####
 
-#Merger disse estimerte DEA-resultatene med selskapene i rd_EVAL
+rd_bs = as.data.frame(dea.boot(X =as.matrix(X.avg.rd[as.character(rd_eval)]), Y=as.matrix(Y.avg.rd[as.character(rd_eval),]),
+                       NREP = 2000, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
+names(rd_bs) = "rd_bs.correst"
+rd_bs$id = add_rownames(rd_bs,"id")
 
 rd_EVAL = merge.data.frame(rd_EVAL, rd_bs, by="id.y", all.x = T)
 
-
-missing.rd.bs <- dat[is.na(rd_EVAL$correst),]
-
-#Får du følgende melding, "<0 rows> (or 0-length row.names)", har alle selskap fått
-#importert Bootstrap-estimat for snitt mot snitt beregnet escore
-missing.rd.bs[c("comp", "orgn")]
-#Legg inn logisk sjekk på at den er tom
-
-rm(missing.rd.bs)
-
-colnames(rd_EVAL)[colnames(rd_EVAL)=="estimate"] <- "rd_bs.est"
-colnames(rd_EVAL)[colnames(rd_EVAL)=="correst"] <- "rd_bs.correst"
 
 rd_EVAL$rd_eff.bs.is2.cZ = rd_EVAL$rd_bs.correst
 
