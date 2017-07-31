@@ -2,7 +2,7 @@
 
 #### Local Distribution Bootstrap####
 ld_bs = as.data.frame(dea.boot(X=as.matrix(X.avg.ld[as.character(ld_eval)]), Y=as.matrix(Y.avg.ld[as.character(ld_eval),]),
-                               NREP = 10000, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
+                               NREP = 2000, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
 names(ld_bs) = "ld_bs.correst"
 ld_bs = add_rownames(ld_bs, "id")
 
@@ -47,7 +47,7 @@ ld_EVAL$ldz_wind2_cod = ld_EVAL$ldz_wind2 / ld_EVAL$ldz_cod2c
 #### Regional Distribution - Bootstrap ####
 
 rd_bs = as.data.frame(dea.boot(X =as.matrix(X.avg.rd[as.character(rd_eval)]), Y=as.matrix(Y.avg.rd[as.character(rd_eval),]),
-                               NREP = 10000, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
+                               NREP = 2000, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
 names(rd_bs) = "rd_bs.correst"
 rd_bs = add_rownames(rd_bs,"id")
 

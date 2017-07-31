@@ -74,7 +74,5 @@ source("./R-script/4_0_Revenue_Cap_Calculation.R")
 end.time =  Sys.time()
 calc.time = end.time - start.time
 calc.time
-ldz.coeff
-rdz.coeff
-write.csv(RevCap, file = "qa_revcap_bs_6.csv")
+
 source("X_4_Excel_export.R")
