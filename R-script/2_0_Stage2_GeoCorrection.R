@@ -1,16 +1,23 @@
 #### 2.0 Adjusts efficency scores for environmental factors - Stage 2 ####
 
-#### Local Distribution Bootstrap####
-ld_bs = as.data.frame(dea.boot(X=as.matrix(X.avg.ld[as.character(ld_eval)]), Y=as.matrix(Y.avg.ld[as.character(ld_eval),]),
-                               NREP = 2000, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
-names(ld_bs) = "ld_bs.correst"
-ld_bs = add_rownames(ld_bs, "id")
+#### Local Distribution - Bootstrap####
+if(BS.new == 1) {
+  ld_bs = as.data.frame(dea.boot(X=as.matrix(X.avg.ld[as.character(ld_eval)]), Y=as.matrix(Y.avg.ld[as.character(ld_eval),]),
+                               NREP = BS.ite, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
+} else {
+  ld_bs = read.csv("./Data/Bootstrap/ld_bs.csv",sep=",")
+}
+
+
+if(BS.new == 1 ) {
+  names(ld_bs) = "ld_bs.correst"
+  ld_bs = add_rownames(ld_bs, "id")
+  write.csv(ld_bs, "./Data/Bootstrap/ld_bs.csv", row.names = FALSE)
+}
 
 #Merging bootstrap corrected scores into ld_EVAL
 
 ld_EVAL = merge.data.frame(ld_EVAL, ld_bs, by="id", all.x = T)
-
-
 
 ld_EVAL$ld_eff.bs.is2.cZ = ld_EVAL$ld_bs.correst
 
@@ -45,11 +52,19 @@ ld_EVAL$ldz_wind2 = ld_EVAL$ldz_wind * ld_EVAL$ldz_wind
 ld_EVAL$ldz_wind2_cod = ld_EVAL$ldz_wind2 / ld_EVAL$ldz_cod2c
 
 #### Regional Distribution - Bootstrap ####
+if(BS.new == 1) {
+  rd_bs = as.data.frame(dea.boot(X=as.matrix(X.avg.rd[as.character(rd_eval)]), Y=as.matrix(Y.avg.rd[as.character(rd_eval),]),
+                                 NREP = BS.ite, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
+} else {
+  rd_bs = read.csv("./Data/Bootstrap/rd_bs.csv",sep=",")
+}
 
-rd_bs = as.data.frame(dea.boot(X =as.matrix(X.avg.rd[as.character(rd_eval)]), Y=as.matrix(Y.avg.rd[as.character(rd_eval),]),
-                               NREP = 2000, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
-names(rd_bs) = "rd_bs.correst"
-rd_bs = add_rownames(rd_bs,"id")
+
+if(BS.new == 1 ) {
+  names(rd_bs) = "rd_bs.correst"
+  rd_bs = add_rownames(rd_bs, "id")
+  write.csv(rd_bs, "./Data/Bootstrap/rd_bs.csv", row.names = FALSE)
+}
 
 rd_EVAL = merge.data.frame(rd_EVAL, rd_bs, by="id", all.x = T)
 
@@ -92,9 +107,9 @@ names(ld_eff.bs) = names(X.avg.ld)
 #Calculates Geo coefficients (Z variable coefficients) for Local distribution
 Geovar.ldz = cbind(ld_EVAL[,c("ldz_hvug.s","ldz_f4", "ldz_Geo1", "ldz_Geo2", "ldz_Geo3")])
 ldz.coeff = Zvar1(x=X.avg.ld,z=Geovar.ldz,eff=ld_eff.bs,
-               lambda = ld_lambda.avg,
-               id = names(X.avg.ld),
-               id.out = as.character(ld_sep.eval))$coeff
+                  lambda = ld_lambda.avg,
+                  id = names(X.avg.ld),
+                  id.out = as.character(ld_sep.eval))$coeff
 ldz.coeff
 
 
@@ -102,7 +117,7 @@ ldz.coeff
 # Adjusts efficiency scores from stage 1, using difference in Z value relative to target unit
 # See functions_nve.R for further details. Local distribution grid
 ld_EVAL$ld_eff.s2.cb = Zvar2(x = X.avg.ld, eff = eff.cb.avg.ld, id = names(X.avg.ld),
-                                lambda = ld_lambda, coeff = ldz.coeff, z = Geovar.ldz)$eff.corr
+                             lambda = ld_lambda, coeff = ldz.coeff, z = Geovar.ldz)$eff.corr
 
 #Estimate Z-variables for Regional distribution ---------------------------
 
@@ -118,9 +133,9 @@ names(rd_eff.bs) = names(X.avg.rd)
 rd_eff.bs = rd_eff.bs[!is.na(rd_eff.bs)]
 
 rdz.coeff = Zvar1(x=X.avg.rd,z=Geovar.r,eff=rd_eff.bs,
-               lambda = rd_lambda.avg,
-               id = names(X.avg.rd),
-               id.out = as.character(rd_sep.eval))$coeff
+                  lambda = rd_lambda.avg,
+                  id = names(X.avg.rd),
+                  id.out = as.character(rd_sep.eval))$coeff
 
 
 names(rdz.coeff)[2] = "rdz_Geo1"
@@ -129,5 +144,5 @@ rdz.coeff
 #Adjusts efficiency scores from stage 1, using difference in Z value relative to target unit
 # See functions_nve.R for further details. Regional distribution grid
 rd_EVAL$rd_eff.s2.cb = Zvar2(x = X.avg.rd, eff=eff.cb.avg.rd, id=names(X.avg.rd),
-                                lambda = rd_lambda, coeff=rdz.coeff, z=Geovar.r)$eff.corr
-                                
+                             lambda = rd_lambda, coeff=rdz.coeff, z=Geovar.r)$eff.corr
+

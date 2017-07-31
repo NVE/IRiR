@@ -19,6 +19,10 @@ names(NVE.ir) = 2009:2016
 # Decision/Notice - different prices and interests are used
 decision = 0 # 1 if decision mode, 0 notice mode
 
+# Bootstrap settings
+BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
+BS.ite = 2000 # Number of iterations in bootstrap calculation
+
 # Notice
 NVE.ir.t_2 = NVE.ir[as.character(y.cb)]
 NVE.ir.est = NVE.ir[as.character(y.rc)]
