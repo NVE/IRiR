@@ -8,12 +8,13 @@ if(BS.new == 1) {
   ld_bs = read.csv("./Data/Bootstrap/ld_bs.csv",sep=",")
 }
 
-
 if(BS.new == 1 ) {
   names(ld_bs) = "ld_bs.correst"
   ld_bs = add_rownames(ld_bs, "id")
   write.csv(ld_bs, "./Data/Bootstrap/ld_bs.csv", row.names = FALSE)
 }
+
+stopifnot(exists("ld_bs") == TRUE)
 
 #Merging bootstrap corrected scores into ld_EVAL
 
@@ -65,6 +66,8 @@ if(BS.new == 1 ) {
   rd_bs = add_rownames(rd_bs, "id")
   write.csv(rd_bs, "./Data/Bootstrap/rd_bs.csv", row.names = FALSE)
 }
+
+stopifnot(exists("rd_bs") == TRUE)
 
 rd_EVAL = merge.data.frame(rd_EVAL, rd_bs, by="id", all.x = T)
 

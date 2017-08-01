@@ -23,9 +23,9 @@ library(xlsx)
 library(xlsxjars)
 library(plyr)
 library(dplyr)
-library(FactoMineR) # Kan fjernes?
 library(outliers)
 library(plot3D)
+library(assertthat)
 
 source("./R-script/functions_nve.R") # File containing functions created for/by NVE
 
@@ -70,7 +70,6 @@ source("./R-script/Spec_AvEff-model.R")
 
 #### Calculating Revenue caps ####
 source("./R-script/4_0_Revenue_Cap_Calculation.R")
-
 end.time =  Sys.time()
 calc.time = end.time - start.time
 calc.time
