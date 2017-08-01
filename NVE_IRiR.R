@@ -23,9 +23,9 @@ library(xlsx)
 library(xlsxjars)
 library(plyr)
 library(dplyr)
-library(FactoMineR) # Kan fjernes?
 library(outliers)
 library(plot3D)
+library(assertthat)
 
 source("./R-script/functions_nve.R") # File containing functions created for/by NVE
 
@@ -51,9 +51,7 @@ source("./R-script/1_0_DEA.R")
 # A novel approach used in regulation of Norwegian electricity DSOs, H.M. Kvile, O. Kordahl, T. Langset & R. Amundsveen, 2014"
 # ENG: http://bit.ly/2sH5oLV
 
-source("./R-script/2_X_Bootstrap_Data.R") # TEMP - new branch will be created for implementing bootstrap in R
 source("./R-script/2_0_Stage2_GeoCorrection.R")
-
 
 #### Stage 3 - Cost norm calibration ####
 # As described in circular 1/2013
@@ -72,9 +70,8 @@ source("./R-script/Spec_AvEff-model.R")
 
 #### Calculating Revenue caps ####
 source("./R-script/4_0_Revenue_Cap_Calculation.R")
-
 end.time =  Sys.time()
 calc.time = end.time - start.time
 calc.time
 
-source("X_4_Excel_export.R")
+#source("X_4_Excel_export.R")
