@@ -13,8 +13,12 @@ y.hist.pen = 2007:2013
 #NVE interest rates - used in revenue cap calculation
 # https://www.nve.no/energy-market-and-regulation/revenue-regulation/the-wacc-model/
 # https://www.nve.no/elmarkedstilsynet-marked-og-monopol/okonomisk-regulering-av-nettselskap/reguleringsmodellen/referanserenten/
-NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # 2015 & 2016 estimates pr 01.12.15
-names(NVE.ir) = 2009:2016
+NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0632, 0.0632, 0.0615) # 2015 & 2016 estimates pr 01.12.15
+names(NVE.ir) = 2009:y.rc
+NVE.ir.new = c(0.0808, 0.0767, 0.0764, 0.0718, 0.0690, 0.0661, 0.0632, 0.0632, 0.0615) # Calculated interest rates for 2009-2012
+names(NVE.ir.new) = 2009:y.rc                                                        # based on interest model from 2013
+his.sysp = c(312.80, 459.92, 393.46, 259.90, 310.99, 261.35, 208.13)
+names(his.sysp) = 2009:y.cb 
 
 # Bootstrap settings
 BS.new = 1 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
@@ -23,30 +27,30 @@ BS.ite = 2000 # Number of iterations in bootstrap calculation
 # Decision/Notice - different prices and interests are used
 decision = 0 # 1 if decision mode, 0 notice mode
 
-# Notice
-NVE.ir.t_2 = NVE.ir[as.character(y.cb)]
-NVE.ir.est = NVE.ir[as.character(y.rc)]
-sysp.t_2 = 0.26135
-
-# Decision
-NVE.ir.t = NVE.ir[as.character(y.rc)]
+# # Notice
+# NVE.ir.t_2 = NVE.ir[as.character(y.cb)]
+# NVE.ir.est = NVE.ir[as.character(y.rc)]
+# sysp.t_2 = 0.26135
+# 
+# # Decision
+# NVE.ir.t = NVE.ir[as.character(y.rc)]
 
 # Economic assumptions (? - Improve)
 wcp = 1.01 # working capital premium
 rho = 0.6 # Norm cost share in revenue cap 
 gci.p = 1 # Price of grid components in interface, regional and local distribution grids
 
-
-# Choosing correct interest rates and prices dependent on notice or decision mode
-if (decision == 1)  {
-        ir.dea                  = NVE.ir.t_2
-        NVE.ir.RC               = NVE.ir.t
-        pnl.dea                 = sysp.t_2
-} else {
-        ir.dea                  = NVE.ir.t_2
-        NVE.ir.RC               = NVE.ir.est
-        pnl.dea                 = sysp.t_2
-}
+# 
+# # Choosing correct interest rates and prices dependent on notice or decision mode
+# if (decision == 1)  {
+#         ir.dea                  = NVE.ir.t_2
+#         NVE.ir.RC               = NVE.ir.t
+#         pnl.dea                 = sysp.t_2
+# } else {
+#         ir.dea                  = NVE.ir.t_2
+#         NVE.ir.RC               = NVE.ir.est
+#         pnl.dea                 = sysp.t_2
+# }
 
 # Estimated cost for cost base year (y.cb)
 # in this calcualtion with adjustment for "payroll tax" (19666)
@@ -56,56 +60,56 @@ lrt_RC_dec.y.cb = 9265621 + 19666
 
 # Read data set from csv-file
 # Base-data with costs and assets
-dat.harm = read.csv("./Data/BaseData/BaseData_Updatet_notice_HI_2017.csv",sep=",")
+dat = read.csv("./Data/BaseData/BaseData_Updatet_notice_HI_2017.csv",sep=",")
 
 # ID-er
 id = read.csv("./Data/BaseData/HI_id_2017.csv", sep = ",")
 # Tilegner ID-er til Grunnlagsdata vha merge
-dat.harm$comp <- as.character(dat.harm$comp)
+dat$comp <- as.character(dat$comp)
 id$name<- as.character(id$name)
-dat.harm = merge.data.frame(dat.harm, id, by = "orgn", all.x = TRUE)
+dat = merge.data.frame(dat, id, by = "orgn", all.x = TRUE)
 
 # Manualy adding IDs for missing companies
 # IDer basert på Stata-kode
 # Angir ny ID for Gassco
-dat.harm$id[dat.harm$orgn == 983452841] <- 900
-dat.harm$name[dat.harm$orgn == 983452841] <- "Gassco"
+dat$id[dat$orgn == 983452841] <- 900
+dat$name[dat$orgn == 983452841] <- "Gassco"
 # Angir ny ID for Lyse sentralnett
-dat.harm$id[dat.harm$orgn == 996325458] <- 872
-dat.harm$name[dat.harm$orgn == 996325458] <- "Lyse Sentralnett"
+dat$id[dat$orgn == 996325458] <- 872
+dat$name[dat$orgn == 996325458] <- "Lyse Sentralnett"
 # Angir ny ID for Mørenett
-dat.harm$id[dat.harm$orgn == 912631532] <- 460
-dat.harm$name[dat.harm$orgn == 912631532] <- "Morenett"
+dat$id[dat$orgn == 912631532] <- 460
+dat$name[dat$orgn == 912631532] <- "Morenett"
 # Angir ny ID for Fosen Nett
-dat.harm$id[dat.harm$orgn == 814943852] <- 53
-dat.harm$name[dat.harm$orgn == 814943852] <- "Fosen Nett"
+dat$id[dat$orgn == 814943852] <- 53
+dat$name[dat$orgn == 814943852] <- "Fosen Nett"
 # Angir ny ID for Lier Nett
-dat.harm$id[dat.harm$orgn == 815299302] <- 102
-dat.harm$name[dat.harm$orgn == 815299302] <- "Lier Nett"
+dat$id[dat$orgn == 815299302] <- 102
+dat$name[dat$orgn == 815299302] <- "Lier Nett"
 # Angir ny ID for ISE Nett
-dat.harm$id[dat.harm$orgn == 914385261] <- 42
-dat.harm$name[dat.harm$orgn == 914385261] <- "ISE Nett"
+dat$id[dat$orgn == 914385261] <- 42
+dat$name[dat$orgn == 914385261] <- "ISE Nett"
 # Angir ny ID for Fosen Nett
-dat.harm$id[dat.harm$orgn == 916319908] <- 295
-dat.harm$name[dat.harm$orgn == 916319908] <- "Gudbrandsdal Energi Nett"
+dat$id[dat$orgn == 916319908] <- 295
+dat$name[dat$orgn == 916319908] <- "Gudbrandsdal Energi Nett"
 
 # Create id.y og orgn.y variable
-dat.harm$id.y <- paste(dat.harm$id, dat.harm$y, sep="")
-dat.harm$orgn.y <- paste(dat.harm$y, dat.harm$orgn, sep="")
-dat.harm$id.y <- as.numeric(dat.harm$id.y)
-dat.harm$orgn.y <- as.numeric(dat.harm$orgn.y)
+dat$id.y <- paste(dat$id, dat$y, sep="")
+dat$orgn.y <- paste(dat$y, dat$orgn, sep="")
+dat$id.y <- as.numeric(dat$id.y)
+dat$orgn.y <- as.numeric(dat$orgn.y)
 
 # Impute subscriber values for Mo Industripark (id 743)
-dat.harm$ld_sub[dat.harm$id.y == 7432010] <- 248
-dat.harm$ld_sub[dat.harm$id.y == 7432011] <- 246
-dat.harm$ld_sub[dat.harm$id.y == 7432012] <- 246
-dat.harm$ld_sub[dat.harm$id.y == 7432013] <- 245
+dat$ld_sub[dat$id.y == 7432010] <- 248
+dat$ld_sub[dat$id.y == 7432011] <- 246
+dat$ld_sub[dat$id.y == 7432012] <- 246
+dat$ld_sub[dat$id.y == 7432013] <- 245
 
 # Sletter observasjoner fra Statnett
-dat.harm <- dat.harm[!(dat.harm$orgn==962986633),] 
+dat <- dat[!(dat$orgn==962986633),] 
 
 # Check for companies without ID
-missing.id <- dat.harm[is.na(dat.harm$id),]
+missing.id <- dat[is.na(dat$id),]
 missing.id[c("comp", "orgn")]
 stopifnot(nrow(missing.id) == 0)
 rm(missing.id, id)
@@ -145,37 +149,37 @@ rd_sep.eval <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669)
 rd_no.rc  <- (c())
 
 # CPI
-cpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.7, 143.8)
-names(cpi) = 2004:2016
+cpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.8, 144.6, 147.4)
+names(cpi) = 2004:2017
 
-cpi.l = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.4, 221.6)
-names(cpi.l) = 2004:2016
+cpi.l = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.7, 220.7, 226.6)
+names(cpi.l) = 2004:2017
+
 
 
 # Data for Hammerfest
 # Special treatment of CAPEX associated with LNG facility on Melkoya (Improve - ref?)
 hfmo = read.csv("./Data/BaseData/Hammerfest_Melkoya.csv", sep = ",")
-dat.harm = merge.data.frame(dat.harm, hfmo, by="id.y", all.x = TRUE)
-dat.harm$rd_bv.gf_melk[is.na(dat.harm$rd_bv.gf_melk)] <- 0
-dat.harm$rd_dep.gf_melk[is.na(dat.harm$rd_dep.gf_melk)] <- 0
-dat.harm$tempbv <- dat.harm$rd_bv.gf
-dat.harm$tempdep <- dat.harm$rd_dep.gf
-dat.harm$rd_bv.gf = dat.harm$tempbv - dat.harm$rd_bv.gf_melk
-dat.harm$rd_dep.gf = dat.harm$tempdep - dat.harm$rd_dep.gf_melk
-dat.harm$tempbv <- NULL
-dat.harm$tempdep <- NULL
+dat = merge.data.frame(dat, hfmo, by="id.y", all.x = TRUE)
+dat$rd_bv.gf_melk[is.na(dat$rd_bv.gf_melk)] <- 0
+dat$rd_dep.gf_melk[is.na(dat$rd_dep.gf_melk)] <- 0
+dat$tempbv <- dat$rd_bv.gf
+dat$tempdep <- dat$rd_dep.gf
+dat$rd_bv.gf = dat$tempbv - dat$rd_bv.gf_melk
+dat$rd_dep.gf = dat$tempdep - dat$rd_dep.gf_melk
+dat$tempbv <- NULL
+dat$tempdep <- NULL
 rm(hfmo)
 
 
 # Import area prices pr company from cost base year - area prices allready in base data
-# ap.t_2 = read.csv("./dat.harma/Basedata/areaprices_t_2.csv", sep = ",")
-# dat.harm = merge.dat.harma.frame(dat.harm, ap.t_2, by="id.y", all.x = TRUE)
+# ap.t_2 = read.csv("./data/Basedata/areaprices_t_2.csv", sep = ",")
+# dat = merge.data.frame(dat, ap.t_2, by="id.y", all.x = TRUE)
 # 
-# dat.harm$ap.t_2[dat.harm$id.y==8722014] = 244.24
-# dat.harm$ap.t_2[dat.harm$id.y==9002014] = 273.92
-dat.harm$ap.t_2 = dat.harm$ap.t_2/1000
+# dat$ap.t_2[dat$id.y==8722014] = 244.24
+# dat$ap.t_2[dat$id.y==9002014] = 273.92
+dat$ap.t_2 = dat$ap.t_2/1000
 
 #CPI factors are used in calibration and revenue cap-calculations (part 4)
 y.cb.cpi.l.factor = cpi.l[as.character(y.rc)]/cpi.l[as.character(y.cb)]
 y.cb.cpi.factor = cpi[as.character(y.rc)]/cpi[as.character(y.cb)]
-

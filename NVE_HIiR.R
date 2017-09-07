@@ -32,8 +32,13 @@ options(scipen = 100)
 source("./R-script/Harmony/H_0_1_Config_Assumptions_Data.R")
 
 #Averages of interest and prices are used in Harmony Income calculation
-HI.NVE.ir_2 =  
+NVE.ir.t_2 = mean(NVE.ir.new[names(NVE.ir.new) %in% y.avg])
+NVE.ir.est = mean(NVE.ir.new[names(NVE.ir.new) >= y.rc-4])
+sysp.t_2 = mean(his.sysp[names(his.sysp) %in% y.avg])/1000
 
+ir.dea                  = NVE.ir.t_2 # Average interest from years in y.avg
+NVE.ir.RC               = NVE.ir.est # Average interest from last five years 
+pnl.dea                 = 0.28677 #HARD CODED ONLY FOR QA sysp.t_2 # Average prices from years in y.avg --> suggestion last five years
 
 #Companies for merger
 # Comp 1 
@@ -47,8 +52,8 @@ comp.name = c("NordBal")
 
 
 
-dat.harm$ldz_n.mgc_sum = dat.harm$ldz_mgc # Number of map grid cells for "sum"-vector
-dat.harm$rdz_n.mgc_sum = dat.harm$rdz_mgc
+dat$ldz_n.mgc_sum = dat$ldz_mgc # Number of map grid cells for "sum"-vector
+dat$rdz_n.mgc_sum = dat$rdz_mgc
 
 #Variables that are summed for all merging companies
 harm.var_sum = c("ld_391", "ld_OPEXxS", "ld_sub", "ld_dep.gf", "ld_bv.gf", "ldz_isl", "ld_dep.sf",
@@ -69,12 +74,12 @@ ldz_harm.var_gc = c("ldz_mgc", "ldz_lat.av",
 
 #variables weighted with number of map grid cells, regional distribution grid
 rdz_harm.var_gc = c("rdz_mgc", "rdz_inc.av", "rdz_f12")
-                 
+
 #Prices are calculated as naive averages
 merge.pr = ("ap.t_2")
 
 # Create data frame with observations for merging companies
-md = filter(dat.harm, dat.harm$orgn %in% merg.comps)
+md = filter(dat, dat$orgn %in% merg.comps)
 
 # Create data frame with sum of variables in harm.var_sum, for merging companies
 mds =   as.data.frame(md %>%
@@ -134,6 +139,8 @@ mds$ap.t_2 = (md %>%
                       group_by(y) %>%
                       summarise_each(funs(mean), one_of(as.character(merge.pr))))$ap.t_2
 
-dat.harm = bind_rows(dat.harm, mds)
-dat.harm = dat.harm[!(dat.harm$orgn %in% merg.comps),]
+dat = bind_rows(dat, mds)
+dat = dat[!(dat$orgn %in% merg.comps),]
 rm(ld_mdw, ld_mdw.fm, mds, rd_mdw, rd_mdw.fm)
+
+
