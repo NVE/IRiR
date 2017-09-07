@@ -131,20 +131,19 @@ rm(missing.id, id)
 # Criterias in regional distribution: TOTEX < 15000, .... ( Improve )  
 
 # Local Distribution Grid
-ld_ooto <- (c(10, 108, 121, 167, 222, 512, 686, 743)) 
-ld_av.eff <- (c(187, 294, 652, 852)) # Companies set to average efficency
+ld_ooto <- (c(108, 121, 167, 222, 512, 686, 743)) 
+ld_av.eff <- (c(10, 187, 294, 652, 852)) # Companies set to average efficency
 ld_sep.eval <- (c()) # Companies included in DEA, but only allowed to be peers for themselves
 ld_no.rc <- (c(134, 348, 521, 612, 638, 696)) # Companies exluded from revenue cap calc
 
 
 # Regional distribution grid (+ some transmission)
-rd_ooto <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
-              204, 222, 238, 274, 287, 307, 343, 349, 447, 484, 512, 
-              659, 686, 743)) # prøver, 10, her 
+rd_ooto <- (c(10, 18, 41, 88, 135, 147, 156, 161, 162, 204, 222,
+              274, 287, 307, 349, 447, 512, 659, 669, 686, 743)) # prøver, 10, her 
 
-rd_av.eff <- (c(116, 167, 542, 685, 852)) # 167- Hydro Energi TEMP
+rd_av.eff <- (c(35, 98, 116, 152, 542, 685, 852)) # 167- Hydro Energi TEMP
 
-rd_sep.eval <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669))  # 14, 753
+rd_sep.eval <- (c(106, 173, 184, 238, 343, 484, 7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625))  # 14, 753
 
 rd_no.rc  <- (c())
 

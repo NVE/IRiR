@@ -23,6 +23,16 @@ library(outliers)
 library(plot3D)
 library(assertthat)
 
+#Companies for merger
+# Comp 1 
+merg.comp1 = c(971592117)
+# Comp 2
+merg.comp2 = c(983099807)
+
+merg.comps = c(merg.comp1, merg.comp2)
+
+comp.name = c("NordBal")
+
 source("./R-script/functions_nve.R") # File containing functions created for/by NVE
 
 # Avoid showing large numbers in scientific mode
@@ -38,18 +48,15 @@ sysp.t_2 = mean(his.sysp[names(his.sysp) %in% y.avg])/1000
 
 ir.dea                  = NVE.ir.t_2 # Average interest from years in y.avg
 NVE.ir.RC               = NVE.ir.est # Average interest from last five years 
-pnl.dea                 = 0.28677 #HARD CODED ONLY FOR QA sysp.t_2 # Average prices from years in y.avg --> suggestion last five years
+pnl.dea                 = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
 
-#Companies for merger
-# Comp 1 
-merg.comp1 = c(971592117)
-# Comp 2
-merg.comp2 = c(983099807)
 
-merg.comps = c(merg.comp1, merg.comp2)
+source("./R-script/Harmony/H_0_2_Calculated_Input_Values.R")
+source("./R-script/0_3_Company_Selection.R")
 
-comp.name = c("NordBal")
 
+#### Stage 1 - DEA ####
+source("./R-script/1_0_DEA.R")
 
 
 dat$ldz_n.mgc_sum = dat$ldz_mgc # Number of map grid cells for "sum"-vector
