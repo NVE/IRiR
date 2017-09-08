@@ -13,14 +13,12 @@ getwd()
 # Remember to change "\" to "/" or "\\" 
 #my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
 start.time =  Sys.time()
-my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
+my.path = "C:\\Users\\ens\\Desktop\\IRiR-master"
 setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
 # Following packages are used
 # Benchmarking, xlsx, plyr, dplyr
 library(Benchmarking)
-library(xlsx)
-library(xlsxjars)
 library(plyr)
 library(dplyr)
 library(outliers)
@@ -74,4 +72,3 @@ end.time =  Sys.time()
 calc.time = end.time - start.time
 calc.time
 
-#source("X_4_Excel_export.R")

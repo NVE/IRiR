@@ -1,0 +1,153 @@
+
+# HIiR
+# Script for Harmony Income Calculation
+
+# Remove all objects from memory
+remove(list=ls())
+# Get current working directory
+getwd()
+# Set working directory to where the data file is located
+# The address can be copied from the address bar in Windows Explorer
+# Remember to change "\" to "/" or "\\" 
+#my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
+start.time =  Sys.time()
+my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
+setwd(my.path)
+# Load benchmarking package of Bogetoft & Otto
+# Following packages are used
+# Benchmarking, xlsx, plyr, dplyr
+library(Benchmarking)
+library(plyr)
+library(dplyr)
+library(outliers)
+library(plot3D)
+library(assertthat)
+
+#Companies for merger
+# Comp 1 
+merg.comp1 = c(971592117)
+# Comp 2
+merg.comp2 = c(983099807)
+
+merg.comps = c(merg.comp1, merg.comp2)
+
+comp.name = c("NordBal")
+
+source("./R-script/functions_nve.R") # File containing functions created for/by NVE
+
+# Avoid showing large numbers in scientific mode
+options(scipen = 100)
+
+#Defining parameters and importing data
+source("./R-script/Harmony/H_0_1_Config_Assumptions_Data.R")
+
+#Averages of interest and prices are used in Harmony Income calculation
+NVE.ir.t_2 = mean(NVE.ir.new[names(NVE.ir.new) %in% y.avg])
+NVE.ir.est = mean(NVE.ir.new[names(NVE.ir.new) >= y.rc-4])
+sysp.t_2 = mean(his.sysp[names(his.sysp) %in% y.avg])/1000
+
+ir.dea                  = NVE.ir.t_2 # Average interest from years in y.avg
+NVE.ir.RC               = NVE.ir.est # Average interest from last five years 
+pnl.dea                 = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
+
+
+source("./R-script/Harmony/H_0_2_Calculated_Input_Values.R")
+source("./R-script/0_3_Company_Selection.R")
+
+
+#### Stage 1 - DEA ####
+source("./R-script/1_0_DEA.R")
+
+
+dat$ldz_n.mgc_sum = dat$ldz_mgc # Number of map grid cells for "sum"-vector
+dat$rdz_n.mgc_sum = dat$rdz_mgc
+
+#Variables that are summed for all merging companies
+harm.var_sum = c("ld_391", "ld_OPEXxS", "ld_sub", "ld_dep.gf", "ld_bv.gf", "ldz_isl", "ld_dep.sf",
+                 "ld_bv.sf", "ld_gci", "ld_hv", "ld_hvug", "ld_hvoh", "ld_hvsc", "ld_impl",
+                 "ld_cens", "ld_sal", "ld_sal.cap", "ld_nl", "ld_ss", "ld_pens",
+                 "ld_pens.eq", "ldz_cmpp", "ld_cga", "rd_391", "rd_OPEXxS", "rd_dep.gf",
+                 "rd_dep.gf_melk", "rd_bv.gf", "rd_bv.gf_melk", "rd_dep.sf", "rd_bv.sf", "rd_impl",
+                 "rd_cens", "rd_sal", "rd_sal.cap", "rd_nl", "rd_pens", "rd_pens.eq",
+                 "rd_cga", "rd_wv.ss", "rd_wv.uc", "rd_wv.ol", "rd_wv.sc", "t_391", "t_OPEXxS",
+                 "t_dep.sf", "t_bv.sf", "t_impl", "t_cens", "t_sal", "t_sal.cap", "t_pens",
+                 "t_pens.eq", "ldz_n.mgc_sum", "rdz_n.mgc_sum")
+
+
+#variables weighted with number of map grid cells, local distribution grid
+ldz_harm.var_gc = c("ldz_mgc", "ldz_lat.av",
+                    "ldz_inc.av", "ldz_ice.av", "ldz_cod2c", "ldz_f4", "ldz_f7",
+                    "ldz_snow", "ldz_temp", "ldz_wind")
+
+#variables weighted with number of map grid cells, regional distribution grid
+rdz_harm.var_gc = c("rdz_mgc", "rdz_inc.av", "rdz_f12")
+
+#Prices are calculated as naive averages
+merge.pr = ("ap.t_2")
+
+# Create data frame with observations for merging companies
+md = filter(dat, dat$orgn %in% merg.comps)
+
+# Create data frame with sum of variables in harm.var_sum, for merging companies
+mds =   as.data.frame(md %>%
+                              group_by(y) %>%
+                              summarise_each(funs(sum), one_of(as.character(harm.var_sum))))  
+
+mds$orgn = 999999999
+mds$id = 999
+mds$id.y = as.numeric(paste(mds$id, mds$y, sep = ""))
+
+comp.info = c("orgn", "y", "id", "id.y")
+
+
+
+
+ld_mdw = select(md, one_of(ldz_harm.var_gc))
+ld_mdw$mutipl.col = ld_mdw$ldz_mgc
+ld_mdw = as.data.frame(bind_cols(ld_mdw, select(md, one_of(comp.info))))
+ld_mdw[ldz_harm.var_gc] = ld_mdw[ldz_harm.var_gc] * ld_mdw$mutipl.col
+
+ld_mdw.fm = as.data.frame(ld_mdw %>%
+                                  group_by(y) %>%
+                                  summarise_each(funs(sum), one_of(as.character(ldz_harm.var_gc))))
+
+
+ld_mdw.fm$id = 999
+ld_mdw.fm$id.y = as.numeric(paste(ld_mdw.fm$id, ld_mdw.fm$y, sep = ""))
+ld_mdw.fm$id = NULL
+ld_mdw.fm$y = NULL
+
+mds = inner_join(mds, ld_mdw.fm, by = "id.y")
+mds[ldz_harm.var_gc] = mds[ldz_harm.var_gc] / mds$ldz_n.mgc_sum
+
+
+
+rd_mdw = select(md, one_of(rdz_harm.var_gc))
+rd_mdw$mutipl.col = rd_mdw$rdz_mgc
+rd_mdw = as.data.frame(bind_cols(rd_mdw, select(md, one_of(comp.info))))
+rd_mdw[rdz_harm.var_gc] = rd_mdw[rdz_harm.var_gc] * rd_mdw$mutipl.col
+
+rd_mdw.fm = as.data.frame(rd_mdw %>%
+                                  group_by(y) %>%
+                                  summarise_each(funs(sum), one_of(as.character(rdz_harm.var_gc))))
+
+
+rd_mdw.fm$id = 999
+rd_mdw.fm$id.y = as.numeric(paste(rd_mdw.fm$id, rd_mdw.fm$y, sep = ""))
+rd_mdw.fm$id = NULL
+rd_mdw.fm$y = NULL
+
+mds = inner_join(mds, rd_mdw.fm, by = "id.y")
+mds[rdz_harm.var_gc] = mds[rdz_harm.var_gc] / mds$rdz_n.mgc_sum
+mds$comp = as.character(comp.name)
+mds$name = mds$comp
+
+mds$ap.t_2 = (md %>%
+                      group_by(y) %>%
+                      summarise_each(funs(mean), one_of(as.character(merge.pr))))$ap.t_2
+
+dat = bind_rows(dat, mds)
+dat = dat[!(dat$orgn %in% merg.comps),]
+rm(ld_mdw, ld_mdw.fm, mds, rd_mdw, rd_mdw.fm)
+
+
