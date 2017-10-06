@@ -13,7 +13,7 @@ getwd()
 # Remember to change "\" to "/" or "\\" 
 #my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
 start.time =  Sys.time()
-my.path = "C:\\Users\\ens\\Desktop\\IRiR-master"
+my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
 setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
 # Following packages are used
@@ -29,6 +29,10 @@ source("./R-script/functions_nve.R") # File containing functions created for/by 
 
 # Avoid showing large numbers in scientific mode
 options(scipen = 100)
+
+# Bootstrap settings
+BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
+BS.ite = 2000 # Number of iterations in bootstrap calculatio
 
 #### Preperation stage - Configurations, data import, data preparation ####
 

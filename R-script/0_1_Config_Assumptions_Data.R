@@ -5,23 +5,20 @@
 # Parameters
 #kraftpris = 0.26135
 pnl.rc = 0.20133  # Price of network losses in RC
-y.avg = 2010:2014 # Relevant years for calculation of average values
-y.cb = 2014 # The cost base year, t-2
+y.avg = 2012:2016 # Relevant years for calculation of average values
+y.cb = 2016 # The cost base year, t-2
 y.rc = y.cb + 2 # The revenue cap year, t
 y.hist.pen = 2007:2013 #Transition period for smoothing of pension costs, see variable list for further explenation
 
 #NVE interest rates - used in revenue cap calculation
 # https://www.nve.no/energy-market-and-regulation/revenue-regulation/the-wacc-model/
 # https://www.nve.no/elmarkedstilsynet-marked-og-monopol/okonomisk-regulering-av-nettselskap/reguleringsmodellen/referanserenten/
-NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # 2015 & 2016 estimates pr 01.12.15
-names(NVE.ir) = 2009:2016
+NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # NEEDS INPUT
+names(NVE.ir) = 2009:2018
 
 # Decision/Notice - different prices and interests are used
 decision = 0 # 1 if decision mode, 0 notice mode
 
-# Bootstrap settings
-BS.new = 1 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
-BS.ite = 2000 # Number of iterations in bootstrap calculation
 
 # Notice
 NVE.ir.t_2 = NVE.ir[as.character(y.cb)]
@@ -68,15 +65,20 @@ dat$comp <- as.character(dat$comp)
 dat$name <- as.character(dat$comp)
 
 # Manualy adding IDs for missing companies
-# Asign ID for Gassco
 dat$id[dat$orgn == 983452841] <- 900
 dat$name[dat$orgn == 983452841] <- "Gassco"
-# Asign ID for Lyse sentralnett
 dat$id[dat$orgn == 996325458] <- 872
-dat$name[dat$orgn == 996325458] <- "Lyse Sentralnett"
-# Asign ID for Mørenett
+dat$name[dat$orgn == 996325458] <- "Lyse Sentralnett"  # NEEDS INPUT ? STATNETT ROGALAND
 dat$id[dat$orgn == 912631532] <- 460
-dat$name[dat$orgn == 912631532] <- "Morenett"
+dat$name[dat$orgn == 912631532] <- "Morenett" 
+dat$id[dat$orgn == 814943852] <- 53
+dat$name[dat$orgn == 814943852] <- "Fosen Nett"
+dat$id[dat$orgn == 815299302] <- 102
+dat$name[dat$orgn == 815299302] <- "Lier Nett"
+dat$id[dat$orgn == 914385261] <- 42
+dat$name[dat$orgn == 914385261] <- "ISE Nett"
+dat$id[dat$orgn == 916319908] <- 295
+dat$name[dat$orgn == 916319908] <- "Gudbrandsdal Energi Nett"
 
 # Create id.y og orgn.y variable
 dat$id.y <- paste(dat$id, dat$y, sep="")
@@ -145,11 +147,11 @@ rd_sep.eval <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669)
 rd_no.rc  <- (c())
 
 # CPI
-cpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.7, 143.8)
-names(cpi) = 2004:2016
+cpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.7, 143.8) # NEEDS INPUT
+names(cpi) = 2004:2018
 
-cpi.l = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.4, 221.6)
-names(cpi.l) = 2004:2016
+cpi.l = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.4, 221.6) # NEEDS INPUT
+names(cpi.l) = 2004:2018
 
 
 # Data for Hammerfest
@@ -168,7 +170,7 @@ rm(hfmo)
 
 
 # Import area prices pr company from cost base year
-ap.t_2 = read.csv("./Data/BaseData/areaprices_t_2.csv", sep = ",")
+ap.t_2 = read.csv("./Data/BaseData/areaprices_t_2.csv", sep = ",") # NEEDS INPUTs
 dat = merge.data.frame(dat, ap.t_2, by="id.y", all.x = TRUE)
 
 dat$ap.t_2[dat$id.y==8722014] = 244.24
