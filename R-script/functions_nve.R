@@ -287,3 +287,29 @@ dupsBetweenGroups <- function (df, idcol) {
         # Return the vector of which entries are duplicated across groups
         return(dupBetween)
 }
+#--------------------------------------------------------------------------------------------------------------------
+
+ToRho = function(x, lambda){
+
+        x <- as.vector(x)
+        lambda <- as.matrix(lambda)
+
+        # cost norm for each dmu
+        x.norm <- lambda %*% x
+        ids = colnames(lambda)
+        # norm contribution for each reference dmu
+        x.norm.contrib <- lambda %*% diag(x)
+        # Set name of columns equal to rows ## NEEDS QA
+        colnames(x.norm.contrib) = colnames(lambda)
+        # Keep only columns for peers
+        x.norm.contrib1 = x.norm.contrib[, colSums(x.norm.contrib) > 0]
+        # Contribution to normcost pr peer in total
+        norm.pr.peer = colSums(x.norm.contrib1)
+        # Total norm cost
+        total.norm = sum(norm.pr.peer)
+        # Torgersens rho
+        Torg.Rho = as.matrix(norm.pr.peer / total.norm)
+        colnames(Torg.Rho) = "Torg.Rho"
+        
+        res <- list(Torg.Rho = Torg.Rho)
+}
