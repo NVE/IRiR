@@ -46,14 +46,13 @@ if (decision == 1)  {
 }
 
 # Estimated cost for cost base year (y.cb)
-# in this calcualtion with adjustment for "payroll tax" (19666)
-lrt_RC_dec.y.cb = 9265621 + 19666
+lrt_RC_dec.y.cb = 526606
 
 #### Importing data ####
 
 # Read data set from csv-file
 # Base-data with costs and assets
-dat = read.csv("./Data/BaseData/BaseData_FinalNotice.csv",sep=",")
+dat = read.csv("./Data/BaseData/BaseData_notice2018.csv",sep=",")
 
 
 # IDs to simplify scripts and aid analysts
@@ -63,16 +62,8 @@ dat = merge.data.frame(dat, id, by = "orgn", all.x = TRUE)
 dat$comp <- as.character(dat$comp)
 dat$name <- as.character(dat$comp)
 
-# Manualy adding IDs for missing companies
-# Asign ID for Gassco
-dat$id[dat$orgn == 983452841] <- 900
-dat$name[dat$orgn == 983452841] <- "Gassco"
-# Asign ID for Lyse sentralnett
-dat$id[dat$orgn == 996325458] <- 872
-dat$name[dat$orgn == 996325458] <- "Lyse Sentralnett"
-# Asign ID for Mørenett
-dat$id[dat$orgn == 912631532] <- 460
-dat$name[dat$orgn == 912631532] <- "Morenett"
+# Replace NA  values with zeros to have correct means for pensions costs
+dat[is.na(dat)] = 0
 
 # Create id.y og orgn.y variable
 dat$id.y <- paste(dat$id, dat$y, sep="")
@@ -89,7 +80,7 @@ dat$ld_sub[dat$id.y == 7432013] <- 245
 # Remove Statnett SFs observations from dataset (TSO)
 dat <- dat[!(dat$orgn==962986633),] 
 
-# Check for companies that without ID
+# Check for companies without ID
 missing.id <- dat[is.na(dat$id),]
 missing.id[c("comp", "orgn")]
 stopifnot(nrow(missing.id) == 0)
@@ -126,7 +117,7 @@ rm(missing.id, id)
 ld_ooto <- (c(10, 108, 121, 167, 222, 512, 686, 743)) 
 ld_av.eff <- (c(187, 294, 652, 852)) # Companies set to average efficency
 ld_sep.eval <- (c()) # Companies included in DEA, but only allowed to be peers for themselves
-ld_no.rc <- (c(134, 348, 521, 612, 638, 696)) # Companies exluded from revenue cap calc
+ld_no.rc <- (c(134, 348, 521, 612, 638, 696, 524)) # Companies exluded from revenue cap calc
 
 
 # Regional distribution grid (+ some transmission)

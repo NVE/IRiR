@@ -78,7 +78,7 @@ write.csv(cbind(ld_EVAL$id, X.avg.ld, Y.avg.ld,X.cb.ld, Y.cb.ld), file = "./Resu
 #Companies that can only be their own peers
 ld_sep.eval
 
-#### Actual calculations of efficiency scores using
+#### Calculations of efficiency scores using
 # dea command from Benchmarking package by P. Bogetoft & L. Otto
 # https://cran.r-project.org/web/packages/Benchmarking/Benchmarking.pdf
 

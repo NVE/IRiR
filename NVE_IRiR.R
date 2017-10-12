@@ -32,7 +32,7 @@ options(scipen = 100)
 
 # Bootstrap settings
 BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
-BS.ite = 2000 # Number of iterations in bootstrap calculatio
+BS.ite = 2000 # Number of iterations in bootstrap calculation
 
 #### Preperation stage - Configurations, data import, data preparation ####
 
