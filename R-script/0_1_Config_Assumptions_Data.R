@@ -46,14 +46,14 @@ if (decision == 1)  {
 }
 
 # Estimated cost for cost base year (y.cb)
-lrt_RC_dec.y.cb = 526606
+lrt_RC_dec.y.cb = 10889888
 
 #### Importing data ####
 
 # Read data set from csv-file
 # Base-data with costs and assets
 dat = read.csv("./Data/BaseData/BaseData_notice2018.csv",sep=",")
-
+dat$ap.t_2 = dat$ap.t_2/1000
 
 # IDs to simplify scripts and aid analysts
 id = read.csv("./Data/BaseData/id.csv", sep = ",")
@@ -114,22 +114,22 @@ rm(missing.id, id)
 # Criterias in regional distribution: TOTEX < 15000, .... ( Improve )  
 
 # Local Distribution Grid
-ld_ooto <- (c(10, 108, 121, 167, 222, 512, 686, 743)) 
-ld_av.eff <- (c(187, 294, 652, 852)) # Companies set to average efficency
+ld_ooto <- (c(121, 167, 222, 512, 686, 743, 852)) #852 - Herøya. Discuss
+ld_av.eff <- (c(10, 187, 294, 652)) # Companies set to average efficency
 ld_sep.eval <- (c()) # Companies included in DEA, but only allowed to be peers for themselves
-ld_no.rc <- (c(134, 348, 521, 612, 638, 696, 524)) # Companies exluded from revenue cap calc
+ld_no.rc <- (c(108, 134, 152, 307, 348, 521, 612, 638, 696, 524)) # Companies exluded from revenue cap calc
 
 
 # Regional distribution grid (+ some transmission)
 rd_ooto <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
-              204, 222, 238, 274, 287, 307, 343, 349, 447, 484, 512, 
+              204, 222, 238, 274, 287,  343, 349, 447, 484, 512, 
               659, 686, 743)) # prøver, 10, her 
 
-rd_av.eff <- (c(116, 167, 542, 685, 852)) # 167- Hydro Energi TEMP
+rd_av.eff <- (c(116, 167, 542, 685, 852)) #
 
-rd_sep.eval <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669))  # 14, 753
+rd_sep.eval <- (c(7, 9, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669))  # 14, 753
 
-rd_no.rc  <- (c())
+rd_no.rc  <- (c(152, 307))
 
 # CPI
 cpi = c(81.0, 82.3, 84.2, 84.8, 88.0, 89.9, 92.1, 93.3, 93.9, 95.9, 97.9, 100, 103.6, 105.8, 107.8)
@@ -154,13 +154,10 @@ dat$tempdep <- NULL
 rm(hfmo)
 
 
-# Import area prices pr company from cost base year
-ap.t_2 = read.csv("./Data/BaseData/areaprices_t_2.csv", sep = ",")
-dat = merge.data.frame(dat, ap.t_2, by="id.y", all.x = TRUE)
 
-dat$ap.t_2[dat$id.y==8722014] = 244.24
-dat$ap.t_2[dat$id.y==9002014] = 273.92
-dat$ap.t_2 = dat$ap.t_2/1000
+
+
+
 
 
 #CPI factors are used in calibration and revenue cap-calculations (part 4)

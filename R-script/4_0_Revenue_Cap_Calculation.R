@@ -22,6 +22,10 @@ RevCap = subset.data.frame(dat, subset = y == y.cb,
                                    ld_nl, rd_nl,
                                    ld_gci.cost, ap.t_2))
 
+#Remove observations for companies without Reveneue Cap
+RevCap = filter(RevCap, !id %in% rd_no.rc & !id %in% ld_no.rc)
+
+
 #Compiling data from calibration (Improve - move to 3_0 ? )
 ld_EVAL$ld_cn.cal.RAB = ld_calib$cost_norm.calRAB
 rd_EVAL$rd_cn.cal.RAB = rd_calib$cost_norm.calRAB
@@ -66,14 +70,12 @@ RevCap$lrt_cost.RC.ex.nlR.og.cgaR = round(RevCap$lrt_cost.RC - RevCap$fp_rd_cga,
 
 # Inflicted costs in cost base year
 
-RevCap$lrt_cost.cby = (RevCap$ld_opex_2012 - RevCap$fp_ld_391 - RevCap$fp_ld_cga) +
-                        (RevCap$rd_opex_2012 - RevCap$fp_rd_391 - RevCap$fp_rd_cga) +
-                        (RevCap$t_opex_2012 - RevCap$fp_t_391) +
-                        (RevCap$fp_ld_cens + RevCap$fp_rd_cens + RevCap$fp_t_cens) +
-                        RevCap$fp_ld_cga + RevCap$fp_rd_cga +
+RevCap$lrt_cost.cby = (RevCap$fp_ld_OPEX + RevCap$fp_ld_cga + RevCap$fp_ld_cens) +
+                        (RevCap$fp_rd_OPEX + RevCap$fp_rd_cga + RevCap$fp_rd_cens) +
+                        (RevCap$fp_t_OPEX + RevCap$fp_t_cens) +
                         (RevCap$ld_nl + RevCap$rd_nl)*RevCap$ap.t_2
 
-#Regner total sum av faktiske kostnader i "y.cb", avrundet for konsistens med Stata
+
 # Sum of total cost of inflicted costs in cost base year, rounded for consistency with calculations i Stata (Improve ? - remove round?)
 lrt_TOTAL.cost.y.cb = round(sum(RevCap$lrt_cost.cby), digits = 0)
 

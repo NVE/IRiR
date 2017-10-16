@@ -68,17 +68,6 @@ for (i in which(dat$id %in% rd_ooto)){
         dat[i,"rd_OOTO"]  = 1   
 } 
 
-#Further special treatment of Drangedal Everk KF (35), Rauma Energi AS (162) & Roros Elektrisietsverk AS (173) ----
-rd_OOTO.spes = (c(35, 162, 173))
-# Femårige snittverdier (totalkostnad og outputs)
-v_fha_rd_OOTO = c("rd_TOTXDEA", "rd_wv.ol", "rd_wv.uc", "rd_wv.sc", "rd_wv.ss")
-fha = paste("fha_", v_fha, sep="")
-dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(v_fha), dimnames = list(v_fha = fha))))
-for(c in 1:length(v_fha))
-        for(r in 1:nrow(dat))
-                if (dat[r,"y"] %in% 2011:2014 & dat[r,"id"] %in% rd_OOTO.spes)
-                        dat[r, fha[c]] = mean(dat[dat$orgn == dat$orgn[r] & dat$y %in% 2011:2014, v_fha[c]], na.rm = T)
-#Normal OOTO continues RD------------------------------------------------------------------------------------------
 
 
 for (i in which(dat$y %in% y.avg)){
