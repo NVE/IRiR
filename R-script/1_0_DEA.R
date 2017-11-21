@@ -171,6 +171,8 @@ for(i in rd_sep.eval)
                 rd_lambda[as.character(i),as.character(j)] = dea.sep.cb.avg.rd$lambda[as.character(i),paste("L_",as.character(j),sep="")]
 }
 
+rd_EVAL$rd_eff.s1.cb = eff.cb.avg.rd
+
 rd_lambda = rd_lambda[,order(as.numeric(colnames(rd_lambda)))]
 
 
@@ -187,6 +189,9 @@ for(i in rd_sep.eval)
                 rd_lambda.avg[as.character(i),as.character(j)] = dea.sep.avg.avg.rd$lambda[as.character(i),paste("L_",as.character(j),sep="")]
 }
 
+
+
+rd_EVAL$rd_eff.s1.avg = eff.avg.avg.rd
 
 rd_lambda.avg = rd_lambda.avg[,order(as.numeric(colnames(rd_lambda.avg)))]
 

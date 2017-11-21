@@ -29,6 +29,9 @@ source("./R-script/functions_nve.R") # File containing functions created for/by 
 
 # Avoid showing large numbers in scientific mode
 options(scipen = 100)
+#Hafslund = 980489698
+#Arendal = 910261525
+comp.org = 980489698
 
 # Bootstrap settings
 BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
@@ -47,7 +50,7 @@ source("./R-script/0_3_Company_Selection.R")
 # NOR http://publikasjoner.nve.no/rapport/2012/rapport2012_71.pdf
 source("./R-script/1_0_DEA.R")
 
-#### Stage 2 - Z factor adjustment using regression ####
+#### Stage 2 - Z factor adjustment using OLS ####
 # As described in report 71/2012, see above
 # Techincal description in: "Second stage adjustment for firm heterogeneity in DEA:
 # A novel approach used in regulation of Norwegian electricity DSOs, H.M. Kvile, O. Kordahl, T. Langset & R. Amundsveen, 2014"
@@ -78,3 +81,5 @@ end.time =  Sys.time()
 calc.time = end.time - start.time
 calc.time
 
+source("./R-script/analysis.R")
+View(KeyFigorgn[ , ! apply(KeyFigorgn, 2, function (x) all(is.na(x)))])

@@ -23,6 +23,10 @@ library(outliers)
 library(plot3D)
 library(assertthat)
 
+# Bootstrap settings
+BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
+BS.ite = 2000 # Number of iterations in bootstrap calculation
+
 #Companies for merger
 # Comp 1 
 merg.comp1 = c(971592117)
@@ -52,12 +56,28 @@ pnl.dea                 = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" 
 
 
 source("./R-script/Harmony/H_0_2_Calculated_Input_Values.R")
+
 source("./R-script/0_3_Company_Selection.R")
 
 
 #### Stage 1 - DEA ####
 source("./R-script/1_0_DEA.R")
 
+#### Stage 2 - Z factor adjustment using OLS ####
+# As described in report 71/2012, see above
+# Techincal description in: "Second stage adjustment for firm heterogeneity in DEA:
+# A novel approach used in regulation of Norwegian electricity DSOs, H.M. Kvile, O. Kordahl, T. Langset & R. Amundsveen, 2014"
+# ENG: http://bit.ly/2sH5oLV
+source("./R-script/Harmony/H_2_0_Stage2_GeoCorrection_Pre.R")
+
+
+#### Stage 3 - Cost norm calibration ####
+# As described in circular 1/2013
+# NOR http://webfileservice.nve.no/API/PublishedFiles/Download/201607005/1944365
+# Based on analysis in report 11/2011
+# NOR http://publikasjoner.nve.no/rapport/2011/rapport2011_21.pdf
+
+source("./R-script/Harmony/H_3_0_Stage3_Calibration.R")
 
 dat$ldz_n.mgc_sum = dat$ldz_mgc # Number of map grid cells for "sum"-vector
 dat$rdz_n.mgc_sum = dat$rdz_mgc

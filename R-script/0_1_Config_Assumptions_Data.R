@@ -52,7 +52,7 @@ lrt_RC_dec.y.cb = 10889888
 
 # Read data set from csv-file
 # Base-data with costs and assets
-dat = read.csv("./Data/BaseData/BaseData_notice2018.csv",sep=",")
+dat = read.csv("./Data/BaseData/BaseData_notice2018_20171025.csv",sep=",")
 dat$ap.t_2 = dat$ap.t_2/1000
 
 # IDs to simplify scripts and aid analysts
@@ -121,15 +121,17 @@ ld_no.rc <- (c(108, 134, 152, 307, 348, 521, 612, 638, 696, 524)) # Companies ex
 
 
 # Regional distribution grid (+ some transmission)
-rd_ooto <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
-              204, 222, 238, 274, 287,  343, 349, 447, 484, 512, 
-              659, 686, 743)) # prøver, 10, her 
+rd_ooto <- (c(10, 18,  41, 88, 135, 147, 156, 161, 162, 
+              204, 222, 274, 287, 349, 447, 512, 
+              659, 669, 686, 743, 852)) # 
 
-rd_av.eff <- (c(116, 167, 542, 685, 852)) #
+rd_av.eff <- (c( 98, 116, 542, 685)) #
 
-rd_sep.eval <- (c(7, 9, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669))  # 14, 753
+rd_sep.eval <- (c(7, 32, 37, 103, 106, 138, 164, 173,
+                  184, 206, 238, 271, 288, 295, 484, 625))  #
 
-rd_no.rc  <- (c(152, 307))
+
+rd_no.rc  <- (c(35, 152, 307)) # 35 Drangedal har 0 i rd_TOTX 2016
 
 # CPI
 cpi = c(81.0, 82.3, 84.2, 84.8, 88.0, 89.9, 92.1, 93.3, 93.9, 95.9, 97.9, 100, 103.6, 105.8, 107.8)
@@ -152,12 +154,6 @@ dat$rd_dep.gf = dat$tempdep - dat$rd_dep.gf_melk
 dat$tempbv <- NULL
 dat$tempdep <- NULL
 rm(hfmo)
-
-
-
-
-
-
 
 
 #CPI factors are used in calibration and revenue cap-calculations (part 4)

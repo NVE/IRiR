@@ -144,7 +144,7 @@ Zvar1 <- function(x,z,eff,lambda,id,id.out)
         coeff=res.regr.NVE$coefficients
         names(coeff)=c("constant",colnames(z.diff))
 
-        res <- list(coeff=coeff,z.diff=z.diff, id.out=id.out)
+        res <- list(coeff=coeff,z.diff=z.diff, id.out=id.out, res.regr.NVE = res.regr.NVE)
         return(res)
         }
 #----------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ Zvar2 <- function(x,eff,id,coeff,z,lambda)
         #Adjusts efficiency score
         eff.corr <- as.vector(eff - z.diff%*%coeff[2:(ncol(z)+1)])
 
-        res <- list(eff.corr=eff.corr,z.diff=z.diff)
+        res <- list(eff.corr=eff.corr,z.diff=z.diff, cost.norm.contribution = x.norm.contrib, cost.norm.share = w.ref)
         return(res)
         }
 
@@ -313,3 +313,34 @@ ToRho = function(x, lambda){
         
         res <- list(Torg.Rho = Torg.Rho)
 }
+
+#---------------------------------------------------------------------------------------------------------------------
+
+#Information on relative importance of each peer pr dmu
+
+
+PeerI <- function(x,eff,id,lambda)
+{
+        #data types
+        x <- as.vector(x)
+        eff <- as.vector(eff)
+        lambda <- as.matrix(lambda)
+        names(x) = id
+      
+        
+        #cost norm for each dmu
+        x.norm = lambda %*% x
+        #norm contribution for each reference dmu
+        x.norm.contrib = lambda %*% diag(x)
+        #weight for each reference dmu
+        w.ref = x.norm.contrib / rowSums(x.norm.contrib)
+
+        colnames(x.norm.contrib) = colnames(lambda)
+        colnames(w.ref) = colnames(lambda)
+        
+        res <- list(cost.norm = x.norm, cost.norm.contribution = x.norm.contrib, cost.norm.share = w.ref)
+        return(res)
+}
+
+
+

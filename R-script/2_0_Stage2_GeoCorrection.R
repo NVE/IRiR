@@ -108,43 +108,46 @@ names(ld_eff.bs) = names(X.avg.ld)
 
 #Calculates Geo coefficients (Z variable coefficients) for Local distribution
 Geovar.ldz = cbind(ld_EVAL[,c("ldz_hvug.s","ldz_f4", "ldz_Geo1", "ldz_Geo2", "ldz_Geo3")])
-ldz.coeff = Zvar1(x=X.avg.ld,z=Geovar.ldz,eff=ld_eff.bs,
-                  lambda = ld_lambda.avg,
-                  id = names(X.avg.ld),
-                  id.out = as.character(ld_sep.eval))$coeff
-ldz.coeff
+ldz.reg = Zvar1(x=X.avg.ld,z=Geovar.ldz,eff=ld_eff.bs,
+                lambda = ld_lambda.avg,
+                id = names(X.avg.ld),
+                id.out = as.character(ld_sep.eval))
+
+ldz.coeff = ldz.reg$coeff
+
 
 
 #### Z variable adjustment - Local distribution #### 
 # Adjusts efficiency scores from stage 1, using difference in Z value relative to target unit
 # See functions_nve.R for further details. Local distribution grid
-ld_EVAL$ld_eff.s2.cb = Zvar2(x = X.avg.ld, eff = eff.cb.avg.ld, id = names(X.avg.ld),
-                             lambda = ld_lambda, coeff = ldz.coeff, z = Geovar.ldz)$eff.corr
-
+ld_s2 = Zvar2(x = X.avg.ld, eff = eff.cb.avg.ld, id = names(X.avg.ld),
+                             lambda = ld_lambda, coeff = ldz.coeff, z = Geovar.ldz)
+ld_EVAL$ld_eff.s2.cb = ld_s2$eff.corr
 #Estimate Z-variables for Regional distribution ---------------------------
 
 GeoR.comp = cbind(rd_EVAL[,c("rdz_f12", "rdz_inc.av")])
 row.names(GeoR.comp) = names(X.avg.rd)
 GeoR.tech = GeoR.comp[as.character(rd_eval),]
 #Estimates Helskog
-rd_EVAL$rdz_Geo1 = z.est(geovar.in = GeoR.tech, restricted.obs = GeoR.comp)
+rd_EVAL$rdz_Geo1 = z.est(geovar.in = GeoR.tech, restricted.obs = GeoR.comp)*-1
 Geovar.r = cbind(rd_EVAL[,c("rdz_Geo1")])
 #Remove companies not included in bootstrap for regional distribution grid
 rd_eff.bs = rd_EVAL$rd_eff.bs.is2.cZ
 names(rd_eff.bs) = names(X.avg.rd)
 rd_eff.bs = rd_eff.bs[!is.na(rd_eff.bs)]
 
-rdz.coeff = Zvar1(x=X.avg.rd,z=Geovar.r,eff=rd_eff.bs,
+rdz.reg = Zvar1(x=X.avg.rd,z=Geovar.r,eff=rd_eff.bs,
                   lambda = rd_lambda.avg,
                   id = names(X.avg.rd),
-                  id.out = as.character(rd_sep.eval))$coeff
-
+                  id.out = as.character(rd_sep.eval))
+rdz.coeff = rdz.reg$coeff
 
 names(rdz.coeff)[2] = "rdz_Geo1"
 rdz.coeff
 #### Z variable adjustment - Regional distribution #### 
 #Adjusts efficiency scores from stage 1, using difference in Z value relative to target unit
 # See functions_nve.R for further details. Regional distribution grid
-rd_EVAL$rd_eff.s2.cb = Zvar2(x = X.avg.rd, eff=eff.cb.avg.rd, id=names(X.avg.rd),
-                             lambda = rd_lambda, coeff=rdz.coeff, z=Geovar.r)$eff.corr
+rd_s2 = Zvar2(x = X.avg.rd, eff=eff.cb.avg.rd, id=names(X.avg.rd),
+                             lambda = rd_lambda, coeff=rdz.coeff, z=Geovar.r)
 
+rd_EVAL$rd_eff.s2.cb = rd_s2$eff.corr
