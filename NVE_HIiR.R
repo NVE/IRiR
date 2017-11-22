@@ -53,7 +53,7 @@ sysp.t_2 = mean(his.sysp[names(his.sysp) %in% y.avg])/1000
 ir.dea                  = NVE.ir.t_2 # Average interest from years in y.avg
 NVE.ir.RC               = NVE.ir.est # Average interest from last five years 
 pnl.dea                 = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
-
+pnl.rc                  = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
 
 source("./R-script/Harmony/H_0_2_Calculated_Input_Values.R")
 
@@ -78,6 +78,16 @@ source("./R-script/Harmony/H_2_0_Stage2_GeoCorrection_Pre.R")
 # NOR http://publikasjoner.nve.no/rapport/2011/rapport2011_21.pdf
 
 source("./R-script/Harmony/H_3_0_Stage3_Calibration.R")
+
+
+#### Companies exempted from DEA - Special models ####
+
+source("./R-script/Harmony/H_Spec_OOTO-model.R")
+source("./R-script/Harmony/H_Spec_AvEff-model.R")
+
+
+#### Calculating Revenue caps ####
+source("./R-script/Harmony/H_4_0_Revenue_Cap_Calculation.R")
 
 dat$ldz_n.mgc_sum = dat$ldz_mgc # Number of map grid cells for "sum"-vector
 dat$rdz_n.mgc_sum = dat$rdz_mgc

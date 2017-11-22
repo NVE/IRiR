@@ -17,7 +17,7 @@ ld_calib=NVE_cal(eff=ld_EVAL$ld_eff.s2.avg, cost_base=ld_EVAL$fha_ld_cb, RAB=ld_
 
 #Calculate cost base (cb) as input in calibration - regional distribution
 rd_EVAL$fha_rd_cb <- ((rd_EVAL$fha_fp_rd_OPEX*y.cb.cpi.l.factor) + ((rd_EVAL$fha_fp_rd_rab.sf*y.cb.cpi.factor)*NVE.ir.RC) + 
-                                     (rd_EVAL$rd_dep.sf*y.cb.cpi.factor) + (rd_EVAL$fha_fp_rd_cens*y.cb.cpi.factor))
+                                     (rd_EVAL$fha_fp_rd_dep.sf*y.cb.cpi.factor) + (rd_EVAL$fha_fp_rd_cens*y.cb.cpi.factor))
 
 rd_calib=NVE_cal(eff=rd_EVAL$rd_eff.s2.avg, cost_base = rd_EVAL$fha_rd_cb, RAB = rd_EVAL$fha_fp_rd_rab.sf)
 
