@@ -117,7 +117,8 @@ v_fha = c("ld_TOTXDEA", "ld_sub", "ld_hv", "ld_ss",
           "fp_ld_gci.cost", 
           "fp_rd_OPEX", "fp_rd_rab.sf", "fp_rd_dep.sf", "fp_rd_cens",
           "fp_rd_391", "fp_rd_cga", "rd_nl",
-          "fp_t_OPEX", "fp_t_rab.sf", "fp_t_dep.sf", "fp_t_cens")
+          "fp_t_OPEX", "fp_t_rab.sf", "fp_t_dep.sf", "fp_t_cens",
+          "fp_t_391")
 fha = paste("fha_", v_fha, sep="")
 dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(v_fha), dimnames = list(v_fha = fha))))
 for(c in 1:length(v_fha))

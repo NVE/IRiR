@@ -95,10 +95,10 @@ rd_OOTO$rd_output.NOK = rd_OOTO$rd_output/rd_OOTO$rd_TOTXDEA
 rd_OOTO$fha_rd_output.NOK = rd_OOTO$fha_rd_output/rd_OOTO$fha_rd_TOTXDEA
 
 #Calculates efficiency score for companies in OOTO-model
-rd_OOTO$rd_eff.OOTO = rd_OOTO$rd_output.NOK/rd_OOTO$fha_rd_output.NOK
+rd_OOTO$rd_eff.OOTO = rd_OOTO$fha_rd_output.NOK/rd_OOTO$fha_rd_output.NOK
 
 # Cost base
-rd_OOTO$rd_cb <- ((rd_OOTO$fp_rd_OPEX*y.cb.cpi.l.factor) + (rd_OOTO$rd_rab.sf*NVE.ir.RC) + 
-                          rd_OOTO$rd_dep.sf + (rd_OOTO$rd_cens*y.cb.cpi.factor))
+rd_OOTO$fha_rd_cb <- ((rd_OOTO$fha_fp_rd_OPEX*y.cb.cpi.l.factor) + ((rd_OOTO$fha_fp_rd_rab.sf*y.cb.cpi.factor)*NVE.ir.RC) + 
+                              (rd_OOTO$fha_fp_rd_dep.sf*y.cb.cpi.factor) + (rd_OOTO$fha_fp_rd_cens*y.cb.cpi.factor))
 # Cost norm
-rd_OOTO$rd_cn.cal.RAB = rd_OOTO$rd_cb * rd_OOTO$rd_eff.OOTO
+rd_OOTO$rd_cn.cal.RAB = rd_OOTO$fha_rd_cb * rd_OOTO$rd_eff.OOTO
