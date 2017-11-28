@@ -151,7 +151,7 @@ md = filter(dat, dat$orgn %in% merg.comps)
 # Create data frame with sum of variables in harm.var_sum, for merging companies
 mds =   as.data.frame(md %>%
                               group_by(y) %>%
-                              summarise_each(funs(sum), one_of(as.character(harm.var_sum))))  
+                              summarise_at(.vars = c(harm.var_sum), funs(sum)))
 
 mds$orgn = 999999999
 mds$id = 999
@@ -169,7 +169,8 @@ ld_mdw[ldz_harm.var_gc] = ld_mdw[ldz_harm.var_gc] * ld_mdw$mutipl.col
 
 ld_mdw.fm = as.data.frame(ld_mdw %>%
                                   group_by(y) %>%
-                                  summarise_each(funs(sum), one_of(as.character(ldz_harm.var_gc))))
+                                  summarise_at(.vars = c(ldz_harm.var_gc), funs(sum)))
+                                  
 
 
 ld_mdw.fm$id = 999
@@ -189,7 +190,7 @@ rd_mdw[rdz_harm.var_gc] = rd_mdw[rdz_harm.var_gc] * rd_mdw$mutipl.col
 
 rd_mdw.fm = as.data.frame(rd_mdw %>%
                                   group_by(y) %>%
-                                  summarise_each(funs(sum), one_of(as.character(rdz_harm.var_gc))))
+                                  summarise_at(.vars = c(rdz_harm.var_gc), funs(sum)))
 
 
 rd_mdw.fm$id = 999
@@ -204,7 +205,7 @@ mds$name = mds$comp
 
 mds$ap.t_2 = (md %>%
                       group_by(y) %>%
-                      summarise_each(funs(mean), one_of(as.character(merge.pr))))$ap.t_2
+                      summarise_at(.vars = c(merge.pr), funs(mean)))$ap.t_2
 
 dat = bind_rows(dat, mds)
 dat = dat[!(dat$orgn %in% merg.comps),]
@@ -253,3 +254,5 @@ RC_post = RevCap[RevCap$id == 999, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_co
 y.inc.loss = sum(RC_pre$lrt_RC.pre.recal) - RC_post$lrt_RC.pre.recal
 
 HI = y.inc.loss + y.inc.loss*((1-((1/(1+disc.rate))^(n.years-1)))/disc.rate)
+
+

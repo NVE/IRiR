@@ -52,7 +52,7 @@ lrt_RC_dec.y.cb = 10889888
 
 # Read data set from csv-file
 # Base-data with costs and assets
-dat = read.csv("./Data/BaseData/BaseData_notice2018_20171025.csv",sep=",")
+dat = read.csv("./Data/BaseData/BD_Notice18_24112017opko.csv",sep=",")
 dat$ap.t_2 = dat$ap.t_2/1000
 
 # IDs to simplify scripts and aid analysts
@@ -123,7 +123,7 @@ ld_no.rc <- (c(108, 134, 152, 307, 348, 521, 612, 638, 696, 524)) # Companies ex
 # Regional distribution grid (+ some transmission)
 rd_ooto <- (c(10, 18,  41, 88, 135, 147, 156, 161, 162, 
               204, 222, 274, 287, 349, 447, 512, 
-              659, 669, 686, 743, 852)) # 
+              659, 669, 686, 852)) # 
 
 rd_av.eff <- (c( 98, 116, 542, 685)) #
 
