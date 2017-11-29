@@ -29,9 +29,8 @@ source("./R-script/functions_nve.R") # File containing functions created for/by 
 
 # Avoid showing large numbers in scientific mode
 options(scipen = 100)
-#Hafslund = 980489698
-#Arendal = 910261525
-comp.org = 980489698
+
+#comp.org = REMOVE # AND INSERT ORGN
 
 # Bootstrap settings
 BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
@@ -82,4 +81,4 @@ calc.time = end.time - start.time
 calc.time
 
 source("./R-script/analysis.R")
-View(KeyFigorgn[ , ! apply(KeyFigorgn, 2, function (x) all(is.na(x)))])
+# View(KeyFigorgn[ , ! apply(KeyFigorgn, 2, function (x) all(is.na(x)))]) # REMOVE FIRST # TO GET KEY INFO FOR SPECIFIC COMPANY
