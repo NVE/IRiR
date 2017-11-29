@@ -35,7 +35,7 @@ comp.org = 980489698
 
 # Bootstrap settings
 BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
-BS.ite = 100000 # Number of iterations in bootstrap calculation
+BS.ite = 2000 # Number of iterations in bootstrap calculation
 
 #### Preperation stage - Configurations, data import, data preparation ####
 

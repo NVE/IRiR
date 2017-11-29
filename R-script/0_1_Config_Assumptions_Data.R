@@ -52,7 +52,7 @@ lrt_RC_dec.y.cb = 10889888
 
 # Read data set from csv-file
 # Base-data with costs and assets
-dat = read.csv("./Data/BaseData/BD_Notice18_24112017opko.csv",sep=",")
+dat = read.csv("./Data/BaseData/BD_notice18_28112017.csv",sep=",")
 dat$ap.t_2 = dat$ap.t_2/1000
 
 # IDs to simplify scripts and aid analysts
