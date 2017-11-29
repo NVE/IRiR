@@ -13,7 +13,7 @@ getwd()
 # Remember to change "\" to "/" or "\\" 
 #my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
 start.time =  Sys.time()
-my.path = "C:\\Users\\ens\\Desktop\\IRiR-master"
+my.path = "C:\\Users\\ens\\Jottacloud\\GitHub\\IRiR"
 setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
 # Following packages are used
@@ -24,11 +24,18 @@ library(dplyr)
 library(outliers)
 library(plot3D)
 library(assertthat)
-
+library(compare)
 source("./R-script/functions_nve.R") # File containing functions created for/by NVE
 
 # Avoid showing large numbers in scientific mode
 options(scipen = 100)
+#Hafslund = 980489698
+#Arendal = 910261525
+comp.org = 980489698
+
+# Bootstrap settings
+BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
+BS.ite = 2000 # Number of iterations in bootstrap calculation
 
 #### Preperation stage - Configurations, data import, data preparation ####
 
@@ -43,7 +50,7 @@ source("./R-script/0_3_Company_Selection.R")
 # NOR http://publikasjoner.nve.no/rapport/2012/rapport2012_71.pdf
 source("./R-script/1_0_DEA.R")
 
-#### Stage 2 - Z factor adjustment using regression ####
+#### Stage 2 - Z factor adjustment using OLS ####
 # As described in report 71/2012, see above
 # Techincal description in: "Second stage adjustment for firm heterogeneity in DEA:
 # A novel approach used in regulation of Norwegian electricity DSOs, H.M. Kvile, O. Kordahl, T. Langset & R. Amundsveen, 2014"
@@ -62,13 +69,17 @@ source("./R-script/3_0_Stage3_Calibration.R")
 
 #### Companies exempted from DEA - Special models ####
 
-source("./R-script/Spec_OOTO-model.R") # Further special treatment of 35, 162 & 173
+source("./R-script/Spec_OOTO-model.R")
 source("./R-script/Spec_AvEff-model.R")
 
 
 #### Calculating Revenue caps ####
 source("./R-script/4_0_Revenue_Cap_Calculation.R")
+
+
 end.time =  Sys.time()
 calc.time = end.time - start.time
 calc.time
 
+source("./R-script/analysis.R")
+View(KeyFigorgn[ , ! apply(KeyFigorgn, 2, function (x) all(is.na(x)))])

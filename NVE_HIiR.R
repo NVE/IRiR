@@ -23,6 +23,10 @@ library(outliers)
 library(plot3D)
 library(assertthat)
 
+# Bootstrap settings
+BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
+BS.ite = 2000 # Number of iterations in bootstrap calculation
+
 #Companies for merger
 # Comp 1 
 merg.comp1 = c(971592117)
@@ -49,14 +53,70 @@ sysp.t_2 = mean(his.sysp[names(his.sysp) %in% y.avg])/1000
 ir.dea                  = NVE.ir.t_2 # Average interest from years in y.avg
 NVE.ir.RC               = NVE.ir.est # Average interest from last five years 
 pnl.dea                 = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
-
+pnl.rc                  = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
 
 source("./R-script/Harmony/H_0_2_Calculated_Input_Values.R")
+
 source("./R-script/0_3_Company_Selection.R")
 
 
 #### Stage 1 - DEA ####
 source("./R-script/1_0_DEA.R")
+
+#### Stage 2 - Z factor adjustment using OLS ####
+# As described in report 71/2012, see above
+# Techincal description in: "Second stage adjustment for firm heterogeneity in DEA:
+# A novel approach used in regulation of Norwegian electricity DSOs, H.M. Kvile, O. Kordahl, T. Langset & R. Amundsveen, 2014"
+# ENG: http://bit.ly/2sH5oLV
+source("./R-script/Harmony/H_2_0_Stage2_GeoCorrection_Pre.R")
+
+
+#### Stage 3 - Cost norm calibration ####
+# As described in circular 1/2013
+# NOR http://webfileservice.nve.no/API/PublishedFiles/Download/201607005/1944365
+# Based on analysis in report 11/2011
+# NOR http://publikasjoner.nve.no/rapport/2011/rapport2011_21.pdf
+
+source("./R-script/Harmony/H_3_0_Stage3_Calibration.R")
+
+
+#### Companies exempted from DEA - Special models ####
+
+source("./R-script/Harmony/H_Spec_OOTO-model.R")
+source("./R-script/Harmony/H_Spec_AvEff-model.R")
+
+
+#### Calculating Revenue caps ####
+source("./R-script/Harmony/H_4_0_Revenue_Cap_Calculation.R")
+
+comp_pre = dat[dat$orgn %in% merg.comps, ] # Finn ut hva jeg vil se her.
+RC_pre = RevCap[RevCap$orgn %in% merg.comps, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
+
+rm(list = ls()[!ls() %in% c('comp_pre', 'RC_pre', 'BS.new', 'BS.ite', 'merg.comps')])
+
+comp.name = c("NordBal")
+disc.rate = 0.045
+n.years = 30
+
+source("./R-script/functions_nve.R") # File containing functions created for/by NVE
+
+# Avoid showing large numbers in scientific mode
+options(scipen = 100)
+
+#Defining parameters and importing data
+source("./R-script/Harmony/H_0_1_Config_Assumptions_Data.R")
+
+#Averages of interest and prices are used in Harmony Income calculation
+NVE.ir.t_2 = mean(NVE.ir.new[names(NVE.ir.new) %in% y.avg])
+NVE.ir.est = mean(NVE.ir.new[names(NVE.ir.new) >= y.rc-4])
+sysp.t_2 = mean(his.sysp[names(his.sysp) %in% y.avg])/1000
+
+ir.dea                  = NVE.ir.t_2 # Average interest from years in y.avg
+NVE.ir.RC               = NVE.ir.est # Average interest from last five years 
+pnl.dea                 = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
+pnl.rc                  = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
+
+
 
 
 dat$ldz_n.mgc_sum = dat$ldz_mgc # Number of map grid cells for "sum"-vector
@@ -91,7 +151,7 @@ md = filter(dat, dat$orgn %in% merg.comps)
 # Create data frame with sum of variables in harm.var_sum, for merging companies
 mds =   as.data.frame(md %>%
                               group_by(y) %>%
-                              summarise_each(funs(sum), one_of(as.character(harm.var_sum))))  
+                              summarise_at(.vars = c(harm.var_sum), funs(sum)))
 
 mds$orgn = 999999999
 mds$id = 999
@@ -109,7 +169,8 @@ ld_mdw[ldz_harm.var_gc] = ld_mdw[ldz_harm.var_gc] * ld_mdw$mutipl.col
 
 ld_mdw.fm = as.data.frame(ld_mdw %>%
                                   group_by(y) %>%
-                                  summarise_each(funs(sum), one_of(as.character(ldz_harm.var_gc))))
+                                  summarise_at(.vars = c(ldz_harm.var_gc), funs(sum)))
+                                  
 
 
 ld_mdw.fm$id = 999
@@ -129,7 +190,7 @@ rd_mdw[rdz_harm.var_gc] = rd_mdw[rdz_harm.var_gc] * rd_mdw$mutipl.col
 
 rd_mdw.fm = as.data.frame(rd_mdw %>%
                                   group_by(y) %>%
-                                  summarise_each(funs(sum), one_of(as.character(rdz_harm.var_gc))))
+                                  summarise_at(.vars = c(rdz_harm.var_gc), funs(sum)))
 
 
 rd_mdw.fm$id = 999
@@ -144,10 +205,54 @@ mds$name = mds$comp
 
 mds$ap.t_2 = (md %>%
                       group_by(y) %>%
-                      summarise_each(funs(mean), one_of(as.character(merge.pr))))$ap.t_2
+                      summarise_at(.vars = c(merge.pr), funs(mean)))$ap.t_2
 
 dat = bind_rows(dat, mds)
 dat = dat[!(dat$orgn %in% merg.comps),]
 rm(ld_mdw, ld_mdw.fm, mds, rd_mdw, rd_mdw.fm)
+
+
+source("./R-script/Harmony/H_0_2_Calculated_Input_Values.R")
+
+source("./R-script/0_3_Company_Selection.R")
+
+
+#### Stage 1 - DEA ####
+source("./R-script/1_0_DEA.R")
+
+#### Stage 2 - Z factor adjustment using OLS ####
+# As described in report 71/2012, see above
+# Techincal description in: "Second stage adjustment for firm heterogeneity in DEA:
+# A novel approach used in regulation of Norwegian electricity DSOs, H.M. Kvile, O. Kordahl, T. Langset & R. Amundsveen, 2014"
+# ENG: http://bit.ly/2sH5oLV
+source("./R-script/Harmony/H_2_0_Stage2_GeoCorrection_Post.R")
+
+
+#### Stage 3 - Cost norm calibration ####
+# As described in circular 1/2013
+# NOR http://webfileservice.nve.no/API/PublishedFiles/Download/201607005/1944365
+# Based on analysis in report 11/2011
+# NOR http://publikasjoner.nve.no/rapport/2011/rapport2011_21.pdf
+
+source("./R-script/Harmony/H_3_0_Stage3_Calibration.R")
+
+
+#### Companies exempted from DEA - Special models ####
+
+source("./R-script/Harmony/H_Spec_OOTO-model.R")
+source("./R-script/Harmony/H_Spec_AvEff-model.R")
+
+
+#### Calculating Revenue caps ####
+source("./R-script/Harmony/H_4_0_Revenue_Cap_Calculation.R")
+
+
+comp_post = dat[dat$id == 999, ] # Finn ut hva jeg vil se her.
+RC_post = RevCap[RevCap$id == 999, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
+
+# Yearly income loss
+y.inc.loss = sum(RC_pre$lrt_RC.pre.recal) - RC_post$lrt_RC.pre.recal
+
+HI = y.inc.loss + y.inc.loss*((1-((1/(1+disc.rate))^(n.years-1)))/disc.rate)
 
 

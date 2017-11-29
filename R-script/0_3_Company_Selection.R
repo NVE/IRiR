@@ -23,7 +23,7 @@ for (i in which(dat$y %in% y.avg)){
         ld_EVAL <-dat[dat$ld_EVAL==1,]
 }
 #Creating vector for companies in normal evaluation, local distribution
-ld_eval <- as.numeric(na.omit(unique(subset(ld_EVAL$id, !(ld_EVAL$id %in% ld_sep.eval | ld_EVAL$id %in%  ld_ooto | ld_EVAL$id %in% ld_av.eff)))))
+ld_eval <- as.numeric(na.omit(unique(subset(ld_EVAL$id, !(ld_EVAL$id %in% ld_sep.eval | ld_EVAL$id %in%  ld_ooto | ld_EVAL$id %in% ld_av.eff | ld_EVAL$id %in% ld_no.rc)))))
 #Creating dataframe containing only observations for companies, normal evaluation
 ld_EVAL <- subset.data.frame(ld_EVAL, !is.na(y) & y==y.cb)
 #Vector conataining only ids from ld_EVAL-frame, in same order used for DEA 
@@ -47,7 +47,7 @@ rd_EVAL <- dat[dat$rd_EVAL == 1,]
 
 
 #Vector containing only ids of companies in normal evalution
-rd_eval <- as.numeric(na.omit(unique(subset(rd_EVAL$id, !(rd_EVAL$id %in% rd_sep.eval | rd_EVAL$id %in%  rd_ooto | rd_EVAL$id %in% rd_av.eff)))))
+rd_eval <- as.numeric(na.omit(unique(subset(rd_EVAL$id, !(rd_EVAL$id %in% rd_sep.eval | rd_EVAL$id %in%  rd_ooto | rd_EVAL$id %in% rd_av.eff| rd_EVAL$id %in% rd_no.rc)))))
 # Creating dataframe with all companies included i normal evaluation, and companies only allowed to be peers for themselves
 rd_EVAL <- subset.data.frame(rd_EVAL, !is.na(y) & y==y.cb)
 #Vector containing IDs of all companies in DEA, used for datawrangling

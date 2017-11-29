@@ -48,16 +48,17 @@ ld_OOTO$ld_output.NOK = ld_OOTO$ld_output/ld_OOTO$ld_TOTXDEA
 ld_OOTO$fha_ld_output.NOK = ld_OOTO$fha_ld_output/ld_OOTO$fha_ld_TOTXDEA
 
 #Calculates efficiency score for companies in OOTO-model
-ld_OOTO$ld_eff.OOTO = ld_OOTO$ld_output.NOK/ld_OOTO$fha_ld_output.NOK
+ld_OOTO$ld_eff.OOTO = ld_OOTO$fha_ld_output.NOK/ld_OOTO$fha_ld_output.NOK
 
 #Cost base 
-ld_OOTO$ld_cb <- ((ld_OOTO$fp_ld_OPEX*y.cb.cpi.l.factor) + (ld_OOTO$ld_rab.sf*NVE.ir.RC) + 
-                          ld_OOTO$ld_dep.sf + (ld_OOTO$ld_cens*y.cb.cpi.factor) + 
-                          (ld_OOTO$ld_nl*pnl.rc) - (ld_OOTO$ld_gci.cost*y.cb.cpi.factor))
+ld_OOTO$fha_ld_cb <- ((ld_OOTO$fha_fp_ld_OPEX*y.cb.cpi.l.factor) + ((ld_OOTO$fha_fp_ld_rab.sf*y.cb.cpi.factor)*NVE.ir.RC) + 
+                              (ld_OOTO$fha_fp_ld_dep.sf*y.cb.cpi.factor) + (ld_OOTO$fha_fp_ld_cens*y.cb.cpi.factor) + 
+                              (ld_OOTO$fha_ld_nl*pnl.rc) - (ld_OOTO$fha_fp_ld_gci.cost*y.cb.cpi.factor))
+
 
 
 # Cost norm
-ld_OOTO$ld_cn.cal.RAB = ld_OOTO$ld_cb*ld_OOTO$ld_eff.OOTO
+ld_OOTO$ld_cn.cal.RAB = ld_OOTO$fha_ld_cb*ld_OOTO$ld_eff.OOTO
 
 
 ## Regional distribution ----
@@ -94,10 +95,10 @@ rd_OOTO$rd_output.NOK = rd_OOTO$rd_output/rd_OOTO$rd_TOTXDEA
 rd_OOTO$fha_rd_output.NOK = rd_OOTO$fha_rd_output/rd_OOTO$fha_rd_TOTXDEA
 
 #Calculates efficiency score for companies in OOTO-model
-rd_OOTO$rd_eff.OOTO = rd_OOTO$rd_output.NOK/rd_OOTO$fha_rd_output.NOK
+rd_OOTO$rd_eff.OOTO = rd_OOTO$fha_rd_output.NOK/rd_OOTO$fha_rd_output.NOK
 
 # Cost base
-rd_OOTO$rd_cb <- ((rd_OOTO$fp_rd_OPEX*y.cb.cpi.l.factor) + (rd_OOTO$rd_rab.sf*NVE.ir.RC) + 
-                          rd_OOTO$rd_dep.sf + (rd_OOTO$rd_cens*y.cb.cpi.factor))
+rd_OOTO$fha_rd_cb <- ((rd_OOTO$fha_fp_rd_OPEX*y.cb.cpi.l.factor) + ((rd_OOTO$fha_fp_rd_rab.sf*y.cb.cpi.factor)*NVE.ir.RC) + 
+                              (rd_OOTO$fha_fp_rd_dep.sf*y.cb.cpi.factor) + (rd_OOTO$fha_fp_rd_cens*y.cb.cpi.factor))
 # Cost norm
-rd_OOTO$rd_cn.cal.RAB = rd_OOTO$rd_cb * rd_OOTO$rd_eff.OOTO
+rd_OOTO$rd_cn.cal.RAB = rd_OOTO$fha_rd_cb * rd_OOTO$rd_eff.OOTO

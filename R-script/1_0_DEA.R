@@ -78,7 +78,7 @@ write.csv(cbind(ld_EVAL$id, X.avg.ld, Y.avg.ld,X.cb.ld, Y.cb.ld), file = "./Resu
 #Companies that can only be their own peers
 ld_sep.eval
 
-#### Actual calculations of efficiency scores using
+#### Calculations of efficiency scores using
 # dea command from Benchmarking package by P. Bogetoft & L. Otto
 # https://cran.r-project.org/web/packages/Benchmarking/Benchmarking.pdf
 
@@ -171,6 +171,8 @@ for(i in rd_sep.eval)
                 rd_lambda[as.character(i),as.character(j)] = dea.sep.cb.avg.rd$lambda[as.character(i),paste("L_",as.character(j),sep="")]
 }
 
+rd_EVAL$rd_eff.s1.cb = eff.cb.avg.rd
+
 rd_lambda = rd_lambda[,order(as.numeric(colnames(rd_lambda)))]
 
 
@@ -187,6 +189,9 @@ for(i in rd_sep.eval)
                 rd_lambda.avg[as.character(i),as.character(j)] = dea.sep.avg.avg.rd$lambda[as.character(i),paste("L_",as.character(j),sep="")]
 }
 
+
+
+rd_EVAL$rd_eff.s1.avg = eff.avg.avg.rd
 
 rd_lambda.avg = rd_lambda.avg[,order(as.numeric(colnames(rd_lambda.avg)))]
 

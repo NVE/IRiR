@@ -64,9 +64,9 @@ for(c in 1:length(v_av.pen))
                         dat[r, avg[c]] = mean(dat[dat$orgn == dat$orgn[r] & dat$y %in% y.avg,v_av.pen[c]], na.rm = T)
 
 # Pension cost base, included in OPEX
-dat$fp_ld_pcb = dat$av_ld_pens + dat$av_ld_pens.eq - dat$av_ld_impl
-dat$fp_rd_pcb = dat$av_rd_pens + dat$av_rd_pens.eq - dat$av_rd_impl
-dat$fp_t_pcb = dat$av_t_pens + dat$av_t_pens.eq - dat$av_t_impl
+dat$fp_ld_pcb = dat$av_ld_pens + dat$av_ld_pens.eq + dat$av_ld_impl
+dat$fp_rd_pcb = dat$av_rd_pens + dat$av_rd_pens.eq + dat$av_rd_impl
+dat$fp_t_pcb = dat$av_t_pens + dat$av_t_pens.eq + dat$av_t_impl
 
 
 #### Cost base ####

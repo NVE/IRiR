@@ -5,13 +5,13 @@ if(BS.new == 1) {
   ld_bs = as.data.frame(dea.boot(X=as.matrix(X.avg.ld[as.character(ld_eval)]), Y=as.matrix(Y.avg.ld[as.character(ld_eval),]),
                                NREP = BS.ite, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
 } else {
-  ld_bs = read.csv("./Data/Bootstrap/ld_bs.csv",sep=",")
+  ld_bs = read.csv("./Harmony/Bootstrap/ld_bs_post.csv",sep=",")
 }
 
 if(BS.new == 1 ) {
   names(ld_bs) = "ld_bs.correst"
   ld_bs = add_rownames(ld_bs, "id")
-  write.csv(ld_bs, "./Data/Bootstrap/ld_bs.csv", row.names = FALSE)
+  write.csv(ld_bs, "./Harmony/Bootstrap/ld_bs_post.csv", row.names = FALSE)
 }
 
 stopifnot(exists("ld_bs") == TRUE)
@@ -29,15 +29,16 @@ ld_EVAL[is.na(ld_EVAL$ldz_cmpp)] = 0
 ld_EVAL$ldz_cmppII = ld_EVAL$ldz_cmpp
 
 
-ld_EVAL$ld_eff.bs.is2.aZ = ld_EVAL$ld_eff.s1.cb
+ld_EVAL$ld_eff.bs.is2.aZ = ld_EVAL$ld_eff.s1.avg
 
-ld_EVAL$ld_cnorm = ld_EVAL$ld_TOTXDEA * ld_EVAL$ld_eff.bs.is2.aZ
-
-
-ld_EVAL$ld_scale = ld_EVAL$ld_cnorm #Using norm as a scale factor
+ld_EVAL$ld_cnorm = ld_EVAL$fha_ld_TOTXDEA * ld_EVAL$ld_eff.bs.is2.aZ
 
 
+ld_EVAL$ld_scale = ld_EVAL$ld_cnorm #Bruker norm som skaleringsfaktor
+
+#Calculate z-var imputs ( Improve - move to 2_0 ? ) 
 ld_EVAL$ld_hvol = ld_EVAL$ld_hv - ld_EVAL$ld_hvug - ld_EVAL$ld_hvsc
+# ld_EVAL$ld_hvsc = ld_EVAL$d_hssjou6kv + ld_EVAL$d_hssjoo6kv
 ld_EVAL$ld_hv_uso = ld_EVAL$ld_hvug + ld_EVAL$ld_hvsc + ld_EVAL$ld_hvol 
 ld_EVAL$ldz_hvug.s = ld_EVAL$ld_hvug / ld_EVAL$ld_hv_uso # ( Improve - Replace ld_hv_uso with ld_hv? )
 ld_EVAL$ldz_hvsc.s = ld_EVAL$ld_hvsc / ld_EVAL$ld_hv_uso
@@ -56,14 +57,14 @@ if(BS.new == 1) {
   rd_bs = as.data.frame(dea.boot(X=as.matrix(X.avg.rd[as.character(rd_eval)]), Y=as.matrix(Y.avg.rd[as.character(rd_eval),]),
                                  NREP = BS.ite, RTS="crs", ORIENTATION = "in", alpha=0.1)$eff.bc)
 } else {
-  rd_bs = read.csv("./Data/Bootstrap/rd_bs.csv",sep=",")
+  rd_bs = read.csv("./Harmony/Bootstrap/rd_bs_post.csv",sep=",")
 }
 
 
 if(BS.new == 1 ) {
   names(rd_bs) = "rd_bs.correst"
   rd_bs = add_rownames(rd_bs, "id")
-  write.csv(rd_bs, "./Data/Bootstrap/rd_bs.csv", row.names = FALSE)
+  write.csv(rd_bs, "./Harmony/Bootstrap/rd_bs_post.csv", row.names = FALSE)
 }
 
 stopifnot(exists("rd_bs") == TRUE)
@@ -109,27 +110,25 @@ names(ld_eff.bs) = names(X.avg.ld)
 #Calculates Geo coefficients (Z variable coefficients) for Local distribution
 Geovar.ldz = cbind(ld_EVAL[,c("ldz_hvug.s","ldz_f4", "ldz_Geo1", "ldz_Geo2", "ldz_Geo3")])
 ldz.reg = Zvar1(x=X.avg.ld,z=Geovar.ldz,eff=ld_eff.bs,
-                lambda = ld_lambda.avg,
-                id = names(X.avg.ld),
-                id.out = as.character(ld_sep.eval))
-
+                  lambda = ld_lambda.avg,
+                  id = names(X.avg.ld),
+                  id.out = as.character(ld_sep.eval))
 ldz.coeff = ldz.reg$coeff
-
 
 
 #### Z variable adjustment - Local distribution #### 
 # Adjusts efficiency scores from stage 1, using difference in Z value relative to target unit
 # See functions_nve.R for further details. Local distribution grid
-ld_s2 = Zvar2(x = X.avg.ld, eff = eff.cb.avg.ld, id = names(X.avg.ld),
-                             lambda = ld_lambda, coeff = ldz.coeff, z = Geovar.ldz)
-ld_EVAL$ld_eff.s2.cb = ld_s2$eff.corr
+ld_s2 = Zvar2(x = X.avg.ld, eff = eff.avg.avg.ld, id = names(X.avg.ld),
+                             lambda = ld_lambda.avg, coeff = ldz.coeff, z = Geovar.ldz)
+ld_EVAL$ld_eff.s2.avg = ld_s2$eff.corr
 #Estimate Z-variables for Regional distribution ---------------------------
 
 GeoR.comp = cbind(rd_EVAL[,c("rdz_f12", "rdz_inc.av")])
 row.names(GeoR.comp) = names(X.avg.rd)
 GeoR.tech = GeoR.comp[as.character(rd_eval),]
 #Estimates Helskog
-rd_EVAL$rdz_Geo1 = z.est(geovar.in = GeoR.tech, restricted.obs = GeoR.comp)*-1
+rd_EVAL$rdz_Geo1 = z.est(geovar.in = GeoR.tech, restricted.obs = GeoR.comp)
 Geovar.r = cbind(rd_EVAL[,c("rdz_Geo1")])
 #Remove companies not included in bootstrap for regional distribution grid
 rd_eff.bs = rd_EVAL$rd_eff.bs.is2.cZ
@@ -140,14 +139,16 @@ rdz.reg = Zvar1(x=X.avg.rd,z=Geovar.r,eff=rd_eff.bs,
                   lambda = rd_lambda.avg,
                   id = names(X.avg.rd),
                   id.out = as.character(rd_sep.eval))
+
 rdz.coeff = rdz.reg$coeff
+
 
 names(rdz.coeff)[2] = "rdz_Geo1"
 rdz.coeff
 #### Z variable adjustment - Regional distribution #### 
 #Adjusts efficiency scores from stage 1, using difference in Z value relative to target unit
 # See functions_nve.R for further details. Regional distribution grid
-rd_s2 = Zvar2(x = X.avg.rd, eff=eff.cb.avg.rd, id=names(X.avg.rd),
-                             lambda = rd_lambda, coeff=rdz.coeff, z=Geovar.r)
+rd_s2 = Zvar2(x = X.avg.rd, eff=eff.avg.avg.rd, id=names(X.avg.rd),
+                             lambda = rd_lambda.avg, coeff=rdz.coeff, z=Geovar.r)
 
-rd_EVAL$rd_eff.s2.cb = rd_s2$eff.corr
+rd_EVAL$rd_eff.s2.avg = rd_s2$eff.corr

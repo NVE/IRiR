@@ -110,7 +110,15 @@ dat$t_TOTXDEA   = dat$fp_t_OPEX + (dat$fp_t_rab.sf * ir.dea) + dat$fp_t_dep.sf +
 # Purpose: Stabilize front by smoothing cost variation within last five year.
 # Increases comparability as all companies are compared against historical average, including peers.
 
-v_fha = c("ld_TOTXDEA", "ld_sub", "ld_hv", "ld_ss", "rd_TOTXDEA", "rd_wv.ol", "rd_wv.uc", "rd_wv.sc", "rd_wv.ss")
+v_fha = c("ld_TOTXDEA", "ld_sub", "ld_hv", "ld_ss",
+          "rd_TOTXDEA", "rd_wv.ol", "rd_wv.uc", "rd_wv.sc", "rd_wv.ss",
+          "fp_ld_OPEX", "fp_ld_rab.sf", "fp_ld_dep.sf", "fp_ld_cens",
+          "fp_ld_391", "fp_ld_cga", "ld_nl",
+          "fp_ld_gci.cost", 
+          "fp_rd_OPEX", "fp_rd_rab.sf", "fp_rd_dep.sf", "fp_rd_cens",
+          "fp_rd_391", "fp_rd_cga", "rd_nl",
+          "fp_t_OPEX", "fp_t_rab.sf", "fp_t_dep.sf", "fp_t_cens",
+          "fp_t_391")
 fha = paste("fha_", v_fha, sep="")
 dat = cbind(dat, t(matrix(NA, ncol = nrow(dat), nrow = length(v_fha), dimnames = list(v_fha = fha))))
 for(c in 1:length(v_fha))

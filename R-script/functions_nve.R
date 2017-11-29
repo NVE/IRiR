@@ -144,7 +144,7 @@ Zvar1 <- function(x,z,eff,lambda,id,id.out)
         coeff=res.regr.NVE$coefficients
         names(coeff)=c("constant",colnames(z.diff))
 
-        res <- list(coeff=coeff,z.diff=z.diff, id.out=id.out)
+        res <- list(coeff=coeff,z.diff=z.diff, id.out=id.out, res.regr.NVE = res.regr.NVE)
         return(res)
         }
 #----------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ Zvar2 <- function(x,eff,id,coeff,z,lambda)
         #Adjusts efficiency score
         eff.corr <- as.vector(eff - z.diff%*%coeff[2:(ncol(z)+1)])
 
-        res <- list(eff.corr=eff.corr,z.diff=z.diff)
+        res <- list(eff.corr=eff.corr,z.diff=z.diff, cost.norm.contribution = x.norm.contrib, cost.norm.share = w.ref)
         return(res)
         }
 
@@ -287,3 +287,60 @@ dupsBetweenGroups <- function (df, idcol) {
         # Return the vector of which entries are duplicated across groups
         return(dupBetween)
 }
+#--------------------------------------------------------------------------------------------------------------------
+
+ToRho = function(x, lambda){
+
+        x <- as.vector(x)
+        lambda <- as.matrix(lambda)
+
+        # cost norm for each dmu
+        x.norm <- lambda %*% x
+        ids = colnames(lambda)
+        # norm contribution for each reference dmu
+        x.norm.contrib <- lambda %*% diag(x)
+        # Set name of columns equal to rows ## NEEDS QA
+        colnames(x.norm.contrib) = colnames(lambda)
+        # Keep only columns for peers
+        x.norm.contrib1 = x.norm.contrib[, colSums(x.norm.contrib) > 0]
+        # Contribution to normcost pr peer in total
+        norm.pr.peer = colSums(x.norm.contrib1)
+        # Total norm cost
+        total.norm = sum(norm.pr.peer)
+        # Torgersens rho
+        Torg.Rho = as.matrix(norm.pr.peer / total.norm)
+        colnames(Torg.Rho) = "Torg.Rho"
+        
+        res <- list(Torg.Rho = Torg.Rho)
+}
+
+#---------------------------------------------------------------------------------------------------------------------
+
+#Information on relative importance of each peer pr dmu
+
+
+PeerI <- function(x,eff,id,lambda)
+{
+        #data types
+        x <- as.vector(x)
+        eff <- as.vector(eff)
+        lambda <- as.matrix(lambda)
+        names(x) = id
+      
+        
+        #cost norm for each dmu
+        x.norm = lambda %*% x
+        #norm contribution for each reference dmu
+        x.norm.contrib = lambda %*% diag(x)
+        #weight for each reference dmu
+        w.ref = x.norm.contrib / rowSums(x.norm.contrib)
+
+        colnames(x.norm.contrib) = colnames(lambda)
+        colnames(w.ref) = colnames(lambda)
+        
+        res <- list(cost.norm = x.norm, cost.norm.contribution = x.norm.contrib, cost.norm.share = w.ref)
+        return(res)
+}
+
+
+

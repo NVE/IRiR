@@ -3,30 +3,26 @@
 #### Defining parameters in model####
 
 # Parameters
-#kraftpris = 0.26135
-pnl.rc = 0.20133  # Price of network losses in RC
-y.avg = 2010:2014 # Relevant years for calculation of average values
-y.cb = 2014 # The cost base year, t-2
+pnl.rc = 0.26655  # Price of network losses in RC
+y.avg = 2012:2016 # Relevant years for calculation of average values
+y.cb = 2016 # The cost base year, t-2
 y.rc = y.cb + 2 # The revenue cap year, t
 y.hist.pen = 2007:2013 #Transition period for smoothing of pension costs, see variable list for further explenation
 
 #NVE interest rates - used in revenue cap calculation
 # https://www.nve.no/energy-market-and-regulation/revenue-regulation/the-wacc-model/
 # https://www.nve.no/elmarkedstilsynet-marked-og-monopol/okonomisk-regulering-av-nettselskap/reguleringsmodellen/referanserenten/
-NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0626, 0.0639) # 2015 & 2016 estimates pr 01.12.15
-names(NVE.ir) = 2009:2016
+NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0632, 0.0632, 0.0613, 0.0588) 
+names(NVE.ir) = 2009:2018
 
 # Decision/Notice - different prices and interests are used
 decision = 0 # 1 if decision mode, 0 notice mode
 
-# Bootstrap settings
-BS.new = 1 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
-BS.ite = 2000 # Number of iterations in bootstrap calculation
 
 # Notice
 NVE.ir.t_2 = NVE.ir[as.character(y.cb)]
 NVE.ir.est = NVE.ir[as.character(y.rc)]
-sysp.t_2 = 0.26135
+sysp.t_2 = 0.26474 # Price used in DEA
 
 # Decision
 NVE.ir.t = NVE.ir[as.character(y.rc)]
@@ -50,15 +46,14 @@ if (decision == 1)  {
 }
 
 # Estimated cost for cost base year (y.cb)
-# in this calcualtion with adjustment for "payroll tax" (19666)
-lrt_RC_dec.y.cb = 9265621 + 19666
+lrt_RC_dec.y.cb = 10889888
 
 #### Importing data ####
 
 # Read data set from csv-file
 # Base-data with costs and assets
-dat = read.csv("./Data/BaseData/BaseData_FinalNotice.csv",sep=",")
-
+dat = read.csv("./Data/BaseData/BD_notice18_28112017.csv",sep=",")
+dat$ap.t_2 = dat$ap.t_2/1000
 
 # IDs to simplify scripts and aid analysts
 id = read.csv("./Data/BaseData/id.csv", sep = ",")
@@ -67,16 +62,8 @@ dat = merge.data.frame(dat, id, by = "orgn", all.x = TRUE)
 dat$comp <- as.character(dat$comp)
 dat$name <- as.character(dat$comp)
 
-# Manualy adding IDs for missing companies
-# Asign ID for Gassco
-dat$id[dat$orgn == 983452841] <- 900
-dat$name[dat$orgn == 983452841] <- "Gassco"
-# Asign ID for Lyse sentralnett
-dat$id[dat$orgn == 996325458] <- 872
-dat$name[dat$orgn == 996325458] <- "Lyse Sentralnett"
-# Asign ID for Mørenett
-dat$id[dat$orgn == 912631532] <- 460
-dat$name[dat$orgn == 912631532] <- "Morenett"
+# Replace NA  values with zeros to have correct means for pensions costs
+dat[is.na(dat)] = 0
 
 # Create id.y og orgn.y variable
 dat$id.y <- paste(dat$id, dat$y, sep="")
@@ -93,7 +80,7 @@ dat$ld_sub[dat$id.y == 7432013] <- 245
 # Remove Statnett SFs observations from dataset (TSO)
 dat <- dat[!(dat$orgn==962986633),] 
 
-# Check for companies that without ID
+# Check for companies without ID
 missing.id <- dat[is.na(dat$id),]
 missing.id[c("comp", "orgn")]
 stopifnot(nrow(missing.id) == 0)
@@ -127,29 +114,31 @@ rm(missing.id, id)
 # Criterias in regional distribution: TOTEX < 15000, .... ( Improve )  
 
 # Local Distribution Grid
-ld_ooto <- (c(10, 108, 121, 167, 222, 512, 686, 743)) 
-ld_av.eff <- (c(187, 294, 652, 852)) # Companies set to average efficency
+ld_ooto <- (c(121, 167, 222, 512, 686, 743, 852)) #852 - Herøya. Discuss
+ld_av.eff <- (c(10, 187, 294, 652)) # Companies set to average efficency
 ld_sep.eval <- (c()) # Companies included in DEA, but only allowed to be peers for themselves
-ld_no.rc <- (c(134, 348, 521, 612, 638, 696)) # Companies exluded from revenue cap calc
+ld_no.rc <- (c(108, 134, 152, 307, 348, 521, 612, 638, 696, 524)) # Companies exluded from revenue cap calc
 
 
 # Regional distribution grid (+ some transmission)
-rd_ooto <- (c(10, 18, 35, 41, 88, 98, 106, 135, 147, 156, 161, 162, 173, 184, 
-              204, 222, 238, 274, 287, 307, 343, 349, 447, 484, 512, 
-              659, 686, 743)) # prøver, 10, her 
+rd_ooto <- (c(10, 18,  41, 88, 135, 147, 156, 161, 162, 
+              204, 222, 274, 287, 349, 447, 512, 
+              659, 669, 686, 852)) # 
 
-rd_av.eff <- (c(116, 167, 542, 685, 852)) # 167- Hydro Energi TEMP
+rd_av.eff <- (c( 98, 116, 542, 685)) #
 
-rd_sep.eval <- (c(7, 9, 14, 37, 93, 103, 138, 164, 206, 271, 288, 591, 625, 669))  # 14, 753
+rd_sep.eval <- (c(7, 32, 37, 103, 106, 138, 164, 173,
+                  184, 206, 238, 271, 288, 295, 484, 625))  #
 
-rd_no.rc  <- (c())
+
+rd_no.rc  <- (c(35, 152, 307)) # 35 Drangedal har 0 i rd_TOTX 2016
 
 # CPI
-cpi = c(113.3, 115.1, 117.7, 118.6, 123.1, 125.7, 128.8, 130.4, 131.4, 134.2, 136.9, 139.7, 143.8)
-names(cpi) = 2004:2016
+cpi = c(81.0, 82.3, 84.2, 84.8, 88.0, 89.9, 92.1, 93.3, 93.9, 95.9, 97.9, 100, 103.6, 105.8, 107.8)
+names(cpi) = 2004:2018
 
-cpi.l = c(139, 144.8, 151.7, 159, 167.8, 175.2, 182.6, 189.5, 195.5, 202.3, 209.5, 215.4, 221.6)
-names(cpi.l) = 2004:2016
+cpi.l = c(64.4, 67.1, 70.3, 73.7, 77.8, 81.2, 84.7, 87.9, 90.6, 93.8, 97.1, 100, 102.8, 105.3, 108.4)
+names(cpi.l) = 2004:2018
 
 
 # Data for Hammerfest
@@ -165,15 +154,6 @@ dat$rd_dep.gf = dat$tempdep - dat$rd_dep.gf_melk
 dat$tempbv <- NULL
 dat$tempdep <- NULL
 rm(hfmo)
-
-
-# Import area prices pr company from cost base year
-ap.t_2 = read.csv("./Data/BaseData/areaprices_t_2.csv", sep = ",")
-dat = merge.data.frame(dat, ap.t_2, by="id.y", all.x = TRUE)
-
-dat$ap.t_2[dat$id.y==8722014] = 244.24
-dat$ap.t_2[dat$id.y==9002014] = 273.92
-dat$ap.t_2 = dat$ap.t_2/1000
 
 
 #CPI factors are used in calibration and revenue cap-calculations (part 4)

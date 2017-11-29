@@ -20,9 +20,6 @@ names(NVE.ir.new) = 2009:y.rc                                                   
 his.sysp = c(312.80, 459.92, 393.46, 259.90, 310.99, 261.35, 208.13)
 names(his.sysp) = 2009:y.cb 
 
-# Bootstrap settings
-BS.new = 1 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
-BS.ite = 2000 # Number of iterations in bootstrap calculation
 
 # Decision/Notice - different prices and interests are used
 decision = 0 # 1 if decision mode, 0 notice mode
