@@ -90,11 +90,11 @@ source("./R-script/Harmony/H_Spec_AvEff-model.R")
 source("./R-script/Harmony/H_4_0_Revenue_Cap_Calculation.R")
 
 comp_pre = dat[dat$orgn %in% merg.comps, ] # Finn ut hva jeg vil se her.
-RC_pre = RevCap[RevCap$orgn %in% merg.comps, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
+RC_pre = RevCap[, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
+RC_pre$lrt_RC.pre.recal = round(RC_pre$lrt_RC.pre.recal)
 
 rm(list = ls()[!ls() %in% c('comp_pre', 'RC_pre', 'BS.new', 'BS.ite', 'merg.comps')])
 
-comp.name = c("NordBal")
 disc.rate = 0.045
 n.years = 30
 
@@ -187,13 +187,17 @@ source("./R-script/Harmony/H_Spec_AvEff-model.R")
 #### Calculating Revenue caps ####
 source("./R-script/Harmony/H_4_0_Revenue_Cap_Calculation.R")
 
+# Sum revenue cap for merging companies before merge
+RC_sep.comp = sum(RC_pre[RC_pre$orgn %in% merg.comps, "lrt_RC.pre.recal"])
 
 comp_post = dat[dat$id == 999, ] # Finn ut hva jeg vil se her.
-RC_post = RevCap[RevCap$id == 999, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
+RC_post = RevCap[, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
+RC_post$lrt_RC.pre.recal = round(RC_post$lrt_RC.pre.recal)
+RC_merg.comp = RC_post[RC_post$id == 999, "lrt_RC.pre.recal" ]
 
 # Yearly income loss
-y.inc.loss = sum(RC_pre$lrt_RC.pre.recal) - RC_post$lrt_RC.pre.recal
+y.inc.loss = RC_sep.comp - RC_merg.comp
 
-HI = y.inc.loss + y.inc.loss*((1-((1/(1+disc.rate))^(n.years-1)))/disc.rate)
+HI = round(y.inc.loss + y.inc.loss*((1-((1/(1+disc.rate))^(n.years-1)))/disc.rate))
 
 
