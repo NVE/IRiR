@@ -343,4 +343,80 @@ PeerI <- function(x,eff,id,lambda)
 }
 
 
+#---------------------------------------------------------------------------------------------------------------------
+merge_NVE = function(comps, new.org, new.id, new.name, sum_variables, ldz_weighted.var, rdz_weighted.var, merge.mean, df){
 
+comps = as.vector(comps)
+new.org = as.numeric(new.org)
+new.id = as.numeric(new.id)
+new.name = as.character(new.name)
+df = data.frame(df)
+
+
+
+df$ldz_n.mgc_sum = df$ldz_mgc # Number of map grid cells for "sum"-vector
+df$rdz_n.mgc_sum = df$rdz_mgc
+
+
+# Create data frame with observations for merging companies
+md = filter(df, df$orgn %in% merg.comps)
+
+# Create data frame with sum of variables in harm.var_sum, for merging companies
+mds =   as.data.frame(md %>%
+                              group_by(y) %>%
+                              summarise_at(.vars = c(sum_variables), funs(sum)))
+
+mds$orgn = new.org
+mds$id = new.id
+mds$id.y = as.numeric(paste(mds$id, mds$y, sep = ""))
+
+comp.info = c("orgn", "y", "id", "id.y")
+
+ld_mdw = select(md, one_of(ldz_weighted.var))
+ld_mdw$mutipl.col = ld_mdw$ldz_mgc
+ld_mdw = as.data.frame(bind_cols(ld_mdw, select(md, one_of(comp.info))))
+ld_mdw[ldz_weighted.var] = ld_mdw[ldz_weighted.var] * ld_mdw$mutipl.col
+
+ld_mdw.fm = as.data.frame(ld_mdw %>%
+                                  group_by(y) %>%
+                                  summarise_at(.vars = c(ldz_harm.var_gc), funs(sum)))
+
+
+
+ld_mdw.fm$id = new.id
+ld_mdw.fm$id.y = as.numeric(paste(ld_mdw.fm$id, ld_mdw.fm$y, sep = ""))
+ld_mdw.fm$id = NULL
+ld_mdw.fm$y = NULL
+
+mds = inner_join(mds, ld_mdw.fm, by = "id.y")
+mds[ldz_harm.var_gc] = mds[ldz_harm.var_gc] / mds$ldz_n.mgc_sum
+
+
+
+rd_mdw = select(md, one_of(rdz_harm.var_gc))
+rd_mdw$mutipl.col = rd_mdw$rdz_mgc
+rd_mdw = as.data.frame(bind_cols(rd_mdw, select(md, one_of(comp.info))))
+rd_mdw[rdz_harm.var_gc] = rd_mdw[rdz_harm.var_gc] * rd_mdw$mutipl.col
+
+rd_mdw.fm = as.data.frame(rd_mdw %>%
+                                  group_by(y) %>%
+                                  summarise_at(.vars = c(rdz_harm.var_gc), funs(sum)))
+
+
+rd_mdw.fm$id = new.id
+rd_mdw.fm$id.y = as.numeric(paste(rd_mdw.fm$id, rd_mdw.fm$y, sep = ""))
+rd_mdw.fm$id = NULL
+rd_mdw.fm$y = NULL
+
+mds = inner_join(mds, rd_mdw.fm, by = "id.y")
+mds[rdz_harm.var_gc] = mds[rdz_harm.var_gc] / mds$rdz_n.mgc_sum
+mds$comp = as.character(new.name)
+mds$name = mds$comp
+
+mds$ap.t_2 = (md %>%
+                      group_by(y) %>%
+                      summarise_at(.vars = c(merge.pr), funs(mean)))$ap.t_2
+
+res <- list(mds = mds)
+
+}
