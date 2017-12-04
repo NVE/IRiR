@@ -90,11 +90,11 @@ source("./R-script/Harmony/H_Spec_AvEff-model.R")
 source("./R-script/Harmony/H_4_0_Revenue_Cap_Calculation.R")
 
 comp_pre = dat[dat$orgn %in% merg.comps, ] # Finn ut hva jeg vil se her.
-RC_pre = RevCap[RevCap$orgn %in% merg.comps, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
+RC_pre = RevCap[, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
+RC_pre$lrt_RC.pre.recal = round(RC_pre$lrt_RC.pre.recal)
 
 rm(list = ls()[!ls() %in% c('comp_pre', 'RC_pre', 'BS.new', 'BS.ite', 'merg.comps')])
 
-comp.name = c("NordBal")
 disc.rate = 0.045
 n.years = 30
 
@@ -145,72 +145,13 @@ rdz_harm.var_gc = c("rdz_mgc", "rdz_inc.av", "rdz_f12")
 #Prices are calculated as naive averages
 merge.pr = ("ap.t_2")
 
-# Create data frame with observations for merging companies
-md = filter(dat, dat$orgn %in% merg.comps)
+#Fusjonerer Nordlandsnett og Ballangen til ett selskap. OBS! Hypotetisk case
+NordBal_data = merge_NVE(comps = merg.comps, new.org = 999999999, new.id = 999, new.name = "NordBal",
+                         sum_variables = harm.var_sum, ldz_weighted.var = ldz_harm.var_gc,
+                         rdz_weighted.var = rdz_harm.var_gc,merge.mean = merge.pr, df =dat)$mds
 
-# Create data frame with sum of variables in harm.var_sum, for merging companies
-mds =   as.data.frame(md %>%
-                              group_by(y) %>%
-                              summarise_at(.vars = c(harm.var_sum), funs(sum)))
-
-mds$orgn = 999999999
-mds$id = 999
-mds$id.y = as.numeric(paste(mds$id, mds$y, sep = ""))
-
-comp.info = c("orgn", "y", "id", "id.y")
-
-
-
-
-ld_mdw = select(md, one_of(ldz_harm.var_gc))
-ld_mdw$mutipl.col = ld_mdw$ldz_mgc
-ld_mdw = as.data.frame(bind_cols(ld_mdw, select(md, one_of(comp.info))))
-ld_mdw[ldz_harm.var_gc] = ld_mdw[ldz_harm.var_gc] * ld_mdw$mutipl.col
-
-ld_mdw.fm = as.data.frame(ld_mdw %>%
-                                  group_by(y) %>%
-                                  summarise_at(.vars = c(ldz_harm.var_gc), funs(sum)))
-                                  
-
-
-ld_mdw.fm$id = 999
-ld_mdw.fm$id.y = as.numeric(paste(ld_mdw.fm$id, ld_mdw.fm$y, sep = ""))
-ld_mdw.fm$id = NULL
-ld_mdw.fm$y = NULL
-
-mds = inner_join(mds, ld_mdw.fm, by = "id.y")
-mds[ldz_harm.var_gc] = mds[ldz_harm.var_gc] / mds$ldz_n.mgc_sum
-
-
-
-rd_mdw = select(md, one_of(rdz_harm.var_gc))
-rd_mdw$mutipl.col = rd_mdw$rdz_mgc
-rd_mdw = as.data.frame(bind_cols(rd_mdw, select(md, one_of(comp.info))))
-rd_mdw[rdz_harm.var_gc] = rd_mdw[rdz_harm.var_gc] * rd_mdw$mutipl.col
-
-rd_mdw.fm = as.data.frame(rd_mdw %>%
-                                  group_by(y) %>%
-                                  summarise_at(.vars = c(rdz_harm.var_gc), funs(sum)))
-
-
-rd_mdw.fm$id = 999
-rd_mdw.fm$id.y = as.numeric(paste(rd_mdw.fm$id, rd_mdw.fm$y, sep = ""))
-rd_mdw.fm$id = NULL
-rd_mdw.fm$y = NULL
-
-mds = inner_join(mds, rd_mdw.fm, by = "id.y")
-mds[rdz_harm.var_gc] = mds[rdz_harm.var_gc] / mds$rdz_n.mgc_sum
-mds$comp = as.character(comp.name)
-mds$name = mds$comp
-
-mds$ap.t_2 = (md %>%
-                      group_by(y) %>%
-                      summarise_at(.vars = c(merge.pr), funs(mean)))$ap.t_2
-
-dat = bind_rows(dat, mds)
+dat = bind_rows(dat, NordBal_data)
 dat = dat[!(dat$orgn %in% merg.comps),]
-rm(ld_mdw, ld_mdw.fm, mds, rd_mdw, rd_mdw.fm)
-
 
 source("./R-script/Harmony/H_0_2_Calculated_Input_Values.R")
 
@@ -246,13 +187,17 @@ source("./R-script/Harmony/H_Spec_AvEff-model.R")
 #### Calculating Revenue caps ####
 source("./R-script/Harmony/H_4_0_Revenue_Cap_Calculation.R")
 
+# Sum revenue cap for merging companies before merge
+RC_sep.comp = sum(RC_pre[RC_pre$orgn %in% merg.comps, "lrt_RC.pre.recal"])
 
 comp_post = dat[dat$id == 999, ] # Finn ut hva jeg vil se her.
-RC_post = RevCap[RevCap$id == 999, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
+RC_post = RevCap[, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
+RC_post$lrt_RC.pre.recal = round(RC_post$lrt_RC.pre.recal)
+RC_merg.comp = RC_post[RC_post$id == 999, "lrt_RC.pre.recal" ]
 
 # Yearly income loss
-y.inc.loss = sum(RC_pre$lrt_RC.pre.recal) - RC_post$lrt_RC.pre.recal
+y.inc.loss = RC_sep.comp - RC_merg.comp
 
-HI = y.inc.loss + y.inc.loss*((1-((1/(1+disc.rate))^(n.years-1)))/disc.rate)
+HI = round(y.inc.loss + y.inc.loss*((1-((1/(1+disc.rate))^(n.years-1)))/disc.rate))
 
 
