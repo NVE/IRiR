@@ -82,3 +82,4 @@ calc.time
 
 source("./R-script/analysis.R")
 # View(KeyFigorgn[ , ! apply(KeyFigorgn, 2, function (x) all(is.na(x)))]) # REMOVE FIRST # TO GET KEY INFO FOR SPECIFIC COMPANY
+
