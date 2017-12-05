@@ -29,19 +29,25 @@ Similar as the Data-folder, but used for the Harmony Income calculations. HIiR h
 * **R Script**  
 A folder containing all files needed in the IRiR-file, and also the subfolder Harmony which contains the scripts called by the HIiR-script.
  
-  * 0_1_Config_Assumptions_Data.R : Imports dataset, defines important assumtions and parameters (interest rates, CPI-values) etc.
+  * _0_1_Config_Assumptions_Data.R_ : Imports dataset, defines important assumtions and parameters (interest rates, CPI-values) etc.
  
-  * 0_2_Calculated_Input_Values.R : Calculates values from base data to data ready for DEA.
+  * _0_2_Calculated_Input_Values.R_ : Calculates values from base data to data ready for DEA.
  
-  * 0_3_Company_Selection.R : Distributes all companies in relevant groups to create sub-datasets of dat in later stages.
+  * _0_3_Company_Selection.R_ : Distributes all companies in relevant groups to create sub-datasets of dat in later stages.
   
-  * 1_0_DEA.R : Stage 1 - Performs the DEA-calculations. Described in report 71/2012 NOR  http://publikasjoner.nve.no/rapport/2012/rapport2012_71.pdf
+  * _1_0_DEA.R_ : Stage 1 - Performs the DEA-calculations. Described in report 71/2012 NOR  http://publikasjoner.nve.no/rapport/2012/rapport2012_71.pdf
  
-  * 2_0_Stage2_GeoCorrection.R : Stage 2 - Corrects efficiencies from stage 1 for environmental conditions. Described in report 71/2012 and
+  * _2_0_Stage2_GeoCorrection.R_ : Stage 2 - Corrects efficiencies from stage 1 for environmental conditions. Described in report 71/2012 and
    technicalites are described here  ENG: http://bit.ly/2sH5oLV .
    
-  * 3_0_Stage3_Calibration.R : Cost norm calibration,  described in circular 1/2013 NOR http://webfileservice.nve.no/API/PublishedFiles/Download/201607005/1944365
+  * _3_0_Stage3_Calibration.R_ : Cost norm calibration, described in circular 1/2013 NOR         http://webfileservice.nve.no/API/PublishedFiles/Download/201607005/1944365
  
-  * 
+  * _Spec_OOTO-model.R_ : OOTO model for companies "Out Of The Ordinary". Criterias for this evalutaion is further described in the script.  
+  
+  * _Spec_AvEff-model.R_ : Script for companies set to average efficieny. Criterieas for this evalutaion is described in the script.  
+  
+  * _4_0_Revenue_Cap_Calculation.R_ : File that gather cost norms from all different models and calculates revenue caps. Results are presented in the           dataframe "RevCap".
  
- 
+  * _functions_nve.R_ : file with R functions defined for/by NVE. Each function is further described in the script.
+  
+  
