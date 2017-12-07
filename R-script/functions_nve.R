@@ -359,7 +359,7 @@ df$rdz_n.mgc_sum = df$rdz_mgc
 
 
 # Create data frame with observations for merging companies
-md = filter(df, df$orgn %in% merg.comps)
+md = filter(df, df$orgn %in% comps)
 
 # Create data frame with sum of variables in harm.var_sum, for merging companies
 mds =   as.data.frame(md %>%
@@ -416,6 +416,9 @@ mds$name = mds$comp
 mds$ap.t_2 = (md %>%
                       group_by(y) %>%
                       summarise_at(.vars = c(merge.pr), funs(mean)))$ap.t_2
+
+mds$ldz_n.mgc_sum = NULL
+mds$rdz_n.mgc_sum = NULL
 
 res <- list(mds = mds)
 
