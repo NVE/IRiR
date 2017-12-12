@@ -47,7 +47,7 @@ source("./R-script/Harmony/H_0_1_Config_Assumptions_Data.R")
 
 #Averages of interest and prices are used in Harmony Income calculation
 NVE.ir.t_2 = mean(NVE.ir.new[names(NVE.ir.new) %in% y.avg])
-NVE.ir.est = mean(NVE.ir.new[names(NVE.ir.new) >= y.rc-4])
+NVE.ir.est = mean(NVE.ir.new[names(NVE.ir.new) %in% y.avg])
 sysp.t_2 = mean(his.sysp[names(his.sysp) %in% y.avg])/1000
 
 ir.dea                  = NVE.ir.t_2 # Average interest from years in y.avg
@@ -108,7 +108,7 @@ source("./R-script/Harmony/H_0_1_Config_Assumptions_Data.R")
 
 #Averages of interest and prices are used in Harmony Income calculation
 NVE.ir.t_2 = mean(NVE.ir.new[names(NVE.ir.new) %in% y.avg])
-NVE.ir.est = mean(NVE.ir.new[names(NVE.ir.new) >= y.rc-4])
+NVE.ir.est = mean(NVE.ir.new[names(NVE.ir.new) %in% y.avg])
 sysp.t_2 = mean(his.sysp[names(his.sysp) %in% y.avg])/1000
 
 ir.dea                  = NVE.ir.t_2 # Average interest from years in y.avg
