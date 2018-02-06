@@ -22,7 +22,7 @@ for (i in which(dat$y %in% y.cb)){
 
 ld_AV.EFF$ld_cb <- ((ld_AV.EFF$fp_ld_OPEX*y.cb.cpi.l.factor) + (ld_AV.EFF$ld_rab.sf*NVE.ir.RC) + 
                             ld_AV.EFF$ld_dep.sf + (ld_AV.EFF$ld_cens*y.cb.cpi.factor) + 
-                            (ld_AV.EFF$ld_nl*pnl.rc) - (ld_AV.EFF$ld_gci.cost*y.cb.cpi.factor))
+                            (ld_AV.EFF$ld_nl*ld_AV.EFF$pnl.rc) - (ld_AV.EFF$ld_gci.cost*y.cb.cpi.factor))
 
 # Cost recovery, cost norm = cost base.
 # As with companies in the OOTO model (.._cn.cal.RAB) indicates that these values are included

@@ -46,7 +46,7 @@ for (i in which(dat$y %in% y.cb)){
         rd_AV.EFF <-dat[dat$rd_AV.EFF==1,]
 }
 
-
+rd_AV.EFF[rd_OOTO$id == 167] = NULL
 #Calculate cost base (cb) as input in calibration - regional distribution
 rd_AV.EFF$fha_rd_cb <- ((rd_AV.EFF$fha_fp_rd_OPEX*y.cb.cpi.l.factor) + ((rd_AV.EFF$fha_fp_rd_rab.sf*y.cb.cpi.factor)*NVE.ir.RC) + 
                                 (rd_AV.EFF$fha_fp_rd_dep.sf*y.cb.cpi.factor) + (rd_AV.EFF$fha_fp_rd_cens*y.cb.cpi.factor))
