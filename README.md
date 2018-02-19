@@ -7,13 +7,15 @@ IRiR is a script for calculating Revenue Caps for Norwegian Electricity DSOs.
 
 _All usage and calculation results are the users responsibility. NVE is not responsible for any result calculated by users outside NVE_
 
+The master branch is by defualt set to replicate the revenue cap calculation based on the most recently available dataset. When revenue caps are decided the necessary files will be provided on github, but requires new bootstrap estimates. Thus, using files from github will not perfectly replicate the results published on NVE. For perfect replication of decided revenue caps use script for releveant year published on [nve.no](https://www.nve.no/reguleringsmyndigheten-for-energi-rme-marked-og-monopol/okonomisk-regulering-av-nettselskap/inntektsrammer/) with BS.new = 0. 
+
 
 ### Brief description of file and folder organization
 
-* **NVE_IRiR v1.0 (01.12.2017)**  
+* **NVE_IRiR v1.0.1 (19.02.2018)**  
 This file sources all relevant subscripts and performs the revenue cap calculation "through and through". Called "main script" in the guideline document.
  
-* **NVE_HIiR v1.0 (01.12.2017)**  
+* **NVE_HIiR v1.0.1 (19.02.2018)**  
 This file can calculate estimates of Harmony Income (compensation for mergers). It depends on the correct usage of the NVE_merges-function   and  calls files from the share "R_Script\Harmony".
  
 * **Data**  
