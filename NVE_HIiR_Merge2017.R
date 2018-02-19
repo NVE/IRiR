@@ -26,19 +26,23 @@ library(assertthat)
 
 
 # Bootstrap settings
-BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
+BS.new = 1 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
 BS.ite = 2000 # Number of iterations in bootstrap calculation
 
 #Companies for merger
 # Comp 1 
-merg.comp1 = c(979422679) # Skagerak Nett AS
+merg.comp1 = c(971029390) # Alta Kraftlag SA  # REPLACE ORGN in merg.comp1 & merg.comp2 with companies relevant for calculation.
 # Comp 2
-merg.comp2 = c(982974011) # Agder Energi Nett AS
+merg.comp2 = c(988807648) # Kragerø Energi AS # Merger of Alta Kraftlag SA and Kragerø Energi is only applied script demo purposes.
 
 
 merg.comps = c(merg.comp1, merg.comp2)
 
-comp.name = c("Agderak Nett AS")
+comp.name = c("KrAlta Nett") # Insert name of merged company
+
+
+fusjon_TEN = c(978631029, 980498646, 947576283, # Trønderenergi Nett (215), Selbu Energiverk (184), Kraftverkene i Orkla (288),
+               947590618, 878631072) # Driva Kraftverk (271), Trønderenergi Kraft (484)
 
 
 source("./R-script/functions_nve.R") # File containing functions created for/by NVE
@@ -84,6 +88,15 @@ pnl.dea                 = sysp.t_2 # Average prices from years in y.avg --> sugg
 pnl.rc                  = sysp.t_2 # Average prices from years in y.avg --> suggestion last five years
 
 
+#Adapting to mergers involving Trønderenergi Nett AS (peer in Regional distribution)
+TEN_data = merge_NVE(comps = fusjon_TEN, new.org = 991991991, new.id = 215, new.name = "Trønderenergi Nett AS (fusjonert)",
+                     sum_variables = harm.var_sum, ldz_weighted.var = ldz_harm.var_gc,
+                     rdz_weighted.var = rdz_harm.var_gc,merge.mean = merge.pr, df =dat)$mds
+
+dat = bind_rows(dat, TEN_data)
+dat = dat[!(dat$orgn %in% fusjon_TEN),]
+
+dat = dat[order(dat$id.y),]
 
 source("./R-script/Harmony/H_0_2_Calculated_Input_Values.R")
 
@@ -125,7 +138,7 @@ RC_pre$lrt_RC.pre.recal = round(RC_pre$lrt_RC.pre.recal)
 
 rm(list = ls()[!ls() %in% c('comp_pre', 'RC_pre', 'BS.new', 'BS.ite', 'merg.comps', 'comp.name',
                             'harm.var_sum', 'ldz_harm.var_gc', 'rdz_harm.var_gc', 'merge.pr',
-                            'start.time')])
+                            'fusjon_TEN', 'start.time')])
 
 
 disc.rate = 0.045
@@ -139,6 +152,13 @@ options(scipen = 100)
 #Defining parameters and importing data
 source("./R-script/Harmony/H_0_1_Config_Assumptions_Data_Merge2017.R")
 
+
+# Removes ID of merging company/companies from rd_sep.eval,
+# if one of merging companies was evaluated in seperate DEA-run.
+# The groups for special treatment require manual quality assurance
+
+rd_sep.eval = subset(rd_sep.eval, !(rd_sep.eval %in% unique(comp_pre$id)))
+
 #Averages of interest and prices are used in Harmony Income calculation
 NVE.ir.t_2 = mean(NVE.ir.new[names(NVE.ir.new) %in% y.avg])
 NVE.ir.est = mean(NVE.ir.new[names(NVE.ir.new) %in% y.avg])
@@ -149,10 +169,19 @@ NVE.ir.RC               = NVE.ir.est # Average interest from years in y.avg
 pnl.dea                 = sysp.t_2 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
 pnl.rc                  = sysp.t_2 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
 
+#Adapting to mergers involving Trønderenergi Nett AS (peer in Regional distribution)
+TEN_data = merge_NVE(comps = fusjon_TEN, new.org = 991991991, new.id = 215, new.name = "Trønderenergi Nett AS (fusjonert)",
+                     sum_variables = harm.var_sum, ldz_weighted.var = ldz_harm.var_gc,
+                     rdz_weighted.var = rdz_harm.var_gc,merge.mean = merge.pr, df =dat)$mds
 
+dat = bind_rows(dat, TEN_data)
+dat = dat[!(dat$orgn %in% fusjon_TEN),]
+
+
+### Merging companies in this analysis
 new_data = merge_NVE(comps = merg.comps, new.org = 999999999, new.id = 999, new.name = comp.name,
-                       sum_variables = harm.var_sum, ldz_weighted.var = ldz_harm.var_gc,
-                       rdz_weighted.var = rdz_harm.var_gc,merge.mean = merge.pr, df =dat)$mds
+                     sum_variables = harm.var_sum, ldz_weighted.var = ldz_harm.var_gc,
+                     rdz_weighted.var = rdz_harm.var_gc,merge.mean = merge.pr, df =dat)$mds
 
 dat = bind_rows(dat, new_data)
 dat = dat[!(dat$orgn %in% merg.comps),]
@@ -208,4 +237,6 @@ HI = round(y.inc.loss + y.inc.loss*((1-((1/(1+disc.rate))^(n.years-1)))/disc.rat
 
 end.time =  Sys.time()
 calc.time = end.time - start.time
-calc.time
+calc.time 
+y.inc.loss # Revenue Cap loss in revenue cap year. NB! Negative value means there is revenue cap gain, which does not yield a compensation
+HI # Harmony Income, net present value of y.inc.loss over 30 years discounted with 4.5% real interest rate.

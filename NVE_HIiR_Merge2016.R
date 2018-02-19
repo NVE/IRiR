@@ -125,13 +125,6 @@ dat = dat[!(dat$orgn %in% fusjon_Glitre),]
 
 dat = dat[order(dat$id.y),]
 
-#Løvenskiold skal beholde enkelte nettanlegg, tar derfor kun hensyn til anlegg definert som "almenne" i denne beregningen
-# Trekker fra 23 abonnenter
-dat$ld_sub[dat$id == 108 & dat$y %in% y.avg] = dat$ld_sub[dat$id == 108 & dat$y %in% y.avg] - 23
-# Trekker fra 1 km høyspent
-dat$ld_hv[dat$id == 108 & dat$y %in% y.avg] = dat$ld_hv[dat$id == 108 & dat$y %in% y.avg] - 1
-# Trekker fra 1 km høyspent jord
-dat$ld_hvug[dat$id == 108 & dat$y %in% y.avg] = dat$ld_hvug[dat$id == 108 & dat$y %in% y.avg] - 1
 
 source("./R-script/Harmony/H_0_2_Calculated_Input_Values.R")
 
@@ -198,13 +191,6 @@ NVE.ir.RC               = NVE.ir.est # Average interest from last five years
 pnl.dea                 = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
 pnl.rc                  = 0.28677 #HARD CODED ONLY FOR QA, should be "sysp.t_2" # Average prices from years in y.avg --> suggestion last five years
 
-#Løvenskiold skal beholde enkelte nettanlegg, tar derfor kun hensyn til anlegg definert som "almenne" i denne beregningen
-# Trekker fra 23 abonnenter
-dat$ld_sub[dat$id == 108 & dat$y %in% y.avg] = dat$ld_sub[dat$id == 108 & dat$y %in% y.avg] - 23
-# Trekker fra 1 km høyspent
-dat$ld_hv[dat$id == 108 & dat$y %in% y.avg] = dat$ld_hv[dat$id == 108 & dat$y %in% y.avg] - 1
-# Trekker fra 1 km høyspent jord
-dat$ld_hvug[dat$id == 108 & dat$y %in% y.avg] = dat$ld_hvug[dat$id == 108 & dat$y %in% y.avg] - 1
 
 
 #Hensyntar fusjon Haugaland og SKL
