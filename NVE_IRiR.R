@@ -68,13 +68,21 @@ source("./R-script/3_0_Stage3_Calibration.R")
 
 #### Companies exempted from DEA - Special models ####
 
-source("./R-script/Spec_OOTO-model.R")
+if (y.rc == 2017){
+        source("./R-script/Spec_OOTO-model_RC2017.R")
+}else{
+        source("./R-script/Spec_OOTO-model.R")
+}
 source("./R-script/Spec_AvEff-model.R")
 
 
 #### Calculating Revenue caps ####
 source("./R-script/4_0_Revenue_Cap_Calculation.R")
 
+
+end.time =  Sys.time()
+calc.time = end.time - start.time
+calc.time
 
 end.time =  Sys.time()
 calc.time = end.time - start.time
