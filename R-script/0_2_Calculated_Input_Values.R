@@ -1,3 +1,4 @@
+
 #### 0.2 Calculates Input Values for DEA ####
 
 
@@ -109,6 +110,3 @@ for(c in 1:length(v_fha))
         for(r in 1:nrow(dat))
                 if (dat[r,"y"] %in% y.avg)
                         dat[r, fha[c]] = mean(dat[dat$orgn == dat$orgn[r] & dat$y %in% y.avg, v_fha[c]], na.rm = T)
-
-
-

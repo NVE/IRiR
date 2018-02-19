@@ -9,7 +9,7 @@
 #Calculate cost base (cb) as input in calibration - local distribution
 ld_EVAL$ld_cb <- ((ld_EVAL$fp_ld_OPEX*y.cb.cpi.l.factor) + (ld_EVAL$ld_rab.sf*NVE.ir.RC) + 
                                      ld_EVAL$ld_dep.sf + (ld_EVAL$ld_cens*y.cb.cpi.factor) + 
-                                     (ld_EVAL$ld_nl*pnl.rc) - (ld_EVAL$ld_gci.cost*y.cb.cpi.factor))
+                                     (ld_EVAL$ld_nl*ld_EVAL$pnl.rc) - (ld_EVAL$ld_gci.cost*y.cb.cpi.factor))
 
 ld_calib=NVE_cal(eff=ld_EVAL$ld_eff.s2.cb, cost_base=ld_EVAL$ld_cb, RAB=ld_EVAL$ld_rab.sf)
 

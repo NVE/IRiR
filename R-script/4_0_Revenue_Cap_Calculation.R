@@ -20,7 +20,7 @@ RevCap = subset.data.frame(dat, subset = y == y.cb,
                                    fp_ld_391,fp_rd_391, fp_t_391,
                                    fp_ld_cga, fp_rd_cga,
                                    ld_nl, rd_nl,
-                                   ld_gci.cost, ap.t_2))
+                                   ld_gci.cost, ap.t_2, pnl.rc))
 
 #Remove observations for companies without Reveneue Cap
 RevCap = filter(RevCap, !id %in% rd_no.rc | !id %in% ld_no.rc)
@@ -34,12 +34,12 @@ rd_EVAL$rd_cn.cal.RAB = rd_calib$cost_norm.calRAB
 #Local distribution
 RevCap$ld_sum.cost = RevCap$fp_ld_OPEX*y.cb.cpi.l.factor + 
                         RevCap$fp_ld_cens*y.cb.cpi.factor + RevCap$ld_dep.sf +
-                        RevCap$ld_nl*pnl.rc
+                        RevCap$ld_nl*RevCap$pnl.rc
 #Regional distribution
 RevCap$rd_sum.cost = RevCap$fp_rd_OPEX*y.cb.cpi.l.factor +
                         RevCap$fp_rd_cga*y.cb.cpi.l.factor +
                         RevCap$fp_rd_cens*y.cb.cpi.factor + RevCap$rd_dep.sf +
-                        RevCap$rd_nl*pnl.rc
+                        RevCap$rd_nl*RevCap$pnl.rc
 #Transmission grid
 RevCap$t_sum.cost = RevCap$fp_t_OPEX*y.cb.cpi.l.factor + 
                         RevCap$fp_t_cens*y.cb.cpi.factor + RevCap$t_dep.sf
@@ -50,13 +50,13 @@ RevCap$lrt_sum.cost = RevCap$ld_sum.cost + RevCap$rd_sum.cost + RevCap$t_sum.cos
 #Cost base used in Revenue cap calculation
 RevCap$ld_cost.RC = RevCap$fp_ld_OPEX*y.cb.cpi.l.factor + 
                         RevCap$fp_ld_cens*y.cb.cpi.factor + RevCap$ld_dep.sf +
-                        RevCap$ld_rab.sf*NVE.ir.RC + RevCap$ld_nl*pnl.rc
+                        RevCap$ld_rab.sf*NVE.ir.RC + RevCap$ld_nl*RevCap$pnl.rc
 
 
 RevCap$rd_cost.RC = RevCap$fp_rd_OPEX*y.cb.cpi.l.factor +
                         RevCap$fp_rd_cga*y.cb.cpi.l.factor +
                         RevCap$fp_rd_cens*y.cb.cpi.factor + RevCap$rd_dep.sf +
-                        RevCap$rd_rab.sf*NVE.ir.RC + RevCap$rd_nl*pnl.rc
+                        RevCap$rd_rab.sf*NVE.ir.RC + RevCap$rd_nl*RevCap$pnl.rc
 
 RevCap$t_cost.RC = RevCap$fp_t_OPEX*y.cb.cpi.l.factor + 
                         RevCap$fp_t_cens*y.cb.cpi.factor + RevCap$t_dep.sf +
@@ -69,11 +69,20 @@ RevCap$lrt_cost.RC =  RevCap$ld_cost.RC + RevCap$rd_cost.RC + RevCap$t_cost.RC
 RevCap$lrt_cost.RC.ex.nlR.og.cgaR = round(RevCap$lrt_cost.RC - RevCap$fp_rd_cga, digits = 0)
 
 # Inflicted costs in cost base year
+#What is correct way to calculate total inflicted cost in CB.Y, new or "2012"-version
 
+if (y.rc >= 2018) {
 RevCap$lrt_cost.cby = (RevCap$fp_ld_OPEX + RevCap$fp_ld_cga + RevCap$fp_ld_cens) +
                         (RevCap$fp_rd_OPEX + RevCap$fp_rd_cga + RevCap$fp_rd_cens) +
                         (RevCap$fp_t_OPEX + RevCap$fp_t_cens) +
                         (RevCap$ld_nl + RevCap$rd_nl)*RevCap$ap.t_2
+}else{
+RevCap$lrt_cost.cby = (RevCap$ld_opex_2012 - RevCap$fp_ld_391 + RevCap$fp_ld_cens + RevCap$ld_nl*RevCap$ap.t_2) +
+                           (RevCap$rd_opex_2012 - RevCap$fp_rd_391 + RevCap$fp_rd_cens + RevCap$rd_nl*RevCap$ap.t_2) +
+                           (RevCap$t_opex_2012 - RevCap$fp_t_391 + RevCap$fp_t_cens)
+}        
+
+
 
 
 ## Cost norms
@@ -131,7 +140,7 @@ RevCap = RevCap[!RevCap$id %in% ld_no.rc,]
 # Cost norms prior to re-calibration
 # See descripton of re-calibration belowe
 RevCap$ld_cn.pre.recal = RevCap$ld_cn.cal.RAB + (RevCap$ld_gci.cost*y.cb.cpi.factor)
-RevCap$rd_cn.pre.recal = RevCap$rd_cn.cal.RAB + (RevCap$rd_nl*pnl.rc) +
+RevCap$rd_cn.pre.recal = RevCap$rd_cn.cal.RAB + (RevCap$rd_nl*RevCap$pnl.rc) +
                             RevCap$fp_rd_cga*y.cb.cpi.l.factor
 
 # Cost coverage for all transmission grid, not owned by Statnett
@@ -157,7 +166,6 @@ RevCap$lrt_RET.pre.recal = RevCap$lrt_EBIT.pre.recal / (RevCap$ld_rab.sf + RevCa
 
 # Sum of total cost of inflicted costs in cost base year, rounded for consistency with calculations i Stata (Improve ? - remove round?)
 lrt_TOTAL.cost.y.cb = round(sum(RevCap$lrt_cost.cby), digits = 0)
-
 
 # Sum of all revenue caps before re-calibration
 lrt_TOTAL.RC.pre.recal = sum(RevCap$lrt_RC.pre.recal)
