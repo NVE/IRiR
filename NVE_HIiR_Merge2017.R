@@ -132,13 +132,17 @@ source("./R-script/Harmony/H_Spec_AvEff-model.R")
 #### Calculating Revenue caps ####
 source("./R-script/Harmony/H_4_0_Revenue_Cap_Calculation.R")
 
+source("./R-script/Harmony/H_analysis.R")
+
+KeyFigOrg_Pre = (KeyFigorgn[ , ! apply(KeyFigorgn, 2, function (x) all(is.na(x)))])
+
 comp_pre = dat[dat$orgn %in% merg.comps, ] # Finn ut hva jeg vil se her.
 RC_pre = RevCap[, c("id", "orgn", "comp", "lrt_RAB.sf", "lrt_cost.RC", "lrt_cn.pre.recal", "lrt_RC.pre.recal")]
 RC_pre$lrt_RC.pre.recal = round(RC_pre$lrt_RC.pre.recal)
 
 rm(list = ls()[!ls() %in% c('comp_pre', 'RC_pre', 'BS.new', 'BS.ite', 'merg.comps', 'comp.name',
                             'harm.var_sum', 'ldz_harm.var_gc', 'rdz_harm.var_gc', 'merge.pr',
-                            'fusjon_TEN', 'start.time')])
+                            'fusjon_TEN', 'KeyFigOrg_Pre', 'start.time')])
 
 
 disc.rate = 0.045
@@ -222,6 +226,12 @@ source("./R-script/Harmony/H_Spec_AvEff-model.R")
 #### Calculating Revenue caps ####
 source("./R-script/Harmony/H_4_0_Revenue_Cap_Calculation.R")
 
+source("./R-script/Harmony/H_analysis_post.R")
+
+KeyFigOrg_Post = (KeyFigorgn[ , ! apply(KeyFigorgn, 2, function (x) all(is.na(x)))])
+
+KeyFigOrg = bind_rows(KeyFigOrg_Pre, KeyFigOrg_Post)
+
 # Sum revenue cap for merging companies before merge
 RC_sep.comp = sum(RC_pre[RC_pre$orgn %in% merg.comps, "lrt_RC.pre.recal"])
 
@@ -240,3 +250,4 @@ calc.time = end.time - start.time
 calc.time 
 y.inc.loss # Revenue Cap loss in revenue cap year. NB! Negative value means there is revenue cap gain, which does not yield a compensation
 HI # Harmony Income, net present value of y.inc.loss over 30 years discounted with 4.5% real interest rate.
+View(KeyFigOrg)

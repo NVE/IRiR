@@ -30,15 +30,16 @@ source("./R-script/functions_nve.R") # File containing functions created for/by 
 # Avoid showing large numbers in scientific mode
 options(scipen = 100)
 
-comp.org = 979151950 # AND INSERT ORGN
+#comp.org =  # AND INSERT ORGN
 
 # Bootstrap settings
-BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
+BS.new = 1 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
 BS.ite = 2000 # Number of iterations in bootstrap calculation
 
 #### Preperation stage - Configurations, data import, data preparation ####
 
 source("./R-script/0_1_Config_Assumptions_Data.R")
+
 
 source("./R-script/0_2_Calculated_Input_Values.R")
 
@@ -84,10 +85,7 @@ end.time =  Sys.time()
 calc.time = end.time - start.time
 calc.time
 
-end.time =  Sys.time()
-calc.time = end.time - start.time
-calc.time
 
 source("./R-script/analysis.R")
-# View(KeyFigorgn[ , ! apply(KeyFigorgn, 2, function (x) all(is.na(x)))]) # REMOVE FIRST # TO GET KEY INFO FOR SPECIFIC COMPANY
+#View(KeyFigorgn[ , ! apply(KeyFigorgn, 2, function (x) all(is.na(x)))]) # REMOVE FIRST # TO GET KEY INFO FOR SPECIFIC COMPANY
 
