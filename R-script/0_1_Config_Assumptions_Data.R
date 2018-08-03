@@ -12,8 +12,11 @@ y.hist.pen = 2007:2013 #Transition period for smoothing of pension costs, see va
 #NVE interest rates - used in revenue cap calculation
 # https://www.nve.no/energy-market-and-regulation/revenue-regulation/the-wacc-model/
 # https://www.nve.no/elmarkedstilsynet-marked-og-monopol/okonomisk-regulering-av-nettselskap/reguleringsmodellen/referanserenten/
-NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0632, 0.0632, 0.0613, 0.0588) 
+#NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0635, 0.0606, 0.0619, 0.0606, 0.0600) # Dagens rentemodell, endret skatt tilbake til 2014
+#NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0589, 0.0560, 0.0582, 0.0566, 0.0559) # Foreslått rentemodell, endret skatt tilbake til 2014
+NVE.ir = c(0.0619, 0.0562, 0.0531, 0.0420, 0.0690, 0.0661, 0.0632, 0.0632, 0.0612, 0.0588) # original rente
 names(NVE.ir) = 2009:2018
+
 
 # Decision/Notice - different prices and interests are used
 decision = 0 # 1 if decision mode, 0 notice mode

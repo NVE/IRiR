@@ -81,4 +81,4 @@ KeyFig = left_join(KeyFig, ld_z.diff, by="id")
 KeyFig = left_join(KeyFig, rd_z.diff, by="id")
 rm(ld_z.diff, rd_z.diff)
 
-KeyFigorgn = KeyFig[KeyFig$orgn == comp.org, ]
+KeyFigorgn = KeyFig[KeyFig$orgn == merg.comps, ]
