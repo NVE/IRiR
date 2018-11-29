@@ -1,0 +1,192 @@
+Variabler,Beskrivelse,Variables,Description
+aar,aar,y,Year
+arb.kap.paaslag,Arbeidskapitalpåslag brukt i beregningen av avkastningsgrunnlaget,wcp,Working Capital premium used to calculate the regulatory asset base
+d.coeff,,ldz.coeff,Estimated Geo coefficients used in stage 2
+d_391,"Andre driftsinntekter (post 391 i eRapp), Dnett",ld_391,"Other operating revenues, specified in accounting item 391 in eRapp. Local distribution"
+r_391,"Andre driftsinntekter (post 391 i eRapp), Rnett",rd_391,"Other operating revenues, specified in accounting item 391 in eRapp. Regional distribution"
+d_ab,Abonnenter i distribusjonsnett,ld_sub,Number of subscribers
+d_abakg,"Avkastningsgrunnlag bidragsfinansiert inkl 1% arbeidskapital, Dnett",ld_rab.gf,"Grants funded regulatory asset base, including 1% working capital. Local distribution"
+r_abakg,"Avkastningsgrunnlag bidragsfinansiert inkl 1% arbeidskapital, Rnett",rd_rab.gf,"Grants funded regulatory asset base, including 1% working capital. Regional distribution"
+d_abavs,Avskrivinger i distribusjonsnett knyttet til anleggsbidragsfinansiert kapital,ld_dep.gf,Depreciation associated with assets in transmission services that are grants funded. Local distribution
+r_abavs,Avskrivinger i regionalnett knyttet til anleggsbidragsfinansiert kapital,rd_dep.gf,Depreciation associated with assets in transmission services that are grants funded. Regional distribution
+d_abbfv,"Anleggsbidragsfinansierte bokførteverdier, Dnett",ld_bv.gf,Assets in transmission services that are grants funded. Local distribution
+r_abbfv,"Anleggsbidragsfinansierte bokførteverdier, Rnett",rd_bv.gf,Assets in transmission services that are grants funded. Regional distribution
+d_akg,Avkastningsgrunnlag egenfinansiert Dnett inkl 1% arbeidskapital.,ld_rab.sf,"Regulatory asset base self funded assets, including 1% working capital, used for revenue cap calculation. Local distribution"
+r_akg,Avkastningsgrunnlag egenfinansiert Rnett inkl 1% arbeidskapital. ,rd_rab.sf,"Regulatory asset base self funded assets, including 1% working capital, used for revenue cap calculation. Regional distribution"
+d_AKG,Sum avkastningsgrunnlag DEA Dnett inkl 1% arbeidskapital,ld_RAB,"Total regulatory asset base, including 1% working capital, used in DEA. Local distribution"
+r_AKG,Sum avkastningsgrunnlag DEA Rnett inkl 1% arbeidskapital,rd_RAB,"Total regulatory asset base, including 1% working capital, used in DEA. Regional distribution"
+d_aoey1,Antall øyer: Forsyning av øyer uten fastlandsforbindelse og mer enn 1 km fra fastland eller nærmeste forsynte øy,ld_isl,"Number of islands connected without mainland connection, more than 1 km off mainland or island with grid connection"
+d_AVS,Sum avskrivninger DEA Dnett,ld_DEP,"Total depreciations used in TOTEX/TOTCO calculations, local distribution"
+r_AVS,Sum avskrivninger DEA Rnett,r_DEP,"Total depreciations used in TOTEX/TOTCO calculations, regional distribution"
+d_avs,Avskrivinger i distribusjonsnett knyttet til egenfinansiert kapital,ld_dep.sf,"Depreciation associated with self-funded assets, local distribution"
+r_avs,Avskrivinger i distribusjonsnett knyttet til egenfinansiert kapital,rd_dep.sf,"Depreciation associated with self-funded assets, regional distribution"
+d_bfv,"Bokførte verdier egenfinansiert kapital, Dnett",ld_bv.sf,"Book value 31.12 of  Self-funded assets, local distribution"
+r_bfv,"Bokførte verdier egenfinansiert kapital, Rnett",rd_bv.sf,"Book value 31.12 of  Self-funded assets, regional distribution"
+d_bs_correst_e3,,ld_bs.correst,"Bootstrap corrected efficiency using Frisch DEA, used for creating Z variables"
+d_bs_est_e3,"Beregnet effektivitet vha Frisch DEA, lik ld_eff.s1.avg ",ld_bs.est,"Beregnet efficiency using Frisch DEA, equals ld_eff.s1.avg (Redundant?)"
+d_calib,"Resultater etter trinn 3, Dnett",ld_calib,"Results of stage 3 calibration, local distribution"
+r_calib,"Resultater etter trinn 3, Rnett",rd_calib,"Results of stage 3 calibration, regional distribution"
+d_cncR,"Normkostnader, Dnett",ld_cnc.rab,"Cost norms from stage 3, Local distribution"
+r_cncR,"Normkostnader, Rnett",rd_cnc.rab,"Cost norms from stage 3, Regional distribution"
+d_dea_til_gjsnitt,"Datasett for selskaper som settes til snitt-effektivitet, Rnett",ld_AV.EFF,"Average efficiency model, data frame containing data from the cost base year, t-2 , local distribution"
+r_dea_til_gjsnitt,"Datasett for selskaper som settes til snitt-effektivitet, Dnett",rd_AV.EFF,"Average efficiency model, data frame containing data from the cost base year, t-2 , regional distribution"
+d_cost.RC,"Kostnadsgrunnlag til inntektsrammen, Dnett",ld_cost.RC,"The cost base for the revenue cap, Local distribution"
+r_cost.RC,"Kostnadsgrunnlag til inntektsrammen, Rnett",rd_cost.RC,"The cost base for the revenue cap, Regional distribution"
+d_cost_norm.calRAB,"Kalibrert kostnadsnorm basert på avkastningsgrunnlag, (egenfinansiert bv) Dnett",ld_cn.cal.RAB,"Calibrated cost norm based on regulatory asset base, local distribution"
+r_cost_norm.calRAB,"Kalibrert kostnadsnorm basert på avkastningsgrunnlag, (egenfinansiert bv) Dnett",rd_cn.cal.RAB,"Calibrated cost norm based on regulatory asset base, local distribution"
+d_cost_norm.precal,Kostnadsnorm før kalibrering,d_cost_norm.precal,Cost norm prior to calibration
+d_DEA_id,Vektor av selskap som inngår i standardvurdering Dnett,ld_DEA_id,"Vector of ID's for companies included in the regular DEA analysis, local distribution"
+d_DEA_id,Vektor av selskap som inngår i standardvurdering Rnett,ld_DEA_id,"Vector of ID's for companies included in the regular DEA analysis, regional distribution"
+d_dea_til_gjsnitt,,ld_av.eff,Vector of Company id's set to industry's average efficiency
+d_dea_til2trinn,"Tilsvarer ld_eff.s1.cb, skal korrigeres for rammevilkår",ld_eff.bs.is2.aZ,"efficiency score from stage 1, equals ld_eff.s1.cb, to be adjusted for Z variables (Redundant?)"
+d_deares_til_kal,"DEA resultat etter trinn 2, eff.s1.cb etter korrigering",ld_eff.s2.cb,"DEA efficiency after stage 2, ld_eff.s1.cb after correction for GEO-variables"
+d_dv,Drift- og vedlikeholdskostnader Dnett med gjsnitt pensjonskost,d_opex,Operation and maintenence costs
+d_DV,DV Dnett korrigert for post 391 og utredningskostnader,ld_OPEX,"Operation and maintenence costs, corrected wrt other operating revenues and assesment costs"
+d_dv_2012,DV utregnet etter den gamle måten,d_opex2012,The old way of calculation operation and maintanence costs
+d_DVxL,Drift- og vedlikeholdskostnader uten lønns- og pensjonskostnader i distribusjonsnett,ld_OPEXxS,"Operation and maintenence costs, with salaries and pension costs excluded"
+d_eff.bs,,ld_eff.bs,"Vector of DEA efficiencies after boot strap, equals d_score_bs100 (Stata) & ld_eff.bs.is2.cZ. Used for creating Z-variables. TEMP?"
+d_f_sf_eff,,ld_eff.s1.cb,"DEA efficiency after stage 1, regular DEA (last observation against 5 years historical average)"
+d_gci,,ld_gci,Grid components in interface between regional and distirbution grid
+d_grs.cost,,ld_gci.cost,"Costs of grid components in interface, regional and distribution grid"
+d_grs.dummy,,ld_gci.dummy,Dummy equal to one if gci > 0
+d_hs,Km høyspent nett distribusjonsnett,ld_hv,Kilometers highvoltage lines in local distribution grid
+d_hs_jsl,"Antall km jord, sjø og luft. Lik d_hs",ld_hv_uso,"High voltage underground cable, sea cable and overhead lines "
+d_hsjord,"km høyspent jordkabel, Dnett",ld_hvug,Kilometers highvoltage under ground cabel in local distribution grid
+d_hsll,Km høyspent luflinje distribusjonsnett,ld_hvoh,Kilometers highvoltage over head lines in local distribution grid
+d_hsluft,"antall km høyspent luftlinje i Dnett, må vel være lik d_hsll",ld_hvol,"Kilometers highvoltage over head lines in local distribution grid, equals ld_hvoh (Redundant?)"
+d_hssjo,"km høyspent sjøkabel, Dnett",ld_hvsc,Kilometers highvoltage sea cabel in local distribution grid
+d_ikkeIR,,d_no.rc,Companies excluded from the revenue cap calculation
+d_impl,Implementerte pensjonskost Dnett,ld_impl,Implentemented pension costs
+d_kile,KILE Dnett,ld_cens,Cost of energy not supplied in distributional grid (Value of Lost Load)
+d_knorm,"Kostnadsnorm, uten korrigering for rammevilkår",ld_cnorm,"Cost norm, not adjusted for Z variables"
+d_kostnadsgrlag,,ld_cb,"Company's cost base, used in stage 3 calibration"
+d_lambda,,ld_lambda,"Weights of peers from each company obtained from DEA, actual observation against 5 year historical average"
+d_lambda.snitt,,ld_lambda.avg,"Weights of peers from each company obtained from DEA, 5 year historical averages"
+d_lonn,Lønnskostnader ekskl pensjon Dnett,ld_sal,"Salaries and other personnel costs, excl. accrued pension "
+d_lonnakt,"Lønnskostnader, aktiverte Dnett",ld_sal.cap,Capitalization of labor costs
+d_nettap,nettap i MWh,ld_nl,Network losses in MWh
+d_nettapkr,Nettap Dnett i kroner,ld_nl.NOK,Cost of network losses in NOK
+d_normal,,ld_eval,Vector of company id's to be evaluated in all stages of the DEA model
+d_ns,Antall nettstasjoner Dnett,ld_ss,Number of substations in local distribution grid
+d_OOTO,,ld_OOTO,"Data frame for companies that are exempted from the regular model, critereas described in … (out of the ordinary)"
+d_oppgave,,ld_output,"Calculated output for companies in the OOTO model, in NOK"
+d_oppgave_kr,,ld_output.NOK,Calculate ratio between costs and outputs i NOK for companies in the OOTO model
+d_pensj,Pensjonskostnnader periodisert Dnett,ld_pens,Pension costs
+d_pensjek,Pensjonskostnader egenkapital Dnett,ld_pens.eq,"Pension costs recognized in equity, excluding costs associated with implementation"
+d_pris_ab,Normpris per abonnement,ld_sub.NOK,Norm price per subscriber from the REN catalouge
+d_pris_hs,Normpris her km høyspent nett,ld_hv.NOK,Norm price per km high voltage grid
+d_pris_ns,Normpris per nettstasjon,ld_ss.NOK,Norm price per substation
+d_score_bs100,DEA resultat bootstrap snitt mot snitt til trinn 2,ld_eff.bs.is2.cZ,"Bootstrap corrected efficency using Frisch DEA, equals ld_bs.correst, used for creating Z variables (Redundant?)"
+d_separat_dmuer,,d_sep.eval,"Vector of company is's that are included in DEA, but only allowed to be peers for themselves"
+d_sf_d_oppgave,"output i kroner, for årene i  y.avg",fha_ld_output,"output in NOK, five years historical average (years in y.avg)"
+d_sf_eff,,ld_eff.s1.avg,"DEA efficiency after stage 1, including only five years historical average"
+d_sf_eff,,d_eff.s1.av,"DEA efficiency after stage 1, only including 5 year historical average"
+d_skala,"Skaleringsfaktor, brukes for å gjøre rammevilkår størrelsesuavhengig. Lik d_knorm",ld_scale,"Scale factor, used for making Z variables size independent. Equals d_cnorm. (Redundant?)"
+d_skytelse,installed capacity micro power plants,ldz_cmpp,installed capacity micro power plants
+d_spesial,,ld_ooto,"Vector of company id's that are exempted from the regular model, critereas described in … (Out.Of.The.Ordinary)"
+d_sum.cost,Summen av kostnadene,d_sum.cost,"Sum of CPI adjusted OPEX, CENS, depreciation and network losses"
+d_tilDEA,,ld_EVAL,"Data frame for companies that are to be evaluated in the normal DEA model, may be peers for all companies"
+d_TOTXDEA,,ld_TOTXDEA,Total costs used as input in DEA
+d_utred,,ld_cga,Cost associated with grid assesments in local distribution grid
+dea.faktisk.snitt.d,,dea.cb.avg.ld,"DEA efficiency scores, most recent observations, peers determined by 5 year historical average"
+dea.sep.snitt.snitt.d,,dea.sep.avg.avg.d,"DEA efficiency scores, all observations are 5 year historical average. Separate calculation for companies only allowed to be peers for themselves."
+dea.snitt.snitt.d,,dea.avg.avg.d,"DEA efficiency scores, all observations are 5 year historical average"
+dr_antall_ruter,Antall ruter med nettanlegg i konsesjonærenes område,ldz_mgc,"Number of map grid cells in licensee area with grid components, local distribution"
+dr_aoey1sz,"Antall øyer selskapet forsyner som ligger mer enn 1 km fra fastlandet eller nærmeste forsynte øy, størrelseskorrigert variabel",ldz_isl.sz,"Scaled value of isl, making GEO-variabel size independent"
+dr_brgrad_gjsn,Gjennomsnittlig breddegrad i området hvor selskapet har nettverkskomponenter,ldz_lat.av,Average latitude of placement of network companies' grid components.
+dr_Geo1,"Fjellbekk, Geovariabel estimert vha faktoranalyse",ldz_Geo1,"Fjellbekk, GEO-variable estimated through PCA."
+dr_Geo2,"Øyvind, Geovariabel estimert vha faktoranalyse",ldz_Geo2,"Oyvind, GEO-variable estimated through PCA."
+dr_Geo3,"Frost, Geovariabel estimert vha faktoranalyse",ldz_Geo3,"Frost, GEO-variable estimated through PCA."
+dr_he1,"Gjennomsnittlig helning i rutene selskapet har nettverkskomponenter, distribusjonsnett",ldz_inc.av,"Average inclination in network companies map grid squares, distribution grid"
+dr_hsjordand,Selskapets andel jordkabler,ldz_hvug.s,Company's share of high voltage underground cables
+dr_hskabelandel,Selskapets total andel kabler,ldz_hvc.s,Company's share of high voltage cables (sea and underground)
+dr_hssjoand,Selskapets andel sjøkabler,ldz_hvsc.s,Compnay's share of high voltage sea cables
+dr_is_gjsn,Gjennomsnittlig islast,ldz_ice.av,Average ice load
+dr_k2lukk,"Kystavstand, med lukking av større fjorder og sund",ldz_cod2c,"Coastal distande, closing of specific fjords and straits whit 2nd appraoch."
+dr_s4,Andel anlegg i barskog med høy og særs høy bonitet,ldz_f4,Share of company's network components located in coniferous forest
+dr_s7,Andel anlegg i løvskog med høy og særs høy bonitet,ldz_f7,Share of company's network components located in deciduous forest
+dr_sky,konstruerer ny variabel som inneholder samme verdi som d_skytelse,ldz_cmppII,installed capacity micro power plants
+dr_skysz,Størrelsesuavhengig mål på installert småkraftytelse i konsesjonsområde,ldz_cmpp.sz,"Scaled value of ldz_cmpp, to make value size independent"
+dr_snog,Gjennomsnittlig daglig snødybde for en 30-års periode,ldz_snow,Average daily snow depth over a 30-year period
+dr_temp,Gjennomsnittstemperatur for en 30-års periode (1985-2015),ldz_temp,Average daily temperature over a 30-year period
+dr_tempneg,Temparturvariabel multiplisert med -1,dg_temp.neg,Temperature variable multiplied by -1
+dr_vr,vindvariabel,ldz_wind.avg,"Average wind (m/s) 50 m above ground, calculated by Kjeller Windtechnic "
+dr_vr2,Kvadrert verdi for gjennomsnittsvind,ldz_wind2,ldz_wind squared
+dr_vr2_k2lukk,"Kystklimavariabel, kvadrertverdi for vind delt på avstand til kyst",ldz_wind2_cod,"Coast varaible, dg_wind2 divided by ldz_cod2c"
+drs_AVK.poscal,Avkastning etter kalibrering,drs_ret.poscal,Total return post calibration
+drs_AVK.precal,Avkastning før kalibrering,drs_ret.precal,Total return prior to calibration
+drs_cost.faktisk,"Faktiske kostnader i kostnadsgrunnlagsåret, t-2",drs_cost.act,"Actual costs in the cost base year, t-2"
+drs_cost.RC,,drs_cost.RC,"Actual costs per company for the revenue cap year, t"
+drs_cost.RC.ex.ntR.og.utrR,Faktiske kostnader eks. nettap R-nett og utredningskostnader i R-nett,drs_cost.RC.x.NL.A.r,"Actual costs per company for the revenue cap year, t, excluding costs associated with network losses and assesments in the regional grid"
+drs_cost_norm.poscal,Kostnadsnorm etter kalibrering,drs_cost.norm.poscal,Cost norm after calibration
+drs_DR.poscal,Driftsredultat etter kalibrering,drs_OP.poscal,Operating profit post calibration
+drs_DR.precal,Driftsredultat før kalibrering,drs_OP.precal,Operating profit prior to calibration
+drs_IR.poscal,Inntektsramme etter kalibrering,drs_RC.poscal,Revenue cap post calibration
+drs_IR.precal,Inntektsramme før kalibrering,drs_RC.precal,Revenue cap prior to calibration
+drs_IR_vedtak.faktisk.aar,,lrt_RC_dec.y.cb,The revenue cap for the cost base year ???
+drs_RAB,,drs_RAB,"Total regulatory asset base per company, excl. Grant funded assets"
+drs_recal.fact1,,drs_recal.fact1,"Difference between drs_RC.precal and drs_TOTcost.precal, divided bt drs_TOTRAB"
+drs_recal.fact2,,drs_recal.fact-2,CPI adjusted drs_RC_y.cb divided by drs_TOTRAB
+drs_recal.norm,,drs_recal.norm,The difference between drs_TOTIR.precal and drs_TOTcost.precal
+drs_recal.TOT,,drs_recal.TOT,"Total amount to recalibration, interest rates excluded"
+drs_recal.TOT.int,"Beløp til rekalibrering, inkludert renter",drs_recal.TOT.ir,"Total amount to recalibration, interest rates included"
+drs_TOT.cost.faktisk,"Total sum av faktiske kostnader i datagrunnlagsåret, t-2, avrundet",drs_TOT.cost.t-2,"Actual total costs for the cost base year, t-2"
+drs_TOTCost.precal,,drs_TOTcost.precal,Sum of drs_cost.RC
+drs_TOTIR.poscal,,drs_TOTRC.poscal,Sum of drs_DR.poscal
+drs_TOTIR.precal,,drs_TOTRC.precal,Sum of drs_DR.precal
+drs_TOTRAB,,drs_TOTRAB,Sum of drs_RAB
+eff.faktisk.snitt.d,,eff.act.avg.d,"DEA score stage 1, actual observation against 5 year historical average"
+eff.snitt.snitt.d,,eff.avg.avg.d,"DEA score stage 1, only including 5 year historical averages"
+faktisk.aar,"Kostnadsgrunnlagsåret, t-2",y.cb,"The cost base year, t-2"
+faktisk.aar.kpiafaktor,KPI-lønn-faktor for estimering av fremdtidige  kostnader,y.cb.cpi.l.factor,Factor of cpi.l used for estimating future cost base
+faktisk.aar.kpifaktor,KPI-faktor for estimering av fremdtidige  kostnader,y.cb.cpi.factor,Factor of cpi used for estimating future cost base
+fp_d_pensjkostgrlag,,fp_ld_pcb,"Pension costs base included in the operation and maintanance costs, average values on fixed prices"
+Geovar.d,,Geovar.ldz,
+grs_pris,Pris på grensesnittskomponenter,gci.p,"The price of grid components in interface, regional and local distribution grid"
+hfmo,Datasett for Hammerfest,hfmo,Data frame for Hammerfest
+hist.pensj.aar,År hvor historiske pensjonskostnader brukes,y.hist,Years for which historical pension costs are to be used
+id,selskaps-ID,id,Company identifier
+idaar,Verdi som identifiserer selskap og observasjonsår,id.y,Concatenated value of company ID and year of observation
+IR.aar,"Inntektsrammeåret, t",y.rc,"The revenue cap year, t"
+kpi,Konsumprisindeks,cpi,Consumer Price Index (Norwegian)
+kpia,Prisindeks med arbeidslønn som dominerende faktor,cpi.l,"Consumer Price Index, CPI by delivery sector, Services where labor dominates (Norwegian) (CPI Labour)"
+kraftpris,Kraftpris/systempris i år t-2,,
+navn,,name,Company name
+nettapspris.dea,"Referansepris på kraft, estimert i varsel",pnl.dea,Price of network losses used in DEA calculation
+nettapspris.ir,Estimert nettapspris NOK/MWh i inntektsramme-år,pnl.rc,Estimated price of network losses NOK/MWh in year of revenue cap calculation
+nve.rente.estimert,Estimert NVE-rente for IR-året,NVE.ir.est,The estimated NVE interest rate for the revenue cap year
+nve.rente.t,NVE-rente for IR-året,NVE.ir.t,"The NVE interest rate for the revenue cap year, t"
+nve.rente.t2,"NVE-rente for kostnadsgrunnlagsåret, t-2",NVE.ir.t_2,"The NVE interest rate for the cost base year, t-2"
+nve_rente,Vektor som inneholder årlige NVE-renter,NVE.ir,Vector containing yearly NVE interest rates
+omraadepris_t2,Områdepriser fra året t-2,ap.t_2,Area prices from year t-2
+orgnr,Selskapets organisasjonsnummer,orgn,Company's organization number as registered at The Brønnøysund Registre Center
+r_vgrs,Vektet verdi av stasjonskomponenter,r_wv.ss,Weighted value of a company's substations
+r_vjord,Vektet verdi av jordkabler,r_wv.uc,Weighted value of a company's underground cables
+r_vluft,Vektet verdi av luftlinjer,r_wv.ol,Weighted value of a company's overhead lines
+r_vsjo,Vektet verdi av sjøkabler,r_wv.sc,Weighted value of a company's sea cables
+rente.dea,,ir.dea,
+rente.ir,,NVE.ir.RC,
+rho,Vekten for normkostnad,rho,The weight given to the norm cost
+rr_antall_ruter,Antall kart-ruter i konsesjonærenes område,rdz_mgc,"Number of map grid cells in licensee area with grid components, regional distribution"
+rr_Geo1,"Helskog, Geovariabel estimert vha faktoranalyse",rg_Geo1,"Helskog, GEO-variable estimated through PCA."
+rr_he,"Gjennomsnittlig helning i rutene selskapet har nettverkskomponenter, regionalnett",rdz_inc.av,"Average inclination in network companies map grid squares, regional grid"
+rr_s12,"rr_s12, skogvariabel",rdz_f12,Share of company's network components located in forest
+selskap,Selskap,comp,Company
+sf_d_ab,Gjennomsnittlig antall abonnenter i D-nett siste fem år,fha_ld_sub,"Five years historical average subscriber in local distribution, used as input in DEA"
+sf_d_hs,Gjenomsnittlig antall km høyspent i D-nett siste fem år,fha_ld_hv,"Five years historical average km of high voltage lines, used as input in DEA"
+sf_d_ns,Gjennnomsnittlig antall nettstasjoner i D-nett siste fem år,fha_ld_ss,"Five years historical average km of substations in distribution grid, used as input in DEA"
+sf_d_TOTXDEA,Gjennomsnittlig TOTEX i D-nett siste fem år,fha_ld_TOTXDEA,"Five years historical average TOTEX, used as input in DEA"
+snitt.aar,Aktuelle år ved beregning av snittfront,y.avg,Relevant years for calculation of average values
+systempris.t2,,sysp.t_2,"The system price in year t-2, used in the DEA-model for both notice and desicion"
+tilIR,dataframe med verdier for inntektsramme-beregningen,RevCap,Data frame with values for revenue cap calculations
+var_avg,Vektor av variabler som skal gjennomsnittsberegnes,v_av.pen,Vector with pensions variables averaged over five years before inclusion in OPEX
+var_hist,Vektor av historiske variabler som skal gjennomsnittsberegnes,v_hist,Vector containing variables that are to be averaged for historical years
+var_kpi,Vektor av variabler som skal justeres med KPI,v_cpi,Vector containing variables that are to be adjusted with CPI
+var_kpia,Vektor av variabler som skal justeres med KPIA,v_cpi.l,Vector containing variables that are to be adjusted with CPI (labor) 
+var_sf,Vektor av variabler som skal danne snittfront,v_fha,Vector containing variables that are inputs and outputs in the calculations of frontier based on historical average data
+vedtak,"0 ved varsel, 1 ved vedtak",decision,"Dummy variable, 0 for notice, 1 for decision "
+x.faktisk.d,Faktisk input,X.cb.ld,"Observations from cost base year, total expenditures in local distribution"
+x.snitt.d,Snitt input,X.avg.ld,"Average inputs, total expenditures over the past 5 years"
+y.faktisk.d,Faktisk output,Y.cb.ld,"Cost base year observations of ld_sub, ld_hv, ld_ss"
+y.snitt.d,Snitt output,Y.avg.d,"Average outputs, d_ab, d_hs, d_ns over the past 5 years"
+,,HI.NVE.ir_2,

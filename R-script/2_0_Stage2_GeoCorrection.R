@@ -114,7 +114,7 @@ ldz.reg = Zvar1(x=X.avg.ld,z=Geovar.ldz,eff=ld_eff.bs,
                 id.out = as.character(ld_sep.eval))
 
 ldz.coeff = ldz.reg$coeff
-
+print(summary(ldz.reg$res.regr.NVE))
 
 
 #### Z variable adjustment - Local distribution #### 
@@ -129,7 +129,7 @@ GeoR.comp = cbind(rd_EVAL[,c("rdz_f12", "rdz_inc.av")])
 row.names(GeoR.comp) = names(X.avg.rd)
 GeoR.tech = GeoR.comp[as.character(rd_eval),]
 #Estimates Helskog
-rd_EVAL$rdz_Geo1 = z.est(geovar.in = GeoR.tech, restricted.obs = GeoR.comp)*-1
+rd_EVAL$rdz_Geo1 = z.est(geovar.in = GeoR.tech, restricted.obs = GeoR.comp) # Removed *-1 after QA with Stata. Returns same sign as Stata directly
 Geovar.r = cbind(rd_EVAL[,c("rdz_Geo1")])
 #Remove companies not included in bootstrap for regional distribution grid
 rd_eff.bs = rd_EVAL$rd_eff.bs.is2.cZ
@@ -142,7 +142,8 @@ rdz.reg = Zvar1(x=X.avg.rd,z=Geovar.r,eff=rd_eff.bs,
                   id.out = as.character(rd_sep.eval))
 rdz.coeff = rdz.reg$coeff
 
-names(rdz.coeff)[2] = "rdz_Geo1"
+print(summary(rdz.reg$res.regr.NVE))
+names(rdz.coeff)[2] = "rdz_Geo1" 
 rdz.coeff
 #### Z variable adjustment - Regional distribution #### 
 #Adjusts efficiency scores from stage 1, using difference in Z value relative to target unit
