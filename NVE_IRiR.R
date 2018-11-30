@@ -13,7 +13,7 @@ getwd()
 # Remember to change "\" to "/" or "\\" 
 #my.path = "C:\\users\\roam\\Dropbox\\IRcalc i R"
 start.time =  Sys.time()
-my.path = "C:\\Users\\ens\\Dropbox\\Jobb\\GitHub\\IRiR"
+my.path = "C:\\Users\\mohh\\GitHub\\IRiR"
 setwd(my.path)
 # Load benchmarking package of Bogetoft & Otto
 # Following packages are used
@@ -33,8 +33,8 @@ options(scipen = 100)
 #comp.org =  # AND INSERT ORGN
 
 # Bootstrap settings
-BS.new = 1 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
-BS.ite = 2000 # Number of iterations in bootstrap calculation
+BS.new = 0 # Dummy variable determining wether to calculate new bootstrap estimates (1) or reuse last calculation
+BS.ite = 100000 # Number of iterations in bootstrap calculation
 
 #### Preperation stage - Configurations, data import, data preparation ####
 
@@ -49,6 +49,7 @@ source("./R-script/0_3_Company_Selection.R")
 # As described in report 71/2012
 # NOR http://publikasjoner.nve.no/rapport/2012/rapport2012_71.pdf
 source("./R-script/1_0_DEA.R")
+
 
 #### Stage 2 - Z factor adjustment using OLS ####
 # As described in report 71/2012, see above
@@ -89,3 +90,5 @@ calc.time
 source("./R-script/analysis.R")
 #View(KeyFigorgn[ , ! apply(KeyFigorgn, 2, function (x) all(is.na(x)))]) # REMOVE FIRST # TO GET KEY INFO FOR SPECIFIC COMPANY
 
+write.csv(RevCap, file = (paste(Sys.Date(), "_RevCap.csv", sep = "")))
+write.csv(KeyFig, file = (paste(Sys.Date(), "_KeyFig.csv", sep = "")))
