@@ -4,6 +4,8 @@
 
 #### R set up ####
 # Major revisons are coming in 2025#
+# Litt mer testing # ######
+# Nå kommer snart siste versjon #
 # Remove all objects from memory
 remove(list=ls())
 # Get current working directory
