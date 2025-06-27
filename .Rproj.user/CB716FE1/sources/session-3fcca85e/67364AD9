@@ -1,0 +1,26 @@
+{
+    "id": "67364AD9",
+    "path": "~/IRiR-test/NVE_IRiR.R",
+    "project_path": "NVE_IRiR.R",
+    "type": "r_source",
+    "hash": "2486225089",
+    "contents": "",
+    "dirty": true,
+    "created": 1750937988990.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "14,40",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1750941227,
+    "encoding": "ISO8859-1",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1750941227829,
+    "read_only": false,
+    "read_only_alternatives": []
+}

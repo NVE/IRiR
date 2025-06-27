@@ -1,0 +1,8 @@
+Variable,Nettnivå,Kategori,Forklaring.norsk,Forklaring.engelsk,Kommentar
+ld_ncs_NORGESNETT AS,d,Referent,Referent NORGESNETT AS,Peer unit NORGESNETT AS,
+ld_ncs_RAKKESTAD ENERGI AS,d,Referent,Referent RAKKESTAD ENERGI AS,Peer unit RAKKESTAD ENERGI AS,
+rd_ncs_NORANETT ANDØY AS,r,Referent,Referent NORANETT ANDØY AS,Peer unit NORANETT ANDØY AS,
+rd_ncs_AREA NETT AS,r,Referent,Referent AREA NETT AS,Peer unit AREA NETT AS,
+rd_ncs_MIDTNETT AS,r,Referent,Referent MIDTNETT AS,Peer unit MIDTNETT AS,
+rd_ncs_LEDE AS,r,Referent,Referent LEDE AS,Peer unit LEDE AS,
+rd_ncs_TENDRANETT AS,r,Referent,Referent TENDRANETT AS,Peer unit TENDRANETT AS,
