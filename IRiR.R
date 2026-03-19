@@ -38,7 +38,7 @@
 
 
 # Sett inn riktig beregningstype til lagring i DWH
-  versjon <- data.frame("type" = as.integer(2))
+  versjon <- data.frame("type" = as.integer(0))
   # 0 Annet
   # 1 Forel?pig beregning
   # 2 Varsel
@@ -65,7 +65,8 @@
   xlsx_file = file.path(run_dir, paste0(Sys.Date(), "_grunnlagsdata.xlsx"))
   write.csv(write.dat, file = csv_file)
   write.xlsx(write.dat, file = xlsx_file, overwrite = T)
-        
+ # Her må ny kode for annuitetsberegning inn
+  
   source("./R-script/0_3_Calculated_Input_Values.R")    # Calculating input values for DEA
   source("./R-script/0_4_Company_Selection.R")          # Preparing for special treatment
   source("./R-script/1_0_DEA.R")                        # Stage 1 - DEA
