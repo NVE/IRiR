@@ -80,6 +80,8 @@
   calc.time
   source("./R-script/Key_figures.R")      # Script creating data frame for printing results
   source("./R-script/Print_results.R")    # Script for printing results
+  
+  
 
   write.csv(RevCap, file = "RevCap.csv")
   

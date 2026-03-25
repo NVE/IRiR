@@ -1,0 +1,604 @@
+## Kort beskrivelse av koden ####
+# I denne koden kommer det til Ã¥ dukke opp en haug med dataframes, kortfortalt
+# df_ig, bruttoinvesteringer fra 1991 i nominelle kr, disse inkluderer verdiene i df_b
+# df_b, kjÃ¸pte anlegg pr Ã¥r fra 2006 i nominelle kr
+# df_b_lt, restlevetider for kjÃ¸pte anlegg i df_b
+# df_b_ann, beregnede annutiter for anleggene i df_b, basert pÃ¥ levetidene i df_b_lt
+# df_in, netto investeringer, dvs df_ig,verdiene minus df_b i nominelle kroner.
+# df_in_ann, annuiteter av netto investeringer, standardlevetider og 1991-levetider
+# df_it_ann, annuiteter av egen bygdeanlegg, kjÃ¸pteanlegg.
+
+##Levetider for de ulike anleggsklassene####
+# Standard lifetimes hentet fra Sumicsid hovedrapport s 23
+# 1991 verdier levert av statnett
+# Levetider for kjÃ¸pteanlegg leveres med datasettet Ã¥rlig
+
+lifetimes <- list(
+  Lines = c(standard = 60),
+  Cables = c(standard = 50),
+  Substations = c(standard = 40),
+  Compensatingdevices = c(standard = 40),
+  Otherinstallations = c(standard = 20),
+  Gridrelatedequipmentvehicles = c(standard = 10),
+  controlcenters = c(standard = 20),
+  Mainofficebuilding = c(standard = 40),
+  indirectother = c(standard = 20)
+)
+
+lifetime_so = 20
+
+
+# List of asset classes
+asset_classes <- c("Lines", "Cables", "Substations", "Compensatingdevices", 
+                   "Otherinstallations", "Gridrelatedequipmentvehicles",
+                   "controlcenters", "Mainofficebuilding", "indirectother")
+## ISS HER - SJEKK OM DENNE SKAL FJERNES ####
+ISS = 1991 # Investmentstream start
+
+
+capex_annuities <- tibble(year = integer(),
+                          capex_annuities.yrs = numeric(),
+                          capex_annuities.yrs.so = numeric())
+
+
+
+## Import av KPI-data ####
+#pxweb_query_list_11189 <- 
+#  list("Investeringsart"=c("NR08_"),
+#       "NACE"=c("pub2X35"),
+#       "ContentsCode"=c("BIF4"),
+#       "Tid"=("*"))
+
+#px_data_11189 <- 
+#  pxweb_get(url = "https://data.ssb.no/api/v0/no/table/11189",
+#            query = pxweb_query_list_11189)
+#df_ssb_11189 <- as.data.frame(px_data_11189, column.name.type = "text", variable.value.type = "text")
+
+
+## Import av KPI-data ####
+pxweb_query_list_09181 <- 
+  list("NACE"=c("pub2X35"),
+       "ContentsCode"=c("BIF4"),
+       "Tid"=("*"))
+
+px_data_09181 <- 
+  pxweb_get(url = "https://data.ssb.no/api/v0/no/table/09181",
+            query = pxweb_query_list_09181)
+
+#df_ssb_09181 <- as.data.frame(px_data_09181, column.name.type = "text", variable.value.type = "text")
+
+
+
+pxweb_query_list_08184 <- 
+  list("ContentsCode"=c("KpiAar"),
+       "Tid"=c("*"))
+
+px_data_08184 =
+  pxweb_get(url= "https://data.ssb.no/api/v0/no/table/08184",
+            query = pxweb_query_list_08184)
+
+
+## Startloop som beregner annuiteter for hvert Ã¥r i y_NG_annuties ####
+# Loop over each year in the y_NG_annuities vector
+for (current_year in y_NG_annuities) {
+  
+  y.cb <- current_year  # Update y.cb to the current year in the loop
+  
+  ## Import av bruttoinvesteringer ####
+  df_ig = read.xlsx("./Data/Statnett_Investment_stream/GROSS_Investment_stream.xlsx", sheet = as.character(y.cb))
+  df_ig[is.na(df_ig)] = 0
+  
+  # Henter ut netto-oversikt over anleggene som var i drift og anskaffet i 1991 eller tidligere
+  #### ENS 21.10.2025 - Det siste vilkÃ¥ret her fjerner reserveanlegg mÃ¥ avklares fÃ¸r varsel/vedtak ####
+  df_NG_pre91 = df_NG_net[df_NG_net$cyr<=ISS & df_NG_net$ayr<=ISS & !is.na(df_NG_net$cyr),]
+  # Setter avhendelsesÃ¥ret for alle anlegg som ikke er avhendet til 9999 for enkel logisk test.
+  df_NG_pre91$dyr[is.na(df_NG_pre91$dyr)] <- 9999
+  # Fjerner alle anlegg fra Ã¥pningsbalansen som er tatt ut av drift fÃ¸r Ã¥pningbalanse skal fordeles bakover.
+  # Dette blir rett fordi verdien av anleggene ogsÃ¥ mÃ¥ tas ut pÃ¥ investeringssiden
+  print(y.cb)
+  df_NG_pre91 = df_NG_pre91[df_NG_pre91$dyr>y.cb,]
+  
+  #Beregner sum av NG capex per anleggskategori
+  df_NG_pre91_grouped <- df_NG_pre91 %>%
+    group_by(cyr, asset_type) %>%
+    dplyr::summarise(sum_capex = sum(ng.capex), na.rm = TRUE) %>%
+    ungroup()
+  
+  unique(df_NG_pre91_grouped$asset_type)
+  
+  df_NG_pre91_grouped$years_depreciated = ISS - df_NG_pre91_grouped$cyr
+  
+  asset_lifetimes <- c(
+    "Linje" = lifetime_lines,
+    "Kabel" = lifetime_cables,
+    "Transformator" = lifetime_trafo,
+    "HVDC-omformer" = lifetime_HVDC,
+    "Avgang" = lifetime_ce,
+    "Kompenseringsanlegg" = lifetime_cd
+  )
+  
+  
+  
+  # Lager kolonne for Ã¥ lagre andel av 
+  df_NG_pre91_grouped$share_capex_left_91 = 0
+  
+  # Regner andel av kapital som ikke er avskrevet i 1991
+  df_NG_pre91_grouped$share_capex_left_91 = with(df_NG_pre91_grouped, 
+                                                 pmax((asset_lifetimes[asset_type] - years_depreciated) / asset_lifetimes[asset_type], 0)
+  )
+  
+  ## Beregner avskrevet NormGrid-verdi ####
+  df_NG_pre91_grouped$dep_NG_capex = df_NG_pre91_grouped$sum_capex * df_NG_pre91_grouped$share_capex_left_91
+  
+  # Beregner sum avskrevet normgrid for alle anleggsklasser med vekter
+  depNGcapex_l_pre91 = sum(df_NG_pre91_grouped$dep_NG_capex[df_NG_pre91_grouped$asset_type == "Linje"])
+  depNGcapex_c_pre91 =  sum(df_NG_pre91_grouped$dep_NG_capex[df_NG_pre91_grouped$asset_type == "Kabel"])
+  depNGcapex_t_pre91 =  sum(df_NG_pre91_grouped$dep_NG_capex[df_NG_pre91_grouped$asset_type == "Transformator"])
+  depNGcapex_HVDC_pre91 = sum(df_NG_pre91_grouped$dep_NG_capex[df_NG_pre91_grouped$asset_type == "HVDC-omformer"])
+  depNGcapex_ce_pre91 = sum(df_NG_pre91_grouped$dep_NG_capex[df_NG_pre91_grouped$asset_type == "Avgang"])
+  depNGcapex_cd_pre91 = sum(df_NG_pre91_grouped$dep_NG_capex[df_NG_pre91_grouped$asset_type == "Kompenseringsanlegg"])
+  
+  # Beregner sum av avskrevet NormGrid for anleggsklassene som inngÃ¥r i stasjon
+  depNGcapex_s_pre91 = depNGcapex_t_pre91 + depNGcapex_HVDC_pre91 + depNGcapex_ce_pre91 
+  
+  # Beregner andel hver av klassene som inngÃ¥r i stasjon utgjÃ¸r av stasjon
+  dep_t_share_s_pre91 = depNGcapex_t_pre91/depNGcapex_s_pre91
+  dep_HVDC_share_s_pre91 = depNGcapex_HVDC_pre91/depNGcapex_s_pre91
+  dep_ce_share_s_pre91 = depNGcapex_ce_pre91/depNGcapex_s_pre91
+  
+  # Beregner vektet levetid av de tre klassene som inngÃ¥r i stasjon
+  lifetime_station = dep_t_share_s_pre91*lifetime_trafo + dep_HVDC_share_s_pre91*lifetime_HVDC + dep_ce_share_s_pre91*lifetime_ce
+  
+  #Erstatter alle felt med Avgang, HVDC og Transformator med stasjon fordi det er opplÃ¸sningen i investeringsstrÃ¸mmen
+  df_NG_pre91_grouped_st = df_NG_pre91_grouped %>%
+    mutate(asset_type = case_when(
+      asset_type %in% c("Avgang", "HVDC-omformer", "Transformator") ~ "Stasjon",
+      TRUE ~ asset_type
+    ))
+
+
+    
+  # Regner ny sum av dep_NG_capex - MÃ¥ deflateres
+  df_NG_pre91_grouped_st <- df_NG_pre91_grouped_st %>%
+    group_by(cyr, asset_type) %>%
+    dplyr::summarise(sum_dep_NG_capex = sum(dep_NG_capex), na.rm = TRUE) %>%
+    ungroup()
+
+  
+
+  
+  df_ssb_09181 <- as.data.frame(px_data_09181, column.name.type = "text", variable.value.type = "text")
+  #rm(px_data_11189)
+  #rm(pxweb_query_list_11189)
+  df_ssb_09181=df_ssb_09181[c(2,3)]
+  names(df_ssb_09181)[1]="year"
+  names(df_ssb_09181)[2]="prcent_change"
+  df_ssb_09181$year = as.numeric(df_ssb_09181$year)
+  Sys.setlocale("LC_CTYPE", "en_us.UTF-8")
+
+  
+  df_ssb_08184 = as.data.frame(px_data_08184, column.name.type = "text", variable.value.type = "text")
+  names(df_ssb_08184)[1]="year"
+  names(df_ssb_08184)[2]="kpi"
+  df_ssb_08184$year = as.numeric(df_ssb_08184$year)
+  
+  #Regner om fra KPI til prosentvisendring
+  df_ssb_08184 <- df_ssb_08184 %>%
+    dplyr::mutate(prcent_change = c(0, (kpi[-1] - kpi[-n()]) / kpi[-n()] * 100))
+  #Eldste rapporte anlegg er fra 1949, fra 1971 og fremover benyttes verdi fra nasjonalregnskapet
+  df_ssb_08184 = df_ssb_08184[df_ssb_08184$year >= 1949 & df_ssb_08184$year<=1970, ]
+  df_ssb_08184 = df_ssb_08184[c(1,3)]
+  # Siden vi bruker prosentvis endring har vi ingen observasjon for 11189 fÃ¸r i 1971
+  df_ssb_09181 = df_ssb_09181[df_ssb_09181$year > 1970, ]
+  
+  price_delta1991 = dplyr::union(df_ssb_08184,df_ssb_09181)
+  price_delta1991 = price_delta1991[price_delta1991$year <= 1991,]
+  price_delta1991 = price_delta1991[order(-price_delta1991$year),]
+  price_delta1991$def_factor = cumprod(1 + price_delta1991$prcent_change /100)
+  #Normaliserer faktorer til 1991-nivÃ¥
+  price_delta1991$def_factor = price_delta1991$def_factor / price_delta1991$def_factor[price_delta1991$year == 1991]
+  price_delta1991 = price_delta1991[order(price_delta1991$year),]
+  
+## Deflaterer avskrevne NormGrid-verdier ####  
+  # Ensure the column types match (convert cyr and year to numeric if needed)
+  df_NG_pre91_grouped_st$cyr <- as.numeric(df_NG_pre91_grouped_st$cyr)
+  price_delta1991$year <- as.numeric(price_delta1991$year)
+  
+  # Initialize a new column for the adjusted values
+  df_NG_pre91_grouped_st$sum_dep_def_NG_capex <- NA
+  
+  # Loop through each row in df_NG_pre91_grouped_st
+  for (i in 1:nrow(df_NG_pre91_grouped_st)) {
+    # Find the corresponding def_factor from price_delta1991 where cyr == year
+    def_factor <- price_delta1991$def_factor[price_delta1991$year == df_NG_pre91_grouped_st$cyr[i]]
+    
+    # If a match is found, calculate the deflated value
+    if (length(def_factor) == 1) {
+      df_NG_pre91_grouped_st$sum_dep_def_NG_capex[i] <- df_NG_pre91_grouped_st$sum_dep_NG_capex[i] / def_factor
+    } else {
+      stop(print("Found observations with no deflation factor."))
+    }
+  }
+
+  asset_lifetimes_ig <- c(
+    "Linje" = lifetime_lines,
+    "Kabel" = lifetime_cables,
+    "Stasjon" = lifetime_station,
+    "Kompenseringsanlegg" = lifetime_cd
+  )
+
+## Bergener summer av avskrevet og deflatert NG capex pr anleggskategori ####  
+depdefNGcapex_l_pre91 = sum(df_NG_pre91_grouped_st$sum_dep_def_NG_capex[df_NG_pre91_grouped_st$asset_type == "Linje"])
+depdefNGcapex_c_pre91 = sum(df_NG_pre91_grouped_st$sum_dep_def_NG_capex[df_NG_pre91_grouped_st$asset_type == "Kabel"])
+depdefNGcapex_s_pre91 = sum(df_NG_pre91_grouped_st$sum_dep_def_NG_capex[df_NG_pre91_grouped_st$asset_type == "Stasjon"])
+depdefNGcapex_cd_pre91 = sum(df_NG_pre91_grouped_st$sum_dep_def_NG_capex[df_NG_pre91_grouped_st$asset_type == "Kompenseringsanlegg"])
+
+  
+  depdef_NG_totals_pre91 <- c( # MÃ¥ deflateres
+    "Linje" = depdefNGcapex_l_pre91,
+    "Kabel" = depdefNGcapex_c_pre91,
+    "Stasjon" = depdefNGcapex_s_pre91,
+    "Kompenseringsanlegg" = depdefNGcapex_cd_pre91
+  )
+  
+##Beregner nÃ¸kkel til fordeling av Capex som  basert pÃ¥ andel avskrevet og deflatert NG fra 1991 ####
+  df_NG_pre91_grouped_st$pre_91_key = with(df_NG_pre91_grouped_st,
+                                           pmin(sum_dep_def_NG_capex / depdef_NG_totals_pre91[asset_type],1)
+  )
+  
+  
+  df_NG_pre91_grouped_st = subset(df_NG_pre91_grouped_st, select = -(na.rm))
+  
+  #Lager en tom kolonne for Ã¥ kunne bruke navnene fra investeringsstrÃ¸mmen til Ã¥ matche verdier som skal fordeles
+  df_NG_pre91_grouped_st$asset_alias = "None"
+  
+  #Fyller den nye kolloenen med riktige navneverdier
+  df_NG_pre91_grouped_st <- df_NG_pre91_grouped_st %>%
+    mutate(asset_alias = case_when(
+      asset_type == "Linje" ~ "Lines",
+      asset_type == "Kabel" ~ "Cables",
+      asset_type == "Stasjon" ~ "Substations",
+      asset_type == "Kompenseringsanlegg" ~ "Compensatingdevices",
+      TRUE ~ asset_alias  
+    ))
+  
+  #Omstrukturerer slik at jeg fÃ¥r en kollonne pr anleggstype i investeringsstrÃ¸mmen
+  df_NG_pre91_grouped_st <- df_NG_pre91_grouped_st %>%
+    pivot_wider(
+      names_from = asset_alias, 
+      values_from = pre_91_key, 
+      names_glue = "pre_91_key_{asset_alias}"
+    ) %>%
+    select(cyr, everything())
+  #NA-verdier settes til 0
+  df_NG_pre91_grouped_st[is.na(df_NG_pre91_grouped_st)] = 0
+  
+  
+  #Henter ut startobservasjonene fra investeringsstrÃ¸mmen
+  df_ig_1991 <- df_ig %>% filter(year == 1991)
+  
+  #Lager ny frame til fordeling av Ã¥pningsverdi
+  df_NG_pre91_grouped_st_result <- df_NG_pre91_grouped_st
+  
+  # Looper gjennom og leter etter navnematch i den forrige dfen
+  for (col_name in names(df_NG_pre91_grouped_st)) {
+    
+    # Ser etter kolonner som begynner 'pre_91_key_' og har matchende suffix in df_ig
+    if (startsWith(col_name, "pre_91_key_")) {
+      
+      # Finner rett kolonne og lagrer dette i suffix
+      suffix <- sub("pre_91_key_", "", col_name)
+      
+      # Sjekker at suffix er i navnet pÃ¥ kolonnene i investeringstrÃ¸mverdier fra 1991
+      if (suffix %in% names(df_ig_1991)) {
+        
+        # Lager ny kolonne til avskrevne verdier
+        new_col_name <- paste0("pre_91_depreciated_", suffix)
+        
+        # Ganger 1991-verdier fra df_ig med kolonnen med matchende suffix df_NG_pre91_grouped_st - dette gir fordeling av avskrevne verdier basert pÃ¥ NG
+        df_NG_pre91_grouped_st_result[[new_col_name]] <- df_NG_pre91_grouped_st[[col_name]] * df_ig_1991[[suffix]]
+      }
+    }
+  }
+  
+  # Lager igjen hjelpekolonne med antall Ã¥r avskrevet siden 1991 for alle observasjoner
+  df_NG_pre91_grouped_st_result$years_depreciated = ISS - df_NG_pre91_grouped_st_result$cyr
+  
+  # Legger pÃ¥ avskrivninger igjen basert pÃ¥ verdiene i asset_lifetimes_ig
+  df_NG_pre91_grouped_st_result$estimated_asset_value_Lines <- with(df_NG_pre91_grouped_st_result, 
+                                                                    ifelse(asset_type == "Linje", 
+                                                                           pre_91_depreciated_Lines / (1 - years_depreciated / asset_lifetimes_ig["Linje"]), 
+                                                                           NA_real_)
+  )
+  
+  df_NG_pre91_grouped_st_result$estimated_asset_value_Cables <- with(df_NG_pre91_grouped_st_result, 
+                                                                     ifelse(asset_type == "Kabel", 
+                                                                            pre_91_depreciated_Cables / (1 - years_depreciated / asset_lifetimes_ig["Kabel"]), 
+                                                                            NA_real_)
+  )
+  
+  df_NG_pre91_grouped_st_result$estimated_asset_value_Substations <- with(df_NG_pre91_grouped_st_result, 
+                                                                          ifelse(asset_type == "Stasjon", 
+                                                                                 pre_91_depreciated_Substations / (1 - years_depreciated / asset_lifetimes_ig["Stasjon"]), 
+                                                                                 NA_real_)
+  )
+  
+  df_NG_pre91_grouped_st_result$estimated_asset_value_Compensatingdevices <- with(df_NG_pre91_grouped_st_result, 
+                                                                                  ifelse(asset_type == "Kompenseringsanlegg", 
+                                                                                         pre_91_depreciated_Compensatingdevices / (1 - years_depreciated / asset_lifetimes_ig["Kompenseringsanlegg"]), 
+                                                                                         NA_real_)
+  )
+  
+  df_estimated_values <- df_NG_pre91_grouped_st_result %>%
+    group_by(cyr) %>%
+    dplyr::summarize(
+      year = unique(cyr),
+      Lines = sum(estimated_asset_value_Lines, na.rm = TRUE),
+      Cables = sum(estimated_asset_value_Cables, na.rm = TRUE),
+      Substations = sum(estimated_asset_value_Substations, na.rm = TRUE),
+      Compensatingdevices = sum(estimated_asset_value_Compensatingdevices, na.rm = TRUE)
+    )
+  df_estimated_values = subset(df_estimated_values, select = -c(cyr))
+  
+  
+  # Identify the columns with matching names in both dataframes
+  matching_columns <- c("Lines", "Cables", "Substations", "Compensatingdevices")
+  
+  # Initialize a new dataframe to hold the results
+  df_combined <- df_ig
+  
+  # Step 1: Replace the 1991 values in df_ig for the matching columns with the values from df_estimated_values
+  df_combined[df_combined$year == 1991, matching_columns] <- df_estimated_values[df_estimated_values$year == 1991, matching_columns]
+  
+  # Step 2: Create a new dataframe for the 1951-1990 values from df_estimated_values
+  df_pre_1991 <- df_estimated_values[df_estimated_values$year < 1991, ]
+  
+  # Create a new dataframe with the same structure as df_combined
+  df_pre_1991_combined <- df_combined[0, ]
+  
+  # Add the 1951-1990 years to df_pre_1991_combined for matching columns
+  df_pre_1991_combined <- df_pre_1991[, c("year", matching_columns)]
+  df_pre_1991_combined[, setdiff(names(df_combined), c("year", matching_columns))] <- 0
+  
+  # Step 3: Append df_pre_1991_combined to df_combined
+  df_combined <- rbind(df_pre_1991_combined, df_combined)
+  
+  # View the result
+  #print(df_combined)
+  
+  df_ig = df_combined
+  rm(df_combined)
+  
+  
+  df_ig = subset(df_ig, select = c(1:10))
+  
+  df_b = read.xlsx("./Data/Statnett_Investment_stream/BOUGHT_Investment_stream.xlsx", sheet = as.character(y.cb))
+  df_b[is.na(df_b)] = 0
+
+  
+  df_b_lt = read.xlsx("./Data/Statnett_Investment_stream/RL_Bought_Investment_stream.xlsx", sheet = as.character(y.cb))
+  df_b_lt[is.na(df_b_lt)] = 0
+
+  
+  ycol = which(names(df_b_lt) %in% c('year'))
+  colnames(df_b_lt)[-ycol] = paste(colnames(df_b_lt)[-ycol],"lt",sep="_")
+  
+  df <- merge(df_b, df_b_lt, by = "year")
+  b_columns <- colnames(df_b)[-1]
+  blt_columns <- colnames(df_b_lt)[-1]
+  
+  for (i in seq_along(b_columns)) {
+    b_col <- b_columns[i]
+    blt_col <- blt_columns[i]
+    
+    asset_type <- gsub("_lt", "", blt_col)
+    new_column_name <- paste(asset_type, ".b_ann", sep = "")
+    
+    for (j in seq_along(df$year)) {
+      year_val <- df$year[j]
+      df[[new_column_name]][df$year == year_val] <- mapply(NVE_NG.annuity,
+                                                           rate = interestrate,
+                                                           lifetime = df[[blt_col]][df$year == year_val],
+                                                           ng.capex = df[[b_col]][df$year == year_val])
+    }
+  }
+  
+  annuity_cols <- c("year", grep(".b_ann$", colnames(df), value = TRUE))
+  df_b_ann = df[annuity_cols]
+  rm(df)
+  
+  df_merged <- merge(df_ig, df_b, by = "year", all.x = TRUE, all.y = TRUE, suffixes = c(".ig", ".b"))
+  df_merged[is.na(df_merged)] <- 0
+  df_in <- df_merged %>%
+    mutate(
+      Lines.net_inv = Lines.ig - Lines.b,
+      Cables.net_inv = Cables.ig - Cables.b,
+      Substations.net_inv = Substations.ig - Substations.b,
+      Compensatingdevices.net_inv = Compensatingdevices.ig - Compensatingdevices.b,
+      Otherinstallations.net_inv = Otherinstallations.ig - Otherinstallations.b,
+      Gridrelatedequipmentvehicles.net_inv = Gridrelatedequipmentvehicles.ig - Gridrelatedequipmentvehicles.b,
+      controlcenters.net_inv = controlcenters.ig - controlcenters.b,
+      Mainofficebuilding.net_inv = Mainofficebuilding.ig - Mainofficebuilding.b,
+      indirectother.net_inv = indirectother.ig - indirectother.b
+    ) %>% select(year,ends_with(".net_inv"))%>% 
+    rename_with(~ gsub(".net_inv", "", .), ends_with(".net_inv"))
+  
+  rm(df_merged)
+  
+  df_in_ann <- df_in
+  for (asset_class in names(lifetimes)) {
+    lifetime_values <- lifetimes[[asset_class]]
+    standard_lifetime <- lifetime_values[["standard"]]
+    asset_lifetime <- standard_lifetime
+    
+    df_in_ann[paste0(asset_class, ".in_ann")] <- mapply(
+      NVE_NG.annuity,
+      rate = interestrate,
+      lifetime = asset_lifetime,
+      ng.capex = df_in[[asset_class]]
+    )
+  }
+  
+  df_in_ann <- df_in_ann %>%
+    select(year, ends_with(".in_ann"))
+  
+  df_merged <- merge(df_in_ann, df_b_ann, by = "year", all.x = TRUE, all.y = TRUE, suffixes = c(".in_ann", ".b_ann"))
+  df_merged[is.na(df_merged)] <- 0
+  df_it_ann <- df_merged %>%
+    mutate(
+      Lines.ti_ann = Lines.in_ann + Lines.b_ann,
+      Cables.ti_ann = Cables.in_ann + Cables.b_ann,
+      Substations.ti_ann = Substations.in_ann + Substations.b_ann,
+      Compensatingdevices.ti_ann = Compensatingdevices.in_ann + Compensatingdevices.b_ann,
+      Otherinstallations.ti_ann = Otherinstallations.in_ann + Otherinstallations.b_ann,
+      Gridrelatedequipmentvehicles.ti_ann = Gridrelatedequipmentvehicles.in_ann + Gridrelatedequipmentvehicles.b_ann,
+      controlcenters.ti_ann = controlcenters.in_ann + controlcenters.b_ann,
+      Mainofficebuilding.ti_ann = Mainofficebuilding.in_ann + Mainofficebuilding.b_ann,
+      indirectother.ti_ann = indirectother.in_ann + indirectother.b_ann
+    ) %>% select(year,ends_with(".ti_ann"))%>% 
+    rename_with(~ gsub(".ti_ann", "", .), ends_with(".ti_ann"))
+  
+  rm(df_merged)
+  
+  df_so = read.xlsx("./Data/Statnett_Investment_stream/System_Operations_Investment_stream.xlsx", sheet = as.character(y.cb))
+  df_so[is.na(df_so)] = 0
+  
+  df_so$CapexSystemOp.in_ann = mapply(
+    NVE_NG.annuity,
+    rate = interestrate,
+    lifetime = lifetime_so,
+    ng.capex = df_so$CapexSystemOp)
+
+  
+  #df_ssb_11189 <- as.data.frame(px_data_11189, column.name.type = "text", variable.value.type = "text")
+  #rm(px_data)
+  #rm(pxweb_query_list_11189)
+  #df_ssb_11189=df_ssb_11189[c(3,4)]
+  #names(df_ssb_11189)[1]="year"
+  #names(df_ssb_11189)[2]="prcent_change"
+  #df_ssb_11189$year = as.numeric(df_ssb_11189$year)
+  #Sys.setlocale("LC_CTYPE", "en_us.UTF-8")
+  
+
+  #df_ssb_08184 = as.data.frame(px_data_08184, column.name.type = "text", variable.value.type = "text")
+  #names(df_ssb_08184)[1]="year"
+  #names(df_ssb_08184)[2]="kpi"
+  #df_ssb_08184$year = as.numeric(df_ssb_08184$year)
+  
+  #Regner om fra KPI til prosentvisendring
+  #df_ssb_08184 <- df_ssb_08184 %>%
+    #dplyr::mutate(prcent_change = c(0, (kpi[-1] - kpi[-n()]) / kpi[-n()] * 100))
+  
+  #oldest_asset_in_operation = min(df_it_ann$year)
+  #df_ssb_08184 = df_ssb_08184[df_ssb_08184$year >= oldest_asset_in_operation & df_ssb_08184$year<=1970, ]
+  #df_ssb_08184 = df_ssb_08184[c(1,3)]
+  
+  merged_df <- merge(df_it_ann, df_ssb_09181, by = "year", all=TRUE)
+  
+  # Join the data frames on the 'year' column
+  merged_df <- merged_df %>%
+    left_join(df_ssb_08184, by = "year", suffix = c("", "_ssb"))
+  
+  # Update prcent_change for years < 1970
+  merged_df <- merged_df %>%
+    mutate(prcent_change = ifelse(year <= 1970, prcent_change_ssb, prcent_change)) %>%
+    select(-prcent_change_ssb)
+  
+  merged_df$gfactor = 1 + merged_df$prcent_change/100
+  merged_df = merged_df %>% dplyr::mutate(gfactor = dplyr::lead(gfactor))
+  merged_df$gfactor[merged_df$year >= price_reference_year] = 1
+  
+
+  
+# Utdatert metode for beregning av fastepriser, for lite dynamisk    
+#  for (asset_class in asset_classes) {
+#    for (i in 1:nrow(merged_df)) {
+#      index_y_cb <- which(merged_df$year == price_reference_year)
+#      gf_subset <- merged_df$gfactor[i:index_y_cb]
+#      gf_product <- prod(gf_subset)
+#      merged_df[i, asset_class] <- merged_df[i, asset_class] * gf_product
+#    }
+#  }
+#Anlegg som er eldre enn normert levetid settes til null pÃ¥ kapitalsiden, pÃ¥ input og output
+  merged_df$Lines = ifelse(y.cb - merged_df$year > lifetimes$Lines, 0, merged_df$Lines)
+  merged_df$Cables = ifelse(y.cb - merged_df$year > lifetimes$Cables, 0, merged_df$Cables)
+  merged_df$Substations = ifelse(y.cb - merged_df$year > lifetimes$Substation, 0, merged_df$Substation)
+  merged_df$Compensatingdevices = ifelse(y.cb - merged_df$year > lifetimes$Compensatingdevices, 0, merged_df$Compensatingdevices)
+  merged_df$Otherinstallations = ifelse(y.cb - merged_df$year > lifetimes$Otherinstallations, 0, merged_df$Otherinstallations)
+  merged_df$Gridrelatedequipmentvehicles = ifelse(y.cb - merged_df$year > lifetimes$Gridrelatedequipmentvehicles, 0, merged_df$Gridrelatedequipmentvehicles)  
+  merged_df$controlcenters = ifelse(y.cb - merged_df$year > lifetimes$controlcenters, 0, merged_df$controlcenters)
+  merged_df$Mainofficebuilding = ifelse(y.cb - merged_df$year > lifetimes$Mainofficebuilding, 0, merged_df$Mainofficebuilding)
+  merged_df$indirectother = ifelse(y.cb - merged_df$year > lifetimes$indirectother, 0, merged_df$indirectother)
+  
+  for (asset_class in asset_classes) {
+    for (i in 1:nrow(merged_df)) {
+      # Find the index of the reference year in the data
+      index_y_cb <- which(merged_df$year == price_reference_year)
+      
+      # Check if the reference year is found
+      if (length(index_y_cb) == 0) {
+        stop("Reference year not found in the data.")
+      }
+      
+      # Calculate the product of the gfactor subset for the current row
+      gf_subset <- merged_df$gfactor[i:index_y_cb]
+      gf_product <- prod(gf_subset, na.rm = TRUE)
+      
+      # Adjust the asset value
+      merged_df[i, asset_class] <- merged_df[i, asset_class] * gf_product
+    }
+  }
+  
+  merged_df <- merged_df[merged_df$year <= y.cb, ]
+  
+  df_it_ann_fp = subset(merged_df, select = -c(prcent_change, gfactor))
+  df_it_ann_fp$Total_investment_fp = rowSums(df_it_ann_fp[, asset_classes, drop = FALSE])
+  
+  df_so =  merge(df_so, df_ssb_09181, by = "year", all.y = TRUE)
+  df_so$gfactor = 1 + df_so$prcent_change/100
+  df_so = df_so %>% mutate(gfactor = dplyr::lead(gfactor))
+  df_so$gfactor[df_so$year >= price_reference_year] = 1
+  
+  
+  for (i in 1:nrow(df_so)) {
+    # Find the index of y.cb in the df_so dataframe
+    
+    index_y_cb <- which(df_so$year == price_reference_year)
+    
+    # Get the subset of the gfactor column from row i to the row corresponding to y.cb
+    gf_subset <- df_so$gfactor[i:index_y_cb]
+    
+    # Calculate the product of the gfactors in the subset
+    gf_product <- prod(gf_subset, na.rm = TRUE)
+    
+    # Apply the gf_product to CapexSystemOp.in_ann and store the result in the new column
+    df_so$CapexSystemOp_ann_fp[i] <- df_so$CapexSystemOp.in_ann[i] * gf_product
+  }
+
+  df_so <- df_so[df_so$year >= ISS & df_so$year <= y.cb, ]
+  
+  if (ANNUITIES_EXPORT) {
+    write.xlsx(df_so, file = paste0(output_folder,"SO_annuities_",y.cb,"_",price_reference_year,"-prices.xlsx"), rowNames = FALSE)
+    write.xlsx(df_it_ann_fp, file = paste0(output_folder,"Annuities_",y.cb,"_",price_reference_year,"-prices.xlsx"), rowNames = FALSE)
+  }
+  
+  capex_annuity.y.cb.so = sum(df_so$CapexSystemOp_ann_fp)
+  
+  Capex_annuity.y.cb = sum(df_it_ann_fp$Total_investment_fp)
+  
+
+  
+  # Store the result in the tibble
+  capex_annuities <- capex_annuities %>% add_row(year = current_year, 
+                                                 capex_annuities.yrs = Capex_annuity.y.cb,
+                                                 capex_annuities.yrs.so = capex_annuity.y.cb.so)
+  
+  
+  
+}
+
+
+# Print the final capex_annuities
+capex_annuities <- capex_annuities %>% arrange(year)
+capex_annuities
+
