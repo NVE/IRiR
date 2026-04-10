@@ -194,3 +194,17 @@ Grunnlagsdata_ld_pairwise <- Grunnlagsdata_ld_pairwise %>%
                 y = if_else(is.na(y), as.numeric(y.cb), y)
         )
 
+# HVilke kriterier ønsker vi å kontrollere?
+# Steg 1: Få inn denne delen i logikken
+# Endring større enn snitt som er minst > 2% (Negativ og positiv endringer)
+# Liste ut endringer i GEO - er også en sjekk på at vi har fått med alle fusjonene.
+# Alle endring fra ett år til ett annet. Fange opp endring over en viss terskel
+# Råresultater på alt som har endret mellom de to beregninen OG en for endringer mot siste år i nyeste datasett
+# Endringer til sjekk hvor begge disse to samles
+# Endring i sum kostnadsgrunnlag/Kapitalgrunnlag/DV/KILE/NETTAP for å sikre at noe ikke er helt spinnvilt
+# Skal kanskje ikke kodes, men i en liste over hva som sjekkes må ap.t_2 inn i en sjekkliste.
+
+# Steg 2: Utvide logikk med sjekk av resultater fra IR-beregninger
+# Endring fra år y-1 til y er viktigst her
+
+
