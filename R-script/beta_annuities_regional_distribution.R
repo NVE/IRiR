@@ -39,7 +39,7 @@
 
 # Sjekk at ingen selskap har r_bv.sf eller r_bv.gf uten aa ha r_ann.capex
 
-
+Sys.setlocale("LC_CTYPE", "nb_NO.UTF-8")
 
 suppressPackageStartupMessages({
   library(dplyr)
@@ -48,6 +48,8 @@ suppressPackageStartupMessages({
   library(purrr)
   library(readxl)
   library(fs)
+  library(pxweb)
+  library(openxlsx)
 })
 
 # ============================================================
@@ -73,7 +75,10 @@ annuity_cfg_default <- list(
   tol = 1e-8,
   
   # Hvor mange "eksempelrader" som vises i feilmeldinger
-  n_examples = 8
+  n_examples = 8,
+  
+  update_kpi = TRUE,
+  update_tek = FALSE
 )
 
 # ============================================================
@@ -205,9 +210,7 @@ read_workbook_rl <- function(path, years, parse_no = TRUE, label = "BI_RL") {
 
 allocate_opening_balance_1996_backwards <- function(df_yrep, tek_weights_tbl) {
   # tek_weights_tbl: category, y (vintage), weight (sum=1 pr category)
-  if (is.null(tek_weights_tbl)) {
-    stop("1996 åpningsbalanse trigget, men tek_weights_tbl er NULL. Må leveres.")
-  }
+
   
   opening <- df_yrep |> filter(y_vintage == 1996) |> select(category, value)
   
@@ -451,13 +454,23 @@ compute_annuity_for_orgnr <- function(dat_org,
 # ============================================================
 
 compute_annuiteter_all <- function(dat,
-                                   kpi_tbl,
                                    lifetime_map,
                                    tek_weights_tbl = NULL,
                                    cfg = annuity_cfg_default) {
   
   stopifnot(all(c("orgnr","id","y") %in% names(dat)))
   stopifnot(all(c("category","n_years") %in% names(lifetime_map)))
+  
+  # KPI
+  if (is.null(kpi_tbl) || isTRUE(cfg$update_kpi)) {
+    kpi_tbl <- loading_kpi(cfg$update_kpi)
+  }
+  
+  # TEK
+  if (is.null(tek_weights_tbl)) || isTRUE(cfg$update_tek)) {
+    tek_weights_tbl <- loading_tek_weights(cfg$update_tek)
+  }
+  
   
   ann_tbl <- dat |>
     distinct(orgnr) |>
@@ -489,6 +502,8 @@ compute_annuiteter_all <- function(dat,
   dat2
 }
 
+
+
 ## Tester med innlesing av tilsendte data
 
 setwd("~/GitHub/IRiR/")
@@ -499,7 +514,7 @@ innleverte_data <- tibble::tibble(
 )
 
 # Innleser navn og id
-dat_test <- readxl::read_excel(paste(annuity_cfg_default$base_dir,"/id_ir_26.xlsx",sep="")) |>
+dat_test <- readxl::read_excel(paste0(annuity_cfg_default$base_dir,"/id_ir_26.xlsx",sep="")) |>
   right_join(innleverte_data)
 
 ##Levetider for de ulike anleggsklassene####
@@ -507,16 +522,139 @@ dat_test <- readxl::read_excel(paste(annuity_cfg_default$base_dir,"/id_ir_26.xls
 # 1991 verdier levert av statnett
 # Levetider for kjøpteanlegg leveres med datasettet årlig
 
-lifetimes <- list(
-  Lines = c(standard = 60),
-  Cables = c(standard = 50),
-  Substations = c(standard = 40),
-  Compensatingdevices = c(standard = 40),
-  Otherinstallations = c(standard = 20),
-  Gridrelatedequipmentvehicles = c(standard = 10),
-  controlcenters = c(standard = 20),
-  Mainofficebuilding = c(standard = 40),
-  indirectother = c(standard = 20)
-)
+lifetimes <- tibble::tibble(
+  category = c("linjer", "jordkabler", "sjøkabler", "hovedtransformator", "annet", "målere", "annet, kundespesifikke anlegg"),
+  lifetimes = c(60,50,50,40,20,20,20))|>
+  mutate(category = norm_cat(category))
 
-lifetime_so = 20
+
+
+
+# ============================================================
+# XX) Henter KPI-tabell
+# ============================================================
+
+standardiser_kpi_df <- function(df) {
+  names(df)[1:2] <- c("year", "kpi")
+  df$year <- as.numeric(df$year)
+  df
+}
+
+
+loading_kpi <- function(update_kpi){
+  ## Import av KPI-data
+  out_path <- file.path(
+    annuity_cfg_default$base_dir,
+    "df_kpi_annuities.xlsx"
+  ) 
+  
+    if (isTRUE(update_kpi)){
+
+    pxweb_query_list_09181 <- 
+      list("NACE"=c("pub2X35"),
+           "ContentsCode"=c("BIF4"),
+           "Tid"=("*"))
+    
+    px_data_09181 <- 
+      pxweb_get(url = "https://data.ssb.no/api/v0/no/table/09181",
+                query = pxweb_query_list_09181)
+
+    df_ssb_09181 <- as.data.frame(px_data_09181, column.name.type = "text", 
+                                  variable.value.type = "text")
+    df_ssb_09181 <- standardiser_kpi_df(df_ssb_09181[2:3])
+    df_ssb_09181 <- df_ssb_09181 |> 
+      filter(year>1970)
+
+    pxweb_query_list_08184 <- 
+      list("ContentsCode"=c("KpiAar"),
+           "Tid"=c("*"))
+    
+    px_data_08184 <-
+      pxweb_get(url= "https://data.ssb.no/api/v0/no/table/08184",
+                query = pxweb_query_list_08184)
+    
+    df_ssb_08184 <- as.data.frame(px_data_08184, column.name.type = "text", 
+                                  variable.value.type = "text")
+    df_ssb_08184 <- standardiser_kpi_df(df_ssb_08184)
+    df_ssb_08184 <- df_ssb_08184 |> 
+      filter(between(year,1949,1970))
+    
+    df_kpi <- bind_rows(df_ssb_08184,df_ssb_09181) |>
+      arrange(year) |>
+            mutate(def_fac = cumprod(1 + kpi/100)) |>
+      select(
+        y =year,
+        kpi=def_fac
+      )
+    
+    
+    write.xlsx(df_kpi, out_path, overwrite = TRUE)
+    
+    
+  }
+  else {
+    df_kpi <- readxl::read_excel(out_path)
+    
+  }
+  if is.null(df_kpi){
+    stop("kpi er ikke innlastet")
+  }
+  return(df_kpi)
+}
+
+
+# ============================================================
+# XX) Henter TEK-tabell
+# ============================================================
+loading_tek_weights <- function(update_tek){
+  out_path <- file.path(
+    annuity_cfg_default$base_dir,
+    "df_tek_weights_annuities.xlsx"
+  ) 
+  
+  if (isTRUE(update_kpi)){
+    
+    ###############################
+    #### Denne delen skal erstattes med TEK-spørring
+    ###############################
+    
+    set.seed(1234)
+    orgnrs <- innleverte_data$orgn
+    
+    categories <- c(
+      "linjer",
+      "jordkabler",
+      "sjøkabler",
+      "hovedtransformator",
+      "annet",
+      "målere",
+      "annet, kundespesifikke anlegg"
+    )
+    
+    years <- 1975:1995
+    
+    df_tek_weights <- tibble(
+      orgnr = orgnrs,
+      category = categories
+    ) |>
+      expand_grid(y = years) |>
+      group_by(orgnr, category) |>
+      mutate(
+        weight_raw = runif(n()),          # alltid > 0
+        weight = weight_raw / sum(weight_raw)
+      ) |>
+      ungroup() |>
+      select(orgnr, category, y, weight)
+    
+    ###############################
+    ###############################
+    ###############################
+    
+    write.xlsx(df_tek_weights, out_path, overwrite = TRUE)
+  }
+  
+  else{
+    df_tek_weights <- readxl::read_excel(out_path)
+  }
+  
+}
