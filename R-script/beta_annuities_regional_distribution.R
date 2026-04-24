@@ -62,9 +62,9 @@ annuity_cfg_default <- list(
   dir_bi   = "Annuities_Bought_Investments",
   dir_birl = "Annuities_RL_Bought_Investments",
   
-  pattern_gi   = "^GI_(\\d+).*\\.(xlsx|xls)$",
-  pattern_bi   = "^BI_(\\d+).*\\.(xlsx|xls)$",
-  pattern_birl = "^BI_RL_(\\d+).*\\.(xlsx|xls)$",
+  pattern_gi   = "(?i)^gi_(\\d+).*\\.(xlsx|xls)$",
+  pattern_bi   = "(?i)^bi_(\\d+).*\\.(xlsx|xls)$",
+  pattern_birl = "(?i)^bi_rl_(\\d+).*\\.(xlsx|xls)$",
   
   r = 0.04,
   base_price_year = 2024,
@@ -78,7 +78,7 @@ annuity_cfg_default <- list(
   n_examples = 8,
   
   update_kpi = TRUE,
-  update_tek = FALSE
+  update_tek = TRUE
 )
 
 # ============================================================
@@ -86,7 +86,13 @@ annuity_cfg_default <- list(
 # ============================================================
 
 find_company_file <- function(dir_path, pattern, orgnr) {
-  files <- fs::dir_ls(dir_path, regexp = pattern, recurse = FALSE)
+  files <- fs::dir_ls(dir_path, recurse = FALSE)
+  files <- files[
+    grepl(
+      pattern,
+      fs::path_file(files)
+    )
+  ]
   if (length(files) == 0) return(NA_character_)
   tibble(path = files) |>
     mutate(file = basename(path),
@@ -151,25 +157,28 @@ detect_year_col <- function(nms) {
 #    Viktig: Tomme celler => 0 (ikke droppes)
 # ============================================================
 
-standardize_sheet_vintage_table <- function(df, y_rep, parse_no = TRUE, label = "GI/BI") {
-  if (is.null(df) || nrow(df) == 0) stop(label, ": Tom fane for ", y_rep)
+y_rep_scalar = 2020
+parse_no_scalar =TRUE
+
+standardize_sheet_vintage_table <- function(df, y_rep_scalar, parse_no_scalar = TRUE, label = "GI/BI") {
+  if (is.null(df) || nrow(df) == 0) stop(label, ": Tom fane for ", y_rep_scalar)
   
   names(df) <- tolower(names(df))
   year_col <- detect_year_col(names(df))
   if (is.na(year_col)) {
-    stop(label, ": Fant ikke 'År'-kolonne i fane ", y_rep,
+    stop(label, ": Fant ikke 'År'-kolonne i fane ", y_rep_scalar,
          ". Forventer kolonnenavn som År/Aar/Year/y.")
   }
   
   out <- df |>
     mutate(y_vintage = as.integer(.data[[year_col]])) |>
     select(-all_of(year_col)) |>
-    pivot_longer(cols = everything(), names_to = "category", values_to = "value_raw") |>
+    pivot_longer(cols = -y_vintage, names_to = "category", values_to = "value_raw") |>
     mutate(
-      y_rep     = as.integer(y_rep),
+      y_rep     = as.integer(y_rep_scalar),
       y_vintage = as.integer(y_vintage),
       category  = norm_cat(category),
-      value     = to_num(value_raw, parse_no)
+      value     = to_num(value_raw, parse_no_scalar)
     ) |>
     select(y_rep, y_vintage, category, value) |>
     filter(!is.na(y_vintage))
@@ -179,9 +188,9 @@ standardize_sheet_vintage_table <- function(df, y_rep, parse_no = TRUE, label = 
   
   # SJEKK: siste År (maks) skal være lik fanenavn/rapporteringsår
   max_y <- suppressWarnings(max(out$y_vintage, na.rm = TRUE))
-  if (is.finite(max_y) && max_y != as.integer(y_rep)) {
-    stop(label, ": I fane ", y_rep, " er max(År)=", max_y,
-         ", men skal være lik rapporteringsår/fanenavn=", y_rep, ".")
+  if (is.finite(max_y) && max_y != as.integer(y_rep_scalar)) {
+    stop(label, ": I fane ", y_rep_scalar, " er max(År)=", max_y,
+         ", men skal være lik rapporteringsår/fanenavn=", y_rep_scalar, ".")
   }
   
   out
@@ -194,7 +203,7 @@ read_workbook_vintage <- function(path, years, parse_no = TRUE, label = "GI/BI")
   map_dfr(years, \(yy) {
     sh <- match_year_sheet(sheets, yy)
     df <- readxl::read_excel(path, sheet = sh, .name_repair = "unique_quiet")
-    standardize_sheet_vintage_table(df, y_rep = yy, parse_no = parse_no, label = label)
+    standardize_sheet_vintage_table(df, y_rep_scalar = yy, parse_no_scalar = parse_no, label = label)
   })
 }
 
@@ -449,13 +458,13 @@ compute_annuity_for_orgnr <- function(dat_org,
     left_join(r_ann, by = "y")
 }
 
+
 # ============================================================
 # 10) Kjør for alle orgnr, merge og sluttkontroll
 # ============================================================
 
 compute_annuiteter_all <- function(dat,
                                    lifetime_map,
-                                   tek_weights_tbl = NULL,
                                    cfg = annuity_cfg_default) {
   
   stopifnot(all(c("orgnr","id","y") %in% names(dat)))
@@ -467,7 +476,7 @@ compute_annuiteter_all <- function(dat,
   }
   
   # TEK
-  if (is.null(tek_weights_tbl)) || isTRUE(cfg$update_tek)) {
+  if (is.null(tek_weights_tbl) || isTRUE(cfg$update_tek)) {
     tek_weights_tbl <- loading_tek_weights(cfg$update_tek)
   }
   
@@ -492,7 +501,7 @@ compute_annuiteter_all <- function(dat,
       mutate(has_bv = rowSums(across(all_of(bv_cols), ~ as.numeric(.) > 0), na.rm = TRUE) > 0) |>
       filter(has_bv, is.na(r_ann.capex)) |>
       distinct(orgnr, id)
-    
+    s
     if (nrow(bad) > 0) {
       stop("Fant selskap med r_bv.sf/gf > 0 men uten r_ann.capex. Orgnr: ",
            paste(bad$orgnr, collapse = ", "))
@@ -502,21 +511,26 @@ compute_annuiteter_all <- function(dat,
   dat2
 }
 
+sh
 
-
-## Tester med innlesing av tilsendte data
+## Tester med innlesing av tilendte data
 
 setwd("~/GitHub/IRiR/")
 
 # Orgnr. på de som foreløpig har innlevert
-innleverte_data <- tibble::tibble(
+df_aktuelle_selskap <- tibble::tibble(
   orgn = c(882783022, 926377841)
 )
 
+aktuelle_aar <- tibble::tibble(y = 2020:2024)
+
 # Innleser navn og id
 dat_test <- readxl::read_excel(paste0(annuity_cfg_default$base_dir,"/id_ir_26.xlsx",sep="")) |>
-  right_join(innleverte_data)
-
+  right_join(df_aktuelle_selskap, by="orgn") %>%
+  mutate("orgnr"=orgn) %>%
+  expand_grid(aktuelle_aar) %>%
+  select(-c("name",'orgn'))
+ 
 ##Levetider for de ulike anleggsklassene####
 # Standard lifetimes hentet fra Sumicsid hovedrapport s 23
 # 1991 verdier levert av statnett
@@ -524,10 +538,139 @@ dat_test <- readxl::read_excel(paste0(annuity_cfg_default$base_dir,"/id_ir_26.xl
 
 lifetimes <- tibble::tibble(
   category = c("linjer", "jordkabler", "sjøkabler", "hovedtransformator", "annet", "målere", "annet, kundespesifikke anlegg"),
-  lifetimes = c(60,50,50,40,20,20,20))|>
+  n_years = c(60,50,50,40,20,20,20))
+
+# Kjører koden på dat_test
+
+compute_annuiteter_all(dat_test,
+                       lifetimes,
+                       cfg = annuity_cfg_default)
+
+
+
+
+
+path <- find_company_file(file.path(annuity_cfg_default$base_dir, annuity_cfg_default$dir_gi),annuity_cfg_default$pattern_gi, 882783022)
+years <- readxl::excel_sheets(path)
+
+read_workbook_vintage <- function(path, years, parse_no = TRUE, label = "GI/BI") {
+  assert_year_sheets_exist(path, years, "GI/BI")
+  sheets <- readxl::excel_sheets(path)
+  
+  map_dfr(years, \(yy) {
+    sh <- match_year_sheet(sheets, years)
+    df <- readxl::read_excel(path, sheet = yy, .name_repair = "unique_quiet")
+    standardize_sheet_vintage_table(df, y_rep_scalar = yy, parse_no_scalar = TRUE, label = "GI/BI")
+  })
+}
+
+x <- read_workbook_vintage(path, years)
+
+
+ann_tbl <- dat_test |>
+  distinct(orgnr) |>
+  arrange(orgnr) |>
+  mutate(res = map(orgnr, \(o) {
+    dat_org <- dat_test |> filter(orgnr == o)
+    compute_annuity_for_orgnr(dat_org, annuity_cfg_default, kpi_tbl, lifetimes, tek_weights_tbl)
+  })) |>
+  select(res) |>
+  unnest(res)
+
+
+# kjøre annuitetsberegning pr. org
+
+orgnr <- unique(df_aktuelle_selskap$orgn[1])
+if (length(orgnr) != 1) stop("dat_org må inneholde ett orgnr.")
+
+years_model <- sort(unique(dat_test$years))
+if (length(years_model) == 0) stop("Fant ingen år i dat_org$y.")
+
+dir_gi   <- file.path(annuity_cfg_default$base_dir, annuity_cfg_default$dir_gi)
+dir_bi   <- file.path(annuity_cfg_default$base_dir, annuity_cfg_default$dir_bi)
+dir_birl <- file.path(annuity_cfg_default$base_dir, annuity_cfg_default$dir_birl)
+
+gi_path   <- find_company_file(dir_gi,   annuity_cfg_default$pattern_gi,   orgnr)
+bi_path   <- find_company_file(dir_bi,   annuity_cfg_default$pattern_bi,   orgnr)
+birl_path <- find_company_file(dir_birl, annuity_cfg_default$pattern_birl, orgnr)
+
+missing_any <- any(is.na(c(gi_path, bi_path, birl_path)))
+if (missing_any) {
+  msg <- paste0(
+    "Mangler annuitetsfiler for orgnr=", orgnr, ": ",
+    ifelse(is.na(gi_path), "GI ", ""),
+    ifelse(is.na(bi_path), "BI ", ""),
+    ifelse(is.na(birl_path), "BI_RL ", "")
+  )
+  if (identical(cfg$missing_file_policy, "stop")) stop(msg)
+  if (identical(cfg$missing_file_policy, "skip")) {
+    message(msg, " -> returnerer NA for r_ann.capex")
+    return(dat_org |> distinct(id, y) |> mutate(r_ann.capex = NA_real_))
+  }
+}
+
+# Les og normaliser
+gi_long <- read_workbook_vintage(gi_path, years_model, annuity_cfg_default$parse_numbers_no, label = "GI") |>
+  mutate(category = norm_cat(category))
+bi_long <- read_workbook_vintage(bi_path, years_model, annuity_cfg_default$parse_numbers_no, label = "BI") |>
+  mutate(category = norm_cat(category))
+rl_long <- read_workbook_rl(birl_path, years_model, annuity_cfg_default$parse_numbers_no, label = "BI_RL") |>
   mutate(category = norm_cat(category))
 
+# 1996-logikk per rapportår (GI/BI)
+gi_long <- apply_1996_logic_per_yrep(gi_long, tek_weights_tbl)
+bi_long <- apply_1996_logic_per_yrep(bi_long, tek_weights_tbl)
 
+# Konsistenskrav: BI>0 => RL>0 i samme (y_rep,År,kategori)
+check_bi_requires_rl(bi_long, rl_long, orgnr, n_examples = annuity_cfg_default$n_examples)
+
+# GI - BI først
+gi_net_long <- compute_gi_minus_bi(gi_long, bi_long, tol = annuity_cfg_default$tol)
+
+# Inflasjon etter vintage
+if (is.null(kpi_tbl) || isTRUE(annuity_cfg_default$update_kpi)) {
+  kpi_tbl <- loading_kpi(annuity_cfg_default$update_kpi)
+}
+gi_net_infl <- inflate_to_base(gi_net_long, kpi_tbl, annuity_cfg_default$base_price_year)
+bi_infl     <- inflate_to_base(bi_long,     kpi_tbl, annuity_cfg_default$base_price_year)
+
+# Annuiteter:
+
+x <- gi_net_infl |> left_join(lifetimes, by = "category")
+
+if (any(is.na(x$n_years))) {
+  bad <- x |> filter(is.na(n_years)) |> distinct(category) |> pull(category)
+  stop("Mangler standard levetid i lifetime_map for: ", paste(bad, collapse = ", "))
+}
+
+x |>
+  mutate(active = (y_rep >= y_vintage) & (y_rep <= (y_vintage + n_years - 1))) |>
+  filter(active) |>
+  mutate(A = annuity_payment(value_inflated, r = annuity_cfg_default$r, n = n_years)) |>
+  group_by(y = y_rep) |>
+  summarise(r_ann = sum(A, na.rm = TRUE), .groups = "drop")
+
+
+
+
+# 1) Egenbygde: GI - BI (standard levetid)
+ann_gi_net <- compute_annuity_standard(gi_net_infl, lifetime_map, r = cfg$r)
+
+# 2) Kjøpte: BI (RL ved kjøpsår, aktiv frem til kjøpsår + RL - 1)
+ann_bi_rl  <- compute_annuity_bi_with_rl_purchaseyear(bi_infl, rl_long, r = cfg$r)
+
+# Kombiner pr rapporteringsår
+r_ann <- tibble(y = years_model) |>
+  left_join(ann_gi_net, by = "y") |>
+  rename(r_ann_gi_net = r_ann) |>
+  left_join(ann_bi_rl, by = "y") |>
+  rename(r_ann_bi = r_ann) |>
+  mutate(r_ann.capex = coalesce(r_ann_gi_net, 0) + coalesce(r_ann_bi, 0)) |>
+  select(y, r_ann.capex)
+
+dat_org |>
+  distinct(id, y) |>
+  left_join(r_ann, by = "y")
 
 
 # ============================================================
@@ -596,9 +739,9 @@ loading_kpi <- function(update_kpi){
     df_kpi <- readxl::read_excel(out_path)
     
   }
-  if is.null(df_kpi){
+  if (is.null(df_kpi)) 
     stop("kpi er ikke innlastet")
-  }
+  
   return(df_kpi)
 }
 
@@ -633,14 +776,15 @@ loading_tek_weights <- function(update_tek){
     
     years <- 1975:1995
     
-    df_tek_weights <- tibble(
-      orgnr = orgnrs,
-      category = categories
+    
+    df_tek_weights <- expand_grid(
+      orgnr    = orgnrs,
+      category = categories,
+      y        = years
     ) |>
-      expand_grid(y = years) |>
       group_by(orgnr, category) |>
       mutate(
-        weight_raw = runif(n()),          # alltid > 0
+        weight_raw = runif(n()),          # > 0
         weight = weight_raw / sum(weight_raw)
       ) |>
       ungroup() |>
