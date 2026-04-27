@@ -83,3 +83,4 @@
 
   write.csv(RevCap, file = "RevCap.csv")
   
+  # Mona var her 27.4.26
