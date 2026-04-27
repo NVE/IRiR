@@ -83,3 +83,6 @@
 
   write.csv(RevCap, file = "RevCap.csv")
   #Martha var her
+  # Kathrine var her
+  
+  #Håvard var her
