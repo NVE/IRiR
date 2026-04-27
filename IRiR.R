@@ -82,6 +82,7 @@
   source("./R-script/Print_results.R")    # Script for printing results
 
   write.csv(RevCap, file = "RevCap.csv")
+  #Martha var her
   # Kathrine var her
   
   #Håvard var her
