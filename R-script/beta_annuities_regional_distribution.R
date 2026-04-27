@@ -157,8 +157,6 @@ detect_year_col <- function(nms) {
 #    Viktig: Tomme celler => 0 (ikke droppes)
 # ============================================================
 
-y_rep_scalar = 2020
-parse_no_scalar =TRUE
 
 standardize_sheet_vintage_table <- function(df, y_rep_scalar, parse_no_scalar = TRUE, label = "GI/BI") {
   if (is.null(df) || nrow(df) == 0) stop(label, ": Tom fane for ", y_rep_scalar)
@@ -278,6 +276,7 @@ inflate_to_base <- function(df_long, kpi_tbl, base_year) {
 # ============================================================
 
 annuity_payment <- function(P, r, n) {
+  
   ifelse(r == 0, P / n, P * (r / (1 - (1 + r)^(-n))))
 }
 
@@ -292,7 +291,13 @@ compute_annuity_standard <- function(df_infl, lifetime_map, r) {
   x |>
     mutate(active = (y_rep >= y_vintage) & (y_rep <= (y_vintage + n_years - 1))) |>
     filter(active) |>
-    mutate(A = annuity_payment(value_inflated, r = r, n = n_years)) |>
+    mutate(
+      A = map2_dbl(
+        value_inflated,
+        n_years,
+        ~ annuity_payment(.x, r, .y)
+      )
+    )|>
     group_by(y = y_rep) |>
     summarise(r_ann = sum(A, na.rm = TRUE), .groups = "drop")
 }
@@ -308,7 +313,13 @@ compute_annuity_bi_with_rl_purchaseyear <- function(df_infl_bi, rl_tbl, r) {
     mutate(active = (value_inflated > 0) & (rl > 0) &
              (y_rep >= y_vintage) & (y_rep <= (y_vintage + rl - 1))) |>
     filter(active) |>
-    mutate(A = annuity_payment(value_inflated, r = r, n = rl)) |>
+    mutate(
+      A = map2_dbl(
+        value_inflated,
+        rl,
+        ~ annuity_payment(.x, r, .y)
+      )
+    )|>
     group_by(y = y_rep) |>
     summarise(r_ann = sum(A, na.rm = TRUE), .groups = "drop")
 }
@@ -471,12 +482,12 @@ compute_annuiteter_all <- function(dat,
   stopifnot(all(c("category","n_years") %in% names(lifetime_map)))
   
   # KPI
-  if (is.null(kpi_tbl) || isTRUE(cfg$update_kpi)) {
+  if (!exists("kpi_tbl") || isTRUE(cfg$update_kpi)) {
     kpi_tbl <- loading_kpi(cfg$update_kpi)
   }
   
   # TEK
-  if (is.null(tek_weights_tbl) || isTRUE(cfg$update_tek)) {
+  if (!exists("tek_weights_tbl") || isTRUE(cfg$update_tek)) {
     tek_weights_tbl <- loading_tek_weights(cfg$update_tek)
   }
   
@@ -511,7 +522,7 @@ compute_annuiteter_all <- function(dat,
   dat2
 }
 
-sh
+
 
 ## Tester med innlesing av tilendte data
 
@@ -547,6 +558,7 @@ compute_annuiteter_all(dat_test,
                        cfg = annuity_cfg_default)
 
 
+# Koden kjører, men r_ann.capex er 0 for alle år for alle selskaper
 
 
 
@@ -583,7 +595,7 @@ ann_tbl <- dat_test |>
 orgnr <- unique(df_aktuelle_selskap$orgn[1])
 if (length(orgnr) != 1) stop("dat_org må inneholde ett orgnr.")
 
-years_model <- sort(unique(dat_test$years))
+years_model <- sort(unique(dat_test$y))
 if (length(years_model) == 0) stop("Fant ingen år i dat_org$y.")
 
 dir_gi   <- file.path(annuity_cfg_default$base_dir, annuity_cfg_default$dir_gi)
@@ -628,11 +640,11 @@ check_bi_requires_rl(bi_long, rl_long, orgnr, n_examples = annuity_cfg_default$n
 gi_net_long <- compute_gi_minus_bi(gi_long, bi_long, tol = annuity_cfg_default$tol)
 
 # Inflasjon etter vintage
-if (is.null(kpi_tbl) || isTRUE(annuity_cfg_default$update_kpi)) {
+if (is.null(df_kpi) || isTRUE(annuity_cfg_default$update_kpi)) {
   kpi_tbl <- loading_kpi(annuity_cfg_default$update_kpi)
 }
-gi_net_infl <- inflate_to_base(gi_net_long, kpi_tbl, annuity_cfg_default$base_price_year)
-bi_infl     <- inflate_to_base(bi_long,     kpi_tbl, annuity_cfg_default$base_price_year)
+gi_net_infl <- inflate_to_base(gi_net_long, df_kpi, annuity_cfg_default$base_price_year)
+bi_infl     <- inflate_to_base(bi_long,     df_kpi, annuity_cfg_default$base_price_year)
 
 # Annuiteter:
 
@@ -646,7 +658,13 @@ if (any(is.na(x$n_years))) {
 x |>
   mutate(active = (y_rep >= y_vintage) & (y_rep <= (y_vintage + n_years - 1))) |>
   filter(active) |>
-  mutate(A = annuity_payment(value_inflated, r = annuity_cfg_default$r, n = n_years)) |>
+  mutate(
+    A = map2_dbl(
+      value_inflated,
+      n_years,
+      ~ annuity_payment(.x, annuity_cfg_default$r, .y)
+    )
+    )|>
   group_by(y = y_rep) |>
   summarise(r_ann = sum(A, na.rm = TRUE), .groups = "drop")
 
@@ -755,14 +773,15 @@ loading_tek_weights <- function(update_tek){
     "df_tek_weights_annuities.xlsx"
   ) 
   
-  if (isTRUE(update_kpi)){
+  if (isTRUE(update_tek)){
     
     ###############################
     #### Denne delen skal erstattes med TEK-spørring
     ###############################
     
     set.seed(1234)
-    orgnrs <- innleverte_data$orgn
+    
+    orgnrs <- df_aktuelle_selskap$orgn
     
     categories <- c(
       "linjer",
