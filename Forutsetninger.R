@@ -41,9 +41,17 @@ getwd() # Get current working directory
 
 #### Manuelle justeringer #####
 
-decision <-  0  # Select mode, 1 for decision or 0 for notice
-y.cb <-  as.yearqtr("2024-01-01") # Settes til 1. januar for ?ret for rapportering
-y.rc <- year(y.cb+2) # InntektsrammeC%r = cost base year + 2 C%r
+
+
+if (!exists("current_year")) current_year <- 2026
+
+y.rc <- current_year
+y.cb <- as.yearqtr(paste0(y.rc - 2, "-01-01"))
+
+
+# decision <-  0  # Select mode, 1 for decision or 0 for notice
+# y.cb <-  as.yearqtr("2024-01-01") # Settes til 1. januar for ?ret for rapportering
+# y.rc <- year(y.cb+2) # InntektsrammeC%r = cost base year + 2 C%r
 wcp <-  1.01  # Working capital premium, used to calculate RAB from book values
 rho <-  0.7   # Norm cost share in revenue cap 
 y.avg <-  (y.cb-4):y.cb # Relevant years for calculation of average values
@@ -54,7 +62,7 @@ lrt_RC_dec.y.cb <- 0 #12201620 # Oppdatert 01.10.25 HBHO
 ex.comp = c(900) # Selskaper som ekskluderes fra rekalibreringen til varsel 2026
 
 # Velg dato for valutakurs, format "yyyy-mm-dd". Hvis denne er kommentert ut, velges siste tilgjengelige observasjon.
-time_period_currency <- "2025-10-23" 
+#time_period_currency <- "2025-10-23" 
 
 # Last ned data fra Nasdaq: http://www.nasdaqomx.com/transactions/markets/commodities/market-prices
 # Filen maa lastes ned manuelt og legges i working directory som xlsx-fil. Scriptet vil fjerne unodvendig info fra excel-fila.

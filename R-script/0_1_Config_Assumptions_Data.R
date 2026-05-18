@@ -1,4 +1,12 @@
 
+# Sikrer at script fortsatt kan kjøres for enkeltår
+if (!exists("current_year")) {
+  current_year <- max(dat$y) + 2
+}
+
+
+
+
 #### 0_1 Configuration, assumptions and data import ####
 forutsetninger = load(file="./Data/forutsetninger.Rdata")
 
