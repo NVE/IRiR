@@ -1,14 +1,25 @@
-
-# Sikrer at script fortsatt kan kjøres for enkeltår
+# Fallback så scriptet kan kjøre som standalone
 if (!exists("current_year")) {
-  current_year <- max(dat$y) + 2
+  warning("current_year ikke satt – bruker 2026")
+  current_year <- 2026
 }
 
 
-
-
 #### 0_1 Configuration, assumptions and data import ####
-forutsetninger = load(file="./Data/forutsetninger.Rdata")
+file_path <- paste0("./Data/forutsetninger_", current_year, ".Rdata")
+load(file=file_path)
+
+#### Sjekker at det er de riktige forutsetninger som er innlest
+if (y.rc != current_year) {
+  stop(
+    paste(
+      "Mismatch mellom current_year (", current_year,
+      ") og y.rc i forutsetninger (", y.rc, ")",
+      sep = ""
+    )
+  )
+}
+
 
 #### Import data ####
 dat = read.xlsx("./Data/BaseData/irBase - Stata - 27.11.2025 09_53_35.xlsx")

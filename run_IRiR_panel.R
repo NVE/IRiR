@@ -22,6 +22,7 @@ results_revcap <- list()
 results_stage2 <- list()
 
 save_stage2 <- TRUE
+recompute_forutsetninger <- TRUE
 
 # ---- 4. Loop over år ------------------------------------------
 
@@ -34,8 +35,17 @@ for (yr in years) {
   current_year <- yr
   decision <- ifelse(yr == 2026, 0, 1)
   
-  # Innleser forutsetninger
-  source("forutsetninger_script.R")
+  # Innleser/beregner forutsetninger
+  file_path <- paste0("Data/forutsetninger_", current_year, ".Rdata")
+  
+  
+  if (recompute_forutsetninger) {
+    source("forutsetninger_script.R")
+  } else {
+    load(file_path)
+  }
+  
+  }
   
   ############################################################
   # A: MED KILE

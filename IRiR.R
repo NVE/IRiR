@@ -1,7 +1,7 @@
 #### IRiR - InntektsRammer i R / Revenue cap calculation in R ####
 
 #### R set up ####
-  remove(list=ls()) # Remove all objects from memory
+  #remove(list=ls()) # Remove all objects from memory
   start.time =  Sys.time()
   options(scipen = 2000) # Avoid showing large numbers in scientific mode
 
@@ -48,6 +48,7 @@
 
 # Beregning av forutsetninger
   #source("./Forutsetninger.R") 
+  
 
 #### Calculating revenue caps ####
   source("./R-script/functions_nve.R")               # File containing functions created for/by NVE

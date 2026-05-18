@@ -40,11 +40,12 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 getwd() # Get current working directory
 
 #### Manuelle justeringer #####
+if (!exists("decision")) decision <- 0
 
-
-
-if (!exists("current_year")) current_year <- 2026
-
+# Fallback så scriptet kan kjøre som standalone
+if (!exists("current_year")) {
+  warning("current_year ikke satt – bruker 2026")
+  current_year <- 2026
 y.rc <- current_year
 y.cb <- as.yearqtr(paste0(y.rc - 2, "-01-01"))
 
@@ -744,21 +745,31 @@ Tot_cb.y_ex_cap
 lrt_RC_dec.y.cb = Tot_cb.y_ex_cap
 
 ### Lagrer data ####
+
+file_path <- paste0("./Data/forutsetninger_", y.rc, ".Rdata")
+
 if (decision == 0){
   save(list = c("cpi", "cpi.l", "sysp.t_2", "NVE.ir", "NVE.ir.t",
                 "NVE.ir.t_2", "y.cb.cpi.factor", "y.cb.cpi.l.factor",
                 "y.cb", "y.rc", "decision", "y.avg", "wcp", "rho",
                 "lrt_RC_dec.y.cb", "timestamp_currency",
-                "timestamp_future"), # "pnl.rc" er tatt ut av lista for varsel, mohh 24.10.25
-       file = "./Data/forutsetninger.Rdata")
-  } else {
-    save(list = c("cpi", "cpi.l", "pnl.rc", "sysp.t_2", "NVE.ir", "NVE.ir.t",
-                  "NVE.ir.t_2", "y.cb.cpi.factor", "y.cb.cpi.l.factor",
-                  "y.cb", "y.rc", "decision", "y.avg", "wcp", "rho",
-                  "lrt_RC_dec.y.cb"),
-         file = "./Data/forutsetninger.Rdata")
-  }
+                "timestamp_future"),
+       file = file_path)
+  
+} else {
+  
+  save(list = c("cpi", "cpi.l", "pnl.rc", "sysp.t_2", "NVE.ir", "NVE.ir.t",
+                "NVE.ir.t_2", "y.cb.cpi.factor", "y.cb.cpi.l.factor",
+                "y.cb", "y.rc", "decision", "y.avg", "wcp", "rho",
+                "lrt_RC_dec.y.cb"),
+       file = file_path)
+}
 
-save(list = c("dat_geo"), file = "./Data/geo_variables.Rdata") # Lagrer rammevilkor fra tidligere varsel/vedtak
-save(list = c("cb.y_ex_cap"), file = "./Data/costs_t_2.Rdata") # Lagrer kostnader og ap.t_2 fra y.rc t-2
+
+
+save(list = c("dat_geo"),
+     file = paste0("./Data/geo_variables_", y.rc, ".Rdata")) # Lagrer rammevilkor fra tidligere varsel/vedtak
+
+save(list = c("cb.y_ex_cap"),
+     file = paste0("./Data/costs_t_2_", y.rc, ".Rdata")) # Lagrer kostnader og ap.t_2 fra y.rc t-2
 
