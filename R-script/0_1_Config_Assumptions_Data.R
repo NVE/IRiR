@@ -20,6 +20,10 @@ if (y.rc != current_year) {
   )
 }
 
+# Velger om KILE skal være med i forutsetningenem CLSO
+if (!use_kile) {
+  lrt_RC_dec_ex_kile.y.cb <- lrt_RC_dec_ex_kile.y.cb
+}
 
 #### Import data ####
 dat = read.xlsx("./Data/BaseData/irBase - Stata - 27.11.2025 09_53_35.xlsx")

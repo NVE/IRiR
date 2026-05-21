@@ -46,15 +46,21 @@ dat$rd_cga.tidl.coord = dat$rd_cga + dat$rd_cga_tidl + dat$rd_coord
         dat$ld_RAB      = dat$ld_rab.sf + dat$ld_rab.gf
         dat$ld_DEP      = dat$ld_dep.sf + dat$ld_dep.gf
         dat$ld_nl.NOK   = dat$ld_nl * sysp.t_2 
-        dat$ld_TOTXDEA  = dat$fp_ld_OPEX + (dat$ld_RAB * NVE.ir.t_2) + dat$ld_DEP + dat$fp_ld_cens + dat$ld_nl.NOK 
-
+        dat$ld_TOTXDEA =
+          dat$fp_ld_OPEX +
+          (dat$ld_RAB * NVE.ir.t_2) +
+          dat$ld_DEP +
+          (if (use_kile) dat$fp_ld_cens else 0) +
+          dat$ld_nl.NOK # Tilføyet betingelse for om KILE skal brukes CLSO
+        
 # Compute TOTXDEA, regional distribution (network losses not included)
         dat$fp_rd_OPEX  = dat$fp_rd_OPEXxS + dat$fp_rd_sal - dat$fp_rd_sal.cap + dat$fp_rd_pcb- dat$fp_rd_391 - dat$fp_rd_cga.tidl.coord
         dat$rd_rab.sf   = dat$rd_bv.sf * wcp
         dat$rd_rab.gf   = dat$rd_bv.gf * wcp
         dat$rd_RAB      = dat$rd_rab.sf + dat$rd_rab.gf
         dat$rd_DEP      = dat$rd_dep.sf + dat$rd_dep.gf
-        dat$rd_TOTXDEA  = dat$fp_rd_OPEX + (dat$rd_RAB * NVE.ir.t_2) + dat$rd_DEP + dat$fp_rd_cens
+        dat$rd_TOTXDEA  = dat$fp_rd_OPEX + (dat$rd_RAB * NVE.ir.t_2) + dat$rd_DEP + 
+          (if (use_kile) dat$fp_rd_cens else 0) # Tilføyet betingelse for om KILE skal brukes CLSO
 
 # Compute TOTXDEA for transmission grid
         dat$fp_t_OPEX   = dat$fp_t_OPEXxS + dat$fp_t_sal - dat$fp_t_sal.cap + dat$fp_t_pcb - dat$fp_t_391

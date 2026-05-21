@@ -1,4 +1,5 @@
 remove(list=ls())
+Sys.setlocale("LC_ALL", "nb_NO.UTF-8")
 
 #### Aktivering av pakker ####
 if (!"pxweb" %in% installed.packages()) install.packages("pxweb") # SSB 
@@ -46,6 +47,7 @@ if (!exists("decision")) decision <- 0
 if (!exists("current_year")) {
   warning("current_year ikke satt – bruker 2026")
   current_year <- 2026
+}
 y.rc <- current_year
 y.cb <- as.yearqtr(paste0(y.rc - 2, "-01-01"))
 
@@ -217,22 +219,34 @@ rm(prisomr, rep_vinter)
 #### Valutakurs fra Norges Bank ####
 # Henter daglig eurokurs mot NOK 
 # Kan endre antall observasjoner ved aa endre "lastNObservations=1" i koden nedenfor
-if (decision == 0){
-  url <- "https://data.norges-bank.no/api/data/EXR/B.EUR.NOK.SP?lastNObservations=1&format=sdmx-compact-2.1"
-  valutakurs <- readSDMX(url) %>% 
-    as.data.frame() %>% 
-    mutate(OBS_VALUE = as.numeric(OBS_VALUE))
-  rm(url)
-} 
 if (exists("time_period_currency") & decision == 0){
-  url <- paste0("https://data.norges-bank.no/api/data/EXR/B.EUR.NOK.SP?format=sdmx-generic-2.1&startPeriod=",time_period_currency,"&endPeriod=",time_period_currency,"&locale=no")
-  valutakurs <- readSDMX(url) %>% 
+  url1 <- "https://data.norges-bank.no/api/data/EXR/B.EUR.NOK.SP?format=sdmx-generic-2.1&startPeriod=2025-05-18&endPeriod=2026-05-18&locale=no"
+  url <- paste0("https://data.norges-bank.no/api/data/EXR/B.EUR.NOK.SP?format=sdmx-generic-2.1&startPeriod=",as.Date(time_period_currency)-5,"&endPeriod=",time_period_currency,"&locale=no")
+  valutakurs <- readSDMX(url1) %>% 
     as.data.frame(api) %>% 
     dplyr::rename(OBS_VALUE = obsValue,
                   TIME_PERIOD = obsTime) %>% 
     mutate(OBS_VALUE = as.numeric(OBS_VALUE))
   
+  valutakurs <- valutakurs %>%
+    dplyr::arrange(TIME_PERIOD) %>%
+    dplyr::slice_tail(n = 1)
+  
+  time_period_currency <- format(valutakurs$TIME_PERIOD, "%Y-%m-%d")
+  
   rm(url) }
+
+if (!exists("time_period_currency") & decision == 0){
+  url <- "https://data.norges-bank.no/api/data/EXR/B.EUR.NOK.SP?lastNObservations=1&format=sdmx-compact-2.1"
+  valutakurs <- readSDMX(url) %>% 
+    as.data.frame() %>% 
+    mutate(OBS_VALUE = as.numeric(OBS_VALUE))
+  
+  # danneer timestamp
+  time_period_currency <- format(Sys.Date(), "%Y-%m-%d")
+  
+  rm(url)
+} 
 
 #### EPAD og Future-kontrakter (til bruk i varsel) ####
 if (decision == 0){
@@ -497,69 +511,175 @@ ssb_03014 <- as.data.frame(ssb_03014,
                 Aarsendring_prosent = 4) %>% 
   mutate(aar = as.numeric(aar))
 
+
+# Definerer cutoff
+cutoff_year <- ifelse(decision == 1, y.rc, year(y.cb))
+
 #### CPI-L ####
-kpi <- ssb_12880 # Henter prognoser for inflasjon
-kpi <- kpi %>% 
-  arrange(aar) %>%  # Sorting data
-  filter(aar > 2014 & aar <= y.rc) %>% # Deleting years before 2004 and estimates for year beyond y.rc
-  dplyr::rename(Aarslonn_indeks = lonn)
 
-# Legger til faktisk inflasjon til y.cb ved varsel og til y.rc ved vedtak
-if (decision==1){
-  kpi[kpi$aar > 2014 & kpi$aar <= y.rc,]$Aarslonn_indeks <-
-    ssb_11118[ssb_11118$aar <= y.rc,]$`Konsumprisindeks (2015=100)`
-} else {
-  kpi[kpi$aar > 2014 & kpi$aar <= year(y.cb),]$Aarslonn_indeks <-
-    ssb_11118[ssb_11118$aar <= year(y.cb),]$`Konsumprisindeks (2015=100)`
-}
+# Tar utgangspunkt i gjeldende tabell (11118)
+kpi_l <- ssb_11118 %>%
+  dplyr::select(
+    aar,
+    index = "Konsumprisindeks (2015=100)"
+  ) %>%
+  dplyr::mutate(
+    aar = as.numeric(aar),
+    index = as.numeric(index)
+  ) %>%
+  dplyr::arrange(aar)
 
-# Regner om prognoser til indeks for varsel-modus
-if (decision==0){
-  for (i in (1:2)){
-    kpi[kpi$aar >= y.cb,]$Aarslonn_indeks[i+1] <-
-      kpi[kpi$aar >= y.cb,]$Aarslonn_indeks[i] * 
-      (1 + (kpi[kpi$aar >= year(y.cb),]$Aarslonn[i+1]/100))
+# Bygger indeks bakover i tid med vekst-rater fra gammel tabell (03363)
+growth_old <- ssb_03363 %>%
+  select(aar, g_old = "Årsendring (prosent)") %>%
+  mutate(
+    aar = as.numeric(aar),
+    g_old = as.numeric(g_old)
+  )
+
+
+min_year_11118 <- min(kpi_l$aar, na.rm = TRUE)
+
+years_back <- sort(unique(growth_old$aar[growth_old$aar < min_year_11118]), decreasing = TRUE)
+
+for (yr in years_back) {
+  
+  next_year <- yr + 1
+  
+  if (next_year %in% cpi_l$aar) {
+    
+    next_value <- cpi_l$index[kpi_l$aar == next_year]
+    g <- growth_old$growth[g_old$aar == next_year]
+    
+    if (!is.na(g)) {
+      value <- next_value / (1 + g / 100)
+      
+      kpi_l <- dplyr::bind_rows(
+        tibble::tibble(aar = yr, index = value),
+        kpi_l
+      )
+    }
   }
 }
 
-cpi.l <- kpi %>% select(Aarslonn_indeks) %>% round(digits = 1) %>% as.vector() %>% unlist() %>% `names<-`(2015:(y.cb+2))
 
-# CPI-L factor used in calibration and RC calculation
-y.cb.cpi.l.factor = cpi.l[as.character(y.rc)]/cpi.l[as.character(year(y.cb))] 
+# avgrens hva som er kjent
+cpi_l_hist <- kpi_l %>%
+  filter(aar <= cutoff_year)
+
+# prognose
+growth_fore <- ssb_12880 %>%
+  dplyr::select(
+    aar,
+    growth = lonn
+  ) %>%
+  dplyr::mutate(
+    aar = as.numeric(aar),
+    growth = as.numeric(growth)
+  )
+
+max_year <- max(cpi_l_hist$aar, na.rm = TRUE)
+
+for (yr in seq(max_year + 1, y.rc)) {
+  
+  prev_value <- cpi_l_hist$index[cpi_l_hist$aar == yr - 1]
+  g <- growth_fore$growth[growth_fore$aar == yr]
+  
+  if (!is.na(g)) {
+    value <- prev_value * (1 + g / 100)
+    
+    cpi_l_hist <- dplyr::bind_rows(
+      cpi_l_hist,
+      tibble::tibble(aar = yr, index = value)
+    )
+  }
+}
+
+# --- sluttserie ---
+cpi_l <- cpi_l_hist %>%
+  dplyr::filter(aar >= 2004, aar <= y.rc) %>%
+  dplyr::arrange(aar)
+
+# --- modellformat ---
+cpi.l <- cpi_l %>%
+  dplyr::mutate(index = round(index, 1)) %>%
+  tibble::deframe()
+
+# --- faktor ---
+y.cb.cpi.l.factor =
+  cpi.l[as.character(y.rc)] /
+  cpi.l[as.character(year(y.cb))]
+
 y.cb.cpi.l.factor
+
 
 #### CPI #### 
 # Legger til faktisk inflasjon til y.cb ved varsel og til y.rc ved vedtak
-kpi$konsumprisindeksen_indeks <- 100
-if (decision==1){
-  kpi[kpi$aar <= y.rc,]$konsumprisindeksen_indeks <- 
-    ssb_03014[ssb_03014$aar > 2014 & ssb_03014$aar <= y.rc,]$`Konsumprisindeks (2015=100)`
-} else {
-  kpi[kpi$aar <= y.cb,]$konsumprisindeksen_indeks <- 
-    ssb_03014[ssb_03014$aar > 2014 & ssb_03014$aar <= year(y.cb),]$`Konsumprisindeks (2015=100)`
-}
+kpi <- ssb_03014 %>%
+  dplyr::select(
+    aar,
+    index = `Konsumprisindeks (2015=100)`
+  ) %>%
+  dplyr::mutate(
+    aar = as.numeric(aar),
+    index = as.numeric(index)
+  ) %>%
+  dplyr::arrange(aar)
 
-# Regner om prognoser til indeks for varsel-modus
-if (decision==0){
-  for (i in (1:2)){
-    kpi[kpi$aar >= year(y.cb),]$konsumprisindeksen_indeks[i+1] <-
-      kpi[kpi$aar >= year(y.cb),]$konsumprisindeksen_indeks[i] * 
-      (1 + (kpi[kpi$aar >= year(y.cb),]$`Konsumprisindeksen (KPI)`[i+1]/100))
+# Filtrerer så det bare er kjent historikk
+cpi_hist <- kpi %>%
+  filter(aar <= cutoff_year)
+
+
+# Henter prognose
+growth_fore <- ssb_12880 %>%
+  dplyr::select(
+    aar,
+    growth = `Konsumprisindeksen (KPI)`
+  ) %>%
+  dplyr::mutate(
+    aar = as.numeric(aar),
+    growth = as.numeric(growth)
+  )
+
+
+# --- bygg fremover ---
+max_year <- max(cpi_hist$aar, na.rm = TRUE)
+
+for (yr in seq(max_year + 1, y.rc)) {
+  
+  prev_value <- cpi_hist$index[cpi_hist$aar == yr - 1]
+  g <- growth_fore$growth[growth_fore$aar == yr]
+  
+  if (!is.na(g)) {
+    value <- prev_value * (1 + g / 100)
+    
+    cpi_hist <- dplyr::bind_rows(
+      cpi_hist,
+      tibble::tibble(aar = yr, index = value)
+    )
   }
 }
 
-# Legger til kpi for inntektsrammeC%ret fra SSB tabell 03014 for vedtak-modus (overskriver verdi fra tabell 12880)
-if(decision==1){
-  ssb_12880[ssb_12880$aar==y.rc,]$`Konsumprisindeksen (KPI)` <- ssb_03014[ssb_03014$aar==y.rc,]$Aarsendring_prosent
-  }
+# sluttserie
+cpi_cpi <- cpi_hist %>%
+  dplyr::filter(aar >= 2004, aar <= y.rc) %>%
+  dplyr::arrange(aar)
 
-cpi <- kpi %>% select(konsumprisindeksen_indeks) %>% round(digits = 1) %>% as.vector() %>% unlist() %>% `names<-`(2015:(y.cb+2))
+# modellformat
+cpi <- cpi_cpi %>%
+  dplyr::mutate(index = round(index, 1)) %>%
+  tibble::deframe()
 
-# CPI factor used in calibration and RC calculation
-y.cb.cpi.factor = cpi[as.character(y.rc)]/cpi[as.character(year(y.cb))] 
+# faktor
+y.cb.cpi.factor =
+  cpi_vec[as.character(y.rc)] /
+  cpi_vec[as.character(year(y.cb))]
+
 y.cb.cpi.factor
 
-rm(ssb_03014, ssb_03363, ssb_11118, kpi_arslonn_prognose, kpi_prognose)
+
+rm(ssb_03014, ssb_03363, ssb_11118, cpi_cpi, cpi_hist, max_year,growth_old, growth_fore, cpi_l_hist, min_year_11118)
 
 #### Historiske referanserenter ####
 server <- "SQL-BI03" 
@@ -593,9 +713,9 @@ dat <- dat %>%
   filter(Variable == "NVE.ir" | Variable == "NVE.ir.t") %>%       # Henter kun verdier for referanserente
   filter(type >= 3) %>%                                           # Henter kun verdier brukt i vedtak (eller etter klagebehandling)
   mutate(name_ir = y.cb+2) %>% 
-  filter(name_ir >= 2009) %>%
+  filter(name_ir >= 2005) %>% # endret fra 2009 til 2004
   filter(Rad == "TRUE") %>%
-  filter(Variable == "NVE.ir.t") %>%
+  #filter(Variable == "NVE.ir.t") %>% kommenterer denne ut da den filtrerer gamle NVE.ir fra
   arrange(name_ir)
 
 NVE.ir <- dat$value
@@ -744,6 +864,11 @@ Tot_cb.y_ex_cap = sum(cb.y_ex_cap$fp_OPEX + cb.y_ex_cap$nl.cost + cb.y_ex_cap$fp
 Tot_cb.y_ex_cap
 lrt_RC_dec.y.cb = Tot_cb.y_ex_cap
 
+#Uten KILE tilføyet av CLSO
+Tot_cb.y_ex_cap_ex_kile = sum(cb.y_ex_cap$fp_OPEX + cb.y_ex_cap$nl.cost)
+Tot_cb.y_ex_cap_ex_kile
+lrt_RC_dec_ex_kile.y.cb = Tot_cb.y_ex_cap_ex_kile
+
 ### Lagrer data ####
 
 file_path <- paste0("./Data/forutsetninger_", y.rc, ".Rdata")
@@ -752,7 +877,7 @@ if (decision == 0){
   save(list = c("cpi", "cpi.l", "sysp.t_2", "NVE.ir", "NVE.ir.t",
                 "NVE.ir.t_2", "y.cb.cpi.factor", "y.cb.cpi.l.factor",
                 "y.cb", "y.rc", "decision", "y.avg", "wcp", "rho",
-                "lrt_RC_dec.y.cb", "timestamp_currency",
+                "lrt_RC_dec.y.cb", "lrt_RC_dec_ex_kile.y.cb", "timestamp_currency",
                 "timestamp_future"),
        file = file_path)
   
@@ -761,7 +886,7 @@ if (decision == 0){
   save(list = c("cpi", "cpi.l", "pnl.rc", "sysp.t_2", "NVE.ir", "NVE.ir.t",
                 "NVE.ir.t_2", "y.cb.cpi.factor", "y.cb.cpi.l.factor",
                 "y.cb", "y.rc", "decision", "y.avg", "wcp", "rho",
-                "lrt_RC_dec.y.cb"),
+                "lrt_RC_dec.y.cb", "lrt_RC_dec_ex_kile.y.cb"),
        file = file_path)
 }
 
