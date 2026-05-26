@@ -50,8 +50,8 @@ dat$rd_cga.tidl.coord = dat$rd_cga + dat$rd_cga_tidl + dat$rd_coord
           dat$fp_ld_OPEX +
           (dat$ld_RAB * NVE.ir.t_2) +
           dat$ld_DEP +
-          (if (use_kile) dat$fp_ld_cens else 0) +
-          dat$ld_nl.NOK # Tilføyet betingelse for om KILE skal brukes CLSO
+          (if (use_kile) dat$fp_ld_cens else 0) + # Tilføyet betingelse for om KILE skal brukes CLSO
+          dat$ld_nl.NOK 
         
 # Compute TOTXDEA, regional distribution (network losses not included)
         dat$fp_rd_OPEX  = dat$fp_rd_OPEXxS + dat$fp_rd_sal - dat$fp_rd_sal.cap + dat$fp_rd_pcb- dat$fp_rd_391 - dat$fp_rd_cga.tidl.coord
