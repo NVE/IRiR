@@ -1,13 +1,22 @@
 
+
 #### 0_2 Merging Z-variables ####
 #### Import data from previous notice ####
 load(file = "./Data/geo_variables.Rdata")
 load(file = "./Data/costs_t_2.Rdata")
 
 # Setting pnl.rc (price of network loss) from RC-calculation two years prior to ap.t_2 (area price)
+if (!exists("panel")){
 ap.t_2 <- cb.y_ex_cap %>% select (c(id, pnl.rc))
 names(ap.t_2)[2] <- "ap.t_2"
 ap.t_2$ap.t_2 <- ap.t_2$ap.t_2/1000
+}else{
+  ap.t_2 <- read.xlsx("./Data/df_nettap.xlsx") |>
+    filter(y.cb == yr -4) %>% 
+    select (c(id, pnl.rc))
+  names(ap.t_2)[2] <- "ap.t_2"
+  ap.t_2$ap.t_2 <- ap.t_2$ap.t_2/1000
+}
 
 # Setter ap.t_2 manuelt for Linja
 ap.t_2 <- ap.t_2 %>% 

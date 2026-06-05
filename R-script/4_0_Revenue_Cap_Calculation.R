@@ -13,18 +13,18 @@ RevCap = subset.data.frame(dat, subset = y == y.cb,
 
 
 # Calculating total costs, not including return on capital (sum.costs) ####
-RevCap$ld_sum.cost = RevCap$fp_ld_OPEX * y.cb.cpi.l.factor + RevCap$fp_ld_cens * y.cb.cpi.factor + 
+RevCap$ld_sum.cost = RevCap$fp_ld_OPEX * y.cb.cpi.l.factor +  RevCap$fp_ld_cens * y.cb.cpi.factor + 
   RevCap$ld_dep.sf + RevCap$ld_nl * RevCap$pnl.rc
 
 RevCap$rd_sum.cost = RevCap$fp_rd_OPEX * y.cb.cpi.l.factor + RevCap$fp_rd_cga.tidl.coord * y.cb.cpi.l.factor +
   RevCap$fp_rd_cens * y.cb.cpi.factor + RevCap$rd_dep.sf + RevCap$rd_nl * RevCap$pnl.rc
 
-RevCap$t_sum.cost = RevCap$fp_t_OPEX * y.cb.cpi.l.factor + RevCap$fp_t_cens * y.cb.cpi.factor + RevCap$t_dep.sf
+RevCap$t_sum.cost = RevCap$fp_t_OPEX * y.cb.cpi.l.factor + RevCap$fp_t_cens  * y.cb.cpi.factor + RevCap$t_dep.sf
 
 RevCap$lrt_sum.cost = RevCap$ld_sum.cost + RevCap$rd_sum.cost + RevCap$t_sum.cost
 
 # Calculating cost base used in RC calculation (costs.RC) ####
-RevCap$ld_cost.RC = RevCap$fp_ld_OPEX * y.cb.cpi.l.factor + RevCap$fp_ld_cens * y.cb.cpi.factor + 
+RevCap$ld_cost.RC = RevCap$fp_ld_OPEX * y.cb.cpi.l.factor +  RevCap$fp_ld_cens * y.cb.cpi.factor + 
   RevCap$ld_dep.sf + RevCap$ld_rab.sf * NVE.ir.t + RevCap$ld_nl * RevCap$pnl.rc
 
 RevCap$rd_cost.RC = RevCap$fp_rd_OPEX * y.cb.cpi.l.factor + RevCap$fp_rd_cga.tidl.coord * y.cb.cpi.l.factor +
@@ -79,6 +79,11 @@ RevCap$lrt_cn.pre.recal = RevCap$ld_cn.pre.recal + RevCap$rd_cn.pre.recal + RevC
 # Revenue caps prior to re-calibration ####
 RevCap$lrt_RC.pre.recal   = (1-rho) * RevCap$lrt_cost.RC + rho * (RevCap$lrt_cn.pre.recal)
 
+
+if (exists("use_kile")){
+  return(invisible(NULL))
+}
+
 # Re-calibrating revenue caps ####
 
 # Re-calibration factor 1 - difference between total RC and total costs over total RAB
@@ -103,4 +108,3 @@ lrt_TOTAL.RC.pos.recal = sum(RevCap$lrt_RC.pos.recal)
 # Printing RevCap to Excel                
 write.xlsx(RevCap, file = paste0(run_dir,"/RevCap.xlsx"), overwrite = T)
 
-        

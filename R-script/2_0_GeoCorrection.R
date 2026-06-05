@@ -29,26 +29,26 @@ ld_EVAL$ld_cnorm = ld_EVAL$ld_TOTXDEA * ld_EVAL$ld_eff.s1.cb  # Previously used 
   ld_EVAL$pca_coast = z.est(geovar.in = Geovar.ldz, restricted.obs = Geovar.ldz)*-1 
   cor(Geovar.ldz) 
   pca_coast_reg <- lm( ld_EVAL$pca_coast ~ ld_EVAL$ldz_salt + ld_EVAL$ldz_coast_wind + ld_EVAL$ldz_water)
-
-# Leafinc / L?vfall 
+  
+  # Leafinc / L?vfall 
   Geovar.ldz = cbind(ld_EVAL[,c("ldz_incline", "ldz_prod", "ldz_snow_trees", "ldz_forest_broadleaf")])
   ld_EVAL$pca_leafinc = z.est(geovar.in = Geovar.ldz, restricted.obs = Geovar.ldz) 
   cor(Geovar.ldz)   
   pca_leafinc_reg <- lm( ld_EVAL$pca_leafinc ~ ld_EVAL$ldz_incline + ld_EVAL$ldz_prod + 
                            ld_EVAL$ldz_snow_trees + ld_EVAL$ldz_forest_broadleaf)
-
-# Frost
+  
+  # Frost
   Geovar.ldz = cbind(ld_EVAL[,c("ldz_snowdrift", "ldz_snow_400", "ldz_wind_99", "ldz_frosthours")])
   ld_EVAL$pca_frost = z.est(geovar.in = Geovar.ldz, restricted.obs = Geovar.ldz) 
   cor(Geovar.ldz)
   pca_frost_reg <- lm( ld_EVAL$pca_frost ~ ld_EVAL$ldz_snowdrift + ld_EVAL$ldz_snow_400 + 
-                           ld_EVAL$ldz_wind_99 + ld_EVAL$ldz_frosthours)
-
-# Calculating Z-variable coefficients
+                         ld_EVAL$ldz_wind_99 + ld_EVAL$ldz_frosthours)
+  
+  # Calculating Z-variable coefficients
   Geovar.ldz = cbind(ld_EVAL[,c("ldz_forest_mixed_conf","pca_leafinc", "pca_coast","pca_frost")]) 
   cor(Geovar.ldz)    
-
-# Creating new vector for bootstrapped efficiency scores
+  
+  # Creating new vector for bootstrapped efficiency scores
   ld_eff.bs = ld_EVAL$ld_eff.bs.is2.cZ
   names(ld_eff.bs) = names(X.avg.ld)
   
@@ -57,20 +57,21 @@ ld_EVAL$ld_cnorm = ld_EVAL$ld_TOTXDEA * ld_EVAL$ld_eff.s1.cb  # Previously used 
   ldz.coeff = ldz.reg$coeff 
   
   print(summary(ldz.reg$res.regr.NVE))
-
-# Adjusting efficiency scores from stage 1, using difference in Z-value relative to target unit
+  
+  # Adjusting efficiency scores from stage 1, using difference in Z-value relative to target unit
   eff.cb.avg.ld = dea.cb.avg.ld$eff
   ld_s2 = Zvar2(x = X.avg.ld, eff = eff.cb.avg.ld, id = names(X.avg.ld),
                 lambda = ld_lambda, coeff = ldz.coeff, z = Geovar.ldz)
   ld_EVAL$ld_eff.s2.cb = ld_s2$eff.corr
-
-# Korreksjonen kan maks være 40 prosentpoeng begge veier (opp- og nedjustering)
-ld_EVAL <- ld_EVAL %>% 
+  
+  # Korreksjonen kan maks være 40 prosentpoeng begge veier (opp- og nedjustering)
+  ld_EVAL <- ld_EVAL %>% 
     mutate(ld_eff.s2.cb = case_when(
       ld_eff.s1.cb - ld_eff.s2.cb > 0.40 ~ ld_eff.s1.cb + 0.40,  # Hvis differansen er over +40 pp, settes korrigering til 40%
       ld_eff.s1.cb - ld_eff.s2.cb < -0.40 ~ ld_eff.s1.cb - 0.40, # Hvis differansen er over -40 pp, settes korrigering til -40%
       TRUE ~ ld_s2$eff.corr                                      # Hvis ingen av betingelsene over er oppfylt, korriger med verdien fra trinn 2
-  ))
+    ))
   
-# No Z-variable adjustment for regional grid
+  # No Z-variable adjustment for regional grid
   rd_EVAL$rd_eff.s2.cb = rd_EVAL$rd_eff.s1.cb
+  

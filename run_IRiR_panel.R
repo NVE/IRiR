@@ -16,15 +16,19 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 source("load_kpi.R")
 
 
+# ---- 2. Avgrensninger------------------------------------------
+recompute_forutsetninger <- TRUE
+years <- c(2025:2026)
+panel <- TRUE
+
 # ---- 3. Resultatbeholdere -------------------------------------
 
 results_revcap <- list()
 results_stage2 <- list()
 
-save_stage2 <- TRUE
-recompute_forutsetninger <- TRUE
 
-# ---- 4. Loop over år ------------------------------------------
+
+# ---- 5. Loop over år ------------------------------------------
 
 for (yr in years) {
   
@@ -38,9 +42,8 @@ for (yr in years) {
   # Innleser/beregner forutsetninger
   file_path <- paste0("Data/forutsetninger_", current_year, ".Rdata")
   
-  
   if (recompute_forutsetninger) {
-    source("forutsetninger_script.R")
+    source("Forutsetninger.R")
   } else {
     load(file_path)
   }
@@ -55,22 +58,42 @@ for (yr in years) {
   
   cat("Scenario: WITH KILE\n")
   
-  source("NVE_IRiR.R")
+  source("IRiR.R")
   
+  # Henter data fra inntektsrammeberegning
   tmp <- RevCap
-  tmp$year <- yr
+  
+  tmp$year     <- yr
   tmp$scenario <- "with_kile"
+  tmp   <- tmp %>% 
+    left_join(ld_EVAL %>% select(ld_eff.s2.cb, id), by="id")
+  #tmp$rd_eff   <- ld_EVAL$rd_eff.s2.cb
   
-  results_revcap[[paste0(yr, "_kile")]] <- tmp
+  results_revcap[[paste0(yr, "_",  tmp$scenario)]] <- tmp
   
-  if (save_stage2) {
-    results_stage2[[paste0(yr, "_kile")]] <- stage2_results
-  }
+  # Henter data fra rammevilkårskorrigering
+  reg_summary <- summary(ldz.reg$res.regr.NVE)
+  
+  coef_df_ld <- data.frame(
+    variable  = rownames(reg_summary$coefficients),
+    estimate  = reg_summary$coefficients[, "Estimate"],
+    std_error = reg_summary$coefficients[, "Std. Error"],
+    t_value   = reg_summary$coefficients[, "t value"],
+    p_value   = reg_summary$coefficients[, "Pr(>|t|)"],
+    row.names = NULL
+  )
+  
+  coef_df_rd$year     <- current_year
+  coef_df_rd$scenario <- "with_kile"
+  
+  
+  results_reg[[paste0(yr, "_", coef_df_rd$scenario)]] <- coef_df_ld
+  
   
   # RESET miljø
-  rm(list = setdiff(ls(), c("years", "results_revcap", "results_stage2",
+  rm(list = setdiff(ls(), c("years", "results_revcap", "results_reg",
                             "kpi_data", "current_year", "decision",
-                            "yr", "save_stage2")))
+                            "yr")))
   
   ############################################################
   # B: UTEN KILE
@@ -82,50 +105,53 @@ for (yr in years) {
   
   source("NVE_IRiR.R")
   
-  # ---- B1: Ren uten KILE ----
   
-  tmpA <- RevCap
-  tmpA$year <- yr
-  tmpA$scenario <- "no_kile_A"
+  # Henter data fra inntektsrammeberegning
+  tmp <- RevCap
   
-  results_revcap[[paste0(yr, "_no_kile_A")]] <- tmpA
+  tmp$year     <- yr
+  tmp$scenario <- "no_kile"
+  tmp   <- tmp %>% 
+    left_join(ld_EVAL %>% select(ld_eff.s2.cb, id), by="id")
+  #tmp$rd_eff   <- ld_EVAL$rd_eff.s2.cb
   
-  if (save_stage2) {
-    results_stage2[[paste0(yr, "_no_kile")]] <- stage2_results
-  }
+  name <- paste0(yr, "_",  tmp$scenario[1])
+  results_revcap[[name]] <- tmp
   
-  # ---- B2: Uten KILE + aggregert KILE ----
+  # Henter data fra rammevilkårskorrigering
+  reg_summary <- summary(ldz.reg$res.regr.NVE)
   
-  total_kile <- sum(KILE_vector, na.rm = TRUE)
-  
-  total_cost_A <- sum(totex_ex_kile, na.rm = TRUE)
-  total_cost_B <- total_cost_A + total_kile
-  
-  calib_factor_A <- total_cost_A / sum(cost_norm, na.rm = TRUE)
-  calib_factor_B <- total_cost_B / sum(cost_norm, na.rm = TRUE)
-  
-  cost_norm_B <- cost_norm * calib_factor_B
-  
-  # ⚠️ Krever egen funksjon basert på Stage 4
-  RevCap_B <- calc_revcap(
-    cost_norm = cost_norm_B,
-    actual_cost = totex_ex_kile,
-    other_inputs = other_inputs   # må defineres i IRiR
+  coef_df_ld <- data.frame(
+    variable  = rownames(reg_summary$coefficients),
+    estimate  = reg_summary$coefficients[, "Estimate"],
+    std_error = reg_summary$coefficients[, "Std. Error"],
+    t_value   = reg_summary$coefficients[, "t value"],
+    p_value   = reg_summary$coefficients[, "Pr(>|t|)"],
+    row.names = NULL
   )
   
-  tmpB <- RevCap_B
-  tmpB$year <- yr
-  tmpB$scenario <- "no_kile_B"
+  coef_df_rd$year     <- current_year
+  coef_df_rd$scenario <- "no_kile"
   
-  results_revcap[[paste0(yr, "_no_kile_B")]] <- tmpB
+  
+  results_reg[[paste0(yr, "_", coef_df_rd$scenario[1])]] <- coef_df_ld
+  
+  
+  # RESET miljø
+  rm(list = setdiff(ls(), c("years", "results_revcap", "results_reg",
+                            "kpi_data", "current_year", "decision",
+                            "yr")))
+  
+  
   
 }
 
-# ---- 7. Samle resultater --------------------------------------
+# ---- 6. Samle resultater --------------------------------------
 
 revcap_df <- do.call(rbind, results_revcap)
+reg_df <- do.call(rbind, results_reg)
 
-# ---- 8. Deflater til 2025-priser ------------------------------
+# ---- 7. Deflater til 2025-priser ------------------------------
 
 base_year <- 2025
 kpi_base <- kpi_data$kpi[kpi_data$year == base_year]
@@ -134,8 +160,9 @@ revcap_df <- merge(revcap_df, kpi_data, by = "year", all.x = TRUE)
 
 revcap_df$revcap_real <- revcap_df$revcap_nominal * (kpi_base / revcap_df$kpi)
 
-# ---- 9. Lagre -------------------------------------------------
+# ---- 8. Lagre -------------------------------------------------
 
 write.csv(revcap_df, "Results/revcap_panel.csv", row.names = FALSE)
+write.csv(reg_df, "Results/reg_panel.csv", row.names = FALSE)
 
-cat("\nFerdig!\n")
+

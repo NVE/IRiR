@@ -30,14 +30,14 @@
   run_dir = file.path(results_dir, paste0("Run_", timestamp)) # Creates directory for given run within results
   dir.create(run_dir, recursive = TRUE) # Actual creation of run_dir
   
-# Bootstrap settings
-# Dummy variable determining whether to calculate new bootstrap estimates (1) or reuse last calculation (0)
+  # Bootstrap settings
+  # Dummy variable determining whether to calculate new bootstrap estimates (1) or reuse last calculation (0)
   BS.new = 0
   BS.ite = 100000 # Number of iterations in bootstrap calculation
   Statnett_calc = FALSE #
-
-
-# Sett inn riktig beregningstype til lagring i DWH
+  
+  
+  # Sett inn riktig beregningstype til lagring i DWH
   versjon <- data.frame("type" = as.integer(2))
   # 0 Annet
   # 1 Forel?pig beregning
@@ -45,12 +45,18 @@
   # 3 Vedtak
   # 4 Etter klagebehandling (forel?pig) ( ved varsel om IR )
   # 5 Etter klagebehandling (endelig)   ( ved vedtak om IR )
-
-# Beregning av forutsetninger
+  
+  # Beregning av forutsetninger
   #source("./Forutsetninger.R") 
   
-
-#### Calculating revenue caps ####
+  linjer <- readLines("./R-script/functions_nve.R")
+  
+  linjer[grep("cb.y_ex_cap", linjer)]
+  
+  
+  
+  
+  #### Calculating revenue caps ####
   source("./R-script/functions_nve.R")               # File containing functions created for/by NVE
   source("./R-script/0_1_Config_Assumptions_Data.R") # Defining parameters and importing base data
   source("./R-script/0_2_Merging_Z-variables.R")     # Merging Z-variables
@@ -61,12 +67,14 @@
                      "ld_ss", "rd_wv.ol", "rd_wv.uc", "rd_wv.sc", "rd_wv.ss","ldz_salt", "ldz_coast_wind", "ldz_water", "ldz_incline", "ldz_prod",
                      "ldz_snow_trees", "ldz_forest_broadleaf", "ldz_snowdrift", "ldz_snow_400", "ldz_wind_99", "ldz_frosthours", "ldz_forest_mixed_conf",
                      "ldz_mgc", "ap.t_2", "pnl.rc")]
-
-  csv_file = file.path(run_dir, paste0(Sys.Date(), "_grunnlagsdata.csv"))
-  xlsx_file = file.path(run_dir, paste0(Sys.Date(), "_grunnlagsdata.xlsx"))
-  write.csv(write.dat, file = csv_file)
-  write.xlsx(write.dat, file = xlsx_file, overwrite = T)
-        
+  
+  if (!exists("panel")) {
+    csv_file = file.path(run_dir, paste0(Sys.Date(), "_grunnlagsdata.csv"))
+    xlsx_file = file.path(run_dir, paste0(Sys.Date(), "_grunnlagsdata.xlsx"))
+    write.csv(write.dat, file = csv_file)
+    write.xlsx(write.dat, file = xlsx_file, overwrite = T)
+  }
+  
   source("./R-script/0_3_Calculated_Input_Values.R")    # Calculating input values for DEA
   source("./R-script/0_4_Company_Selection.R")          # Preparing for special treatment
   source("./R-script/1_0_DEA.R")                        # Stage 1 - DEA
@@ -75,14 +83,17 @@
   source("./R-script/Spec_OOTO-model.R")                # Companies exempted from DEA - Special models
   source("./R-script/Spec_AvEff-model.R")               # Companies exempted from DEA - Special models
   source("./R-script/4_0_Revenue_Cap_Calculation.R")    # Calculating Revenue caps
-
+  
   end.time =  Sys.time()
   calc.time = end.time - start.time
   calc.time
-  source("./R-script/Key_figures.R")      # Script creating data frame for printing results
-  source("./R-script/Print_results.R")    # Script for printing results
-
-  write.csv(RevCap, file = "RevCap.csv")
+  
+  if (!exists("panel")){
+    source("./R-script/Key_figures.R")      # Script creating data frame for printing results
+    source("./R-script/Print_results.R")    # Script for printing results
+    
+    write.csv(RevCap, file = "RevCap.csv")
+  }
   #brita var her
   
   # Mona var her 27.4.26
@@ -90,3 +101,4 @@
   # Kathrine var her
   
   #Håvard var her
+  
