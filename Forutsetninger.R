@@ -1,6 +1,10 @@
 remove(list=ls())
 
-#### Aktivering av pakker ####
+
+# ==============================================================================
+#### 1. Oppsett: aktivering av pakker ####
+# ==============================================================================
+
 if (!"pxweb" %in% installed.packages()) install.packages("pxweb") # SSB 
 library(pxweb)
 if (!"XML" %in% installed.packages()) install.packages("XML") # SSB 
@@ -39,7 +43,11 @@ library(janitor)
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 getwd() # Get current working directory
 
-#### Manuelle justeringer #####
+
+# ==============================================================================
+#### 2. Manuelle innstillinger for kjC8ringen ####
+# ==============================================================================
+
 
 decision <-  0  # Select mode, 1 for decision or 0 for notice
 y.cb <-  as.yearqtr("2024-01-01") # Settes til 1. januar for ?ret for rapportering
@@ -66,13 +74,17 @@ future_updated <- "2025-10-23"
 
 # Rente for forrige inntektsrammeaar (t-1)
 swap_y.rc_1 <- 3.97          # Oppdatert 27.11.25 HBHO 
-kreditpremie_y.rc_1 <- 0.87  # Oppdatert 25.11.25 HBHO
+KP_y.rc_1 <- 0.87  # Oppdatert 25.11.25 HBHO
  
 # Rente for inntektsrammeaaret (t)
 swap_y.rc <- 3.94            # Oppdatert 27.11.25 HBHO
-kreditpremie_y.rc <- 0.77   # Oppdatert 25.11.25 HBHO
+KP_y.rc <- 0.77   # Oppdatert 25.11.25 HBHO
 
-#### 14091: Elektrisitetsbalanse (MWh) #### 
+
+# ==============================================================================
+#### 3. Forbruksdata fra SSB: elektrisitetsbalanse 14091 ####
+# ==============================================================================
+ 
 # pxweb_interactive("ttps://data.ssb.no/api/v0/no/table/14091")
 
 # Hent data fra ny tabell (14091)
@@ -107,17 +119,29 @@ forbruk_per_mnd <- elbalanse %>%
 colnames(forbruk_per_mnd)[4] <- "Forbruk i utvinning av raaolje og naturgass"
 #colnames(forbruk_per_mnd)[which(names(forbruk_per_mnd) == "Forbruk i utvinning av raaolje og naturgass")] <- "Forbruk i utvinning av raaolje og naturgass"
 
-# Beregn alminnelig forbruk
+# ==============================================================================
+#### Beregn alminnelig forbruk
+# ==============================================================================
+
 forbruk_per_mnd <- forbruk_per_mnd %>%
   mutate(
     Alminnelig_forbruk = `Nettoforbruk av elektrisk kraft` -
       `Forbruk i utvinning av raaolje og naturgass` -
-      `Forbruk i kraftintensiv industri`,
+      `Forbruk i kraftintensiv industri`
+  ) %>%
+  group_by(aar_vekt = year(date)) %>%
+  mutate(
     vekt = Alminnelig_forbruk / sum(Alminnelig_forbruk, na.rm = TRUE)
   ) %>%
+  ungroup() %>%
+  select(-aar_vekt) %>%
   arrange(date)
 
-#### Systempris fra NordPool ####
+
+# ==============================================================================
+#### 4. Kraftpriser fra NordPool via NVE_DWH ####
+# ==============================================================================
+
 # Henter systempris per mnd fra NordPool (gjennom NVE_DWH)
 server <- "SQL-BI03"
 database = "NVE_DWH"
@@ -191,7 +215,11 @@ kraftpriser_mnd <- kraftpriser %>%
   pivot_wider(names_from = PrisOmraade_BK, values_from = SpotPrisNOK) %>% 
   dplyr::arrange(date2)
 
-#### Beregner systempris ####
+
+# ==============================================================================
+#### 5. Systempris for kostnadsgrunnlagsC%ret ####
+# ==============================================================================
+
 systempris_y.cb <- forbruk_per_mnd %>% 
   filter(year(date) == year(y.cb)) %>% 
   left_join(kraftpriser_mnd %>% select(date2, NP_SYS), by = c("date" = "date2")) %>% 
@@ -205,7 +233,11 @@ sysp.t_2
 
 rm(prisomr, rep_vinter)
 
-#### Valutakurs fra Norges Bank ####
+
+# ==============================================================================
+#### 6. Valutakurs fra Norges Bank ####
+# ==============================================================================
+
 # Henter daglig eurokurs mot NOK 
 # Kan endre antall observasjoner ved aa endre "lastNObservations=1" i koden nedenfor
 if (decision == 0){
@@ -225,7 +257,11 @@ if (exists("time_period_currency") & decision == 0){
   
   rm(url) }
 
-#### EPAD og Future-kontrakter (til bruk i varsel) ####
+
+# ==============================================================================
+#### 7. EPAD og future-kontrakter til bruk i varsel ####
+# ==============================================================================
+
 if (decision == 0){
 future <- as.data.frame(future)
 future <- future[!is.na(future$Daily.Fix), ]
@@ -282,7 +318,11 @@ timestamp_currency <-   paste("Valutakursen gjelder for", time_period_currency)
 writexl::write_xlsx(epad, "./epad_inkl_11_kr.xlsx")
 }
 
-#### Future-kontrakter fra Nasdaq (ikke i bruk, erstattes av EPAD) #####
+
+# ==============================================================================
+#### 8. Future-kontrakter fra Nasdaq, ikke i bruk, erstattet av EPAD ####
+# ==============================================================================
+#
 #Ny versjon n??r man henter inn future
 # if (decision == 0){
 #   future_updated <- colnames(future)[1]  # Henter f??rste kolonnenavn som "oppdatert"-verdi
@@ -299,7 +339,11 @@ writexl::write_xlsx(epad, "./epad_inkl_11_kr.xlsx")
 # }
 
 
-#### Beregne forbruksvekter per kvartal (ikke i bruk, un??dvendig ved bruk av EPAD) ####
+
+# ==============================================================================
+#### 9. Kvartalsvekter, ikke i bruk ved EPAD ####
+# ==============================================================================
+
 # # Elbalanse frem til og med 2010 (06901: Elektrisitetsbalanse)
 # pxweb_query_list <-
 #   list("Produk2"=c("16"),
@@ -358,7 +402,11 @@ writexl::write_xlsx(epad, "./epad_inkl_11_kr.xlsx")
 # elbalanse_samlet <- bind_rows(elbalanse1, elbalanse2)
 # rm(elbalanse1, elbalanse2, forbruk_per_kvartal_fra_2010, forbruk_per_kvartal_til_2010, elbalanse_fra_2010, elbalanse_til_2010)
 
-#### Referansepris kraft (ikke i bruk i varsel, erstattes av EPAD) ####
+
+# ==============================================================================
+#### 10. Referansepris kraft ved vedtak ####
+# ==============================================================================
+
 if (decision == 1){ # Beregne referansepris for varsel
   # # Beregne forbruksvekter per kvartal for perioden 2002 til y.cb (til bruk i varsel)
   # elbalanse_samlet <- elbalanse_samlet %>% 
@@ -412,7 +460,11 @@ if (decision == 1){ # Beregne referansepris for varsel
       mutate(pnl.rc = vektet_omraadepris * vekt)
   }
 
-#### 12880: Makrookonomiske hovedstorrelser, prognoser KPI ####
+
+# ==============================================================================
+#### 11. Makroforutsetninger fra SSB 12880 ####
+# ==============================================================================
+
 #pxweb_interactive("https://data.ssb.no/api/v0/no/table/12880")
 px_data <- 
   pxweb_get(url = "https://data.ssb.no/api/v0/no/table/12880",
@@ -441,7 +493,11 @@ kpi_arslonn_prognose <- ssb_12880_api %>% select(c(aar, lonn))
 kpi_prognose <- ssb_12880_api %>%  select(c(aar, `Konsumprisindeksen (KPI)`))
 rm(px_data, ssb_12880_api)
 
-#### 11118: Konsumprisindeks for varer og tjenester, CPI-L ####
+
+# ==============================================================================
+#### 12. CPI-L fra SSB 11118 ####
+# ==============================================================================
+
 #pxweb_interactive("https://data.ssb.no/api/v0/no/table/11118")
 px_data <- 
   pxweb_get(url = "https://data.ssb.no/api/v0/no/table/11118",
@@ -456,7 +512,11 @@ ssb_11118 <- as.data.frame(px_data,
   mutate(aar = as.numeric(aar))
 print(" This warning message is OK:       Warning message: In pxweb_as_data_frame.pxweb_data(x, row.names = row.names, optional = optional,  : NAs introduced by coercion")
 
-#### 03363: Konsumprisindeks for varer og tjenester, avsluttet tabell ####
+
+# ==============================================================================
+#### 13. CPI-L fra avsluttet SSB-tabell 03363 ####
+# ==============================================================================
+
 #pxweb_interactive("https://data.ssb.no/api/v0/no/table/03363")
 px_data <- 
   pxweb_get(url = "https://data.ssb.no/api/v0/no/table/03363",
@@ -472,7 +532,11 @@ ssb_03363 <- as.data.frame(px_data,
   filter(aar > 2003)
 print(" This warning message is OK:       Warning message: In pxweb_as_data_frame.pxweb_data(x, row.names = row.names, optional = optional,  : NAs introduced by coercion")
 
-#### 03014: Konsumprisindeks, CPI ####
+
+# ==============================================================================
+#### 14. KPI fra SSB 03014 ####
+# ==============================================================================
+
 # Konsumprisindeks, etter konsumgruppe (2015=100) 1979 - 2020
 # pxweb_interactive("https://data.ssb.no/api/v0/no/table/03014")
 ssb_03014 <- 
@@ -488,7 +552,11 @@ ssb_03014 <- as.data.frame(ssb_03014,
                 Aarsendring_prosent = 4) %>% 
   mutate(aar = as.numeric(aar))
 
-#### CPI-L ####
+
+# ==============================================================================
+#### 15. Beregning av CPI-L-indeks og faktor ####
+# ==============================================================================
+
 kpi <- ssb_12880 # Henter prognoser for inflasjon
 kpi <- kpi %>% 
   arrange(aar) %>%  # Sorting data
@@ -519,7 +587,11 @@ cpi.l <- kpi %>% select(Aarslonn_indeks) %>% round(digits = 1) %>% as.vector() %
 y.cb.cpi.l.factor = cpi.l[as.character(y.rc)]/cpi.l[as.character(year(y.cb))] 
 y.cb.cpi.l.factor
 
-#### CPI #### 
+
+# ==============================================================================
+#### 16. Beregning av KPI-indeks og faktor ####
+# ==============================================================================
+ 
 # Legger til faktisk inflasjon til y.cb ved varsel og til y.rc ved vedtak
 kpi$konsumprisindeksen_indeks <- 100
 if (decision==1){
@@ -552,7 +624,11 @@ y.cb.cpi.factor
 
 rm(ssb_03014, ssb_03363, ssb_11118, kpi_arslonn_prognose, kpi_prognose)
 
-#### Historiske referanserenter ####
+
+# ==============================================================================
+#### 17. Historiske referanserenter fra DWH ####
+# ==============================================================================
+
 server <- "SQL-BI03" 
 database = "NVE_DWH" 
 con <- DBI::dbConnect(odbc::odbc(), 
@@ -592,20 +668,28 @@ dat <- dat %>%
 NVE.ir <- dat$value
 names(NVE.ir) <- dat$name_ir
 
-#### Referanserente ####
+
+# ==============================================================================
+#### 18. Parametere for referanserente ####
+# ==============================================================================
+
 gjeldsandel	      <- 0.60
 noytral_realrente <- 1.50
 ek_beta           <- 0.875
 markedspremie     <- 5.00
 skatt             <- 0.22
 
-#### Referanserente y.rc-1 ####
+
+# ==============================================================================
+#### 19. Referanserente for y.rc-1 og y.rc ####
+# ==============================================================================
+
 # Koden under kjores ikke dersom det allerede finnes en rente i DWH for y.rc-1
 if (is.na(NVE.ir[NVE.ir = as.character(y.rc-1)])){
   # Snitt av aarene y.cb til y.cb + 3
   inflasjon_y.rc_1 <-	round(mean(ssb_12880[ssb_12880$aar >= year(y.cb) & ssb_12880$aar <= year(y.cb)+3,]$`Konsumprisindeksen (KPI)`),2)
   rente_y.rc_1 <- ((1-gjeldsandel)*(noytral_realrente+inflasjon_y.rc_1+(ek_beta*markedspremie))/
-                     (1-skatt)+gjeldsandel*(swap_y.rc_1+kreditpremie_y.rc_1))/100
+                     (1-skatt)+gjeldsandel*(swap_y.rc_1+KP_y.rc_1))/100
   rente_y.rc_1 <- round(rente_y.rc_1, digits = 4)
   names(rente_y.rc_1) <- y.rc-1
   
@@ -614,9 +698,11 @@ if (is.na(NVE.ir[NVE.ir = as.character(y.rc-1)])){
 }
 
 # Snitt av aarene y.cb+1 til y.cb + 4
-inflasjon_y.rc <-	ssb_12880 %>% filter(aar >= year(y.cb)+1 & aar <= year(y.cb)+4) %>% dplyr::summarise(mean(`Konsumprisindeksen (KPI)`)) %>% round(digits = 2) %>% as.numeric()
+#inflasjon_y.rc <-	ssb_12880 %>% filter(aar >= year(y.cb)+1 & aar <= year(y.cb)+4) %>% dplyr::summarise(mean(`Konsumprisindeksen (KPI)`)) %>% round(digits = 2) %>% as.numeric()
+# Manuell overstyring av inflasjonsforutsetning til referanserenten - kun til testing: ellers s?? blir siste observasjon hentet ut og referanserenten feil
+inflasjon_y.rc <- 2.55
 
-rente_y.rc <- ((1-gjeldsandel)*(noytral_realrente+inflasjon_y.rc+(ek_beta*markedspremie)) / (1-skatt)+gjeldsandel*(swap_y.rc+kreditpremie_y.rc)) / 100
+rente_y.rc <- ((1-gjeldsandel)*(noytral_realrente+inflasjon_y.rc+(ek_beta*markedspremie)) / (1-skatt)+gjeldsandel*(swap_y.rc+KP_y.rc)) / 100
 rente_y.rc <- round(rente_y.rc, digits = 4) %>% `names<-`(y.rc)
 
 if (is.na(NVE.ir[NVE.ir = as.character(y.rc)])){
@@ -630,7 +716,11 @@ if (is.na(NVE.ir[NVE.ir = as.character(y.rc)])){
 NVE.ir.t_2 <-  NVE.ir[as.character(year(y.cb))] # Interest rate used in DEA (1_0)
 NVE.ir.t <-  NVE.ir[as.character(y.rc)]   # Interest rate used in RC calculation (4_0)
 
-#### Henter rammevilkaar fra tidligere varsel ####
+
+# ==============================================================================
+#### 20. RammevilkC%r fra tidligere varsel eller vedtak ####
+# ==============================================================================
+
 #	Sporring mot grunnlagsdata i DWH hvor kun nyeste kjoring per aar blir inkludert, 
 # og hvor kun historisk aar = kostnadsgrunnlag aar blir inkludert
 
@@ -704,7 +794,11 @@ dat_geo <- dat_geo %>%
   ungroup() %>% 
   na.omit()
 
-#### Kostader y.rc t-2 ####
+
+# ==============================================================================
+#### 21. Kostnader for y.rc t-2 ####
+# ==============================================================================
+
 dat_t_2 <- dat[dat$y.cb == year(y.cb)-2, ]
 dat_t_2 <- dat_t_2[dat_t_2$type == max(dat_t_2$type), ]
 
@@ -735,19 +829,23 @@ Tot_cb.y_ex_cap = sum(cb.y_ex_cap$fp_OPEX + cb.y_ex_cap$nl.cost + cb.y_ex_cap$fp
 Tot_cb.y_ex_cap
 lrt_RC_dec.y.cb = Tot_cb.y_ex_cap
 
-### Lagrer data ####
+
+# ==============================================================================
+#### 22. Lagring av forutsetninger og mellomdata ####
+# ==============================================================================
+
 if (decision == 0){
   save(list = c("cpi", "cpi.l", "sysp.t_2", "NVE.ir", "NVE.ir.t",
                 "NVE.ir.t_2", "y.cb.cpi.factor", "y.cb.cpi.l.factor",
                 "y.cb", "y.rc", "decision", "y.avg", "wcp", "rho",
                 "lrt_RC_dec.y.cb", "timestamp_currency",
-                "timestamp_future"), # "pnl.rc" er tatt ut av lista for varsel, mohh 24.10.25
+                "timestamp_future", "KP_y.rc", "swap_y.rc", "inflasjon_y.rc"), # "pnl.rc" er tatt ut av lista for varsel, mohh 24.10.25
        file = "./Data/forutsetninger.Rdata")
   } else {
     save(list = c("cpi", "cpi.l", "pnl.rc", "sysp.t_2", "NVE.ir", "NVE.ir.t",
                   "NVE.ir.t_2", "y.cb.cpi.factor", "y.cb.cpi.l.factor",
                   "y.cb", "y.rc", "decision", "y.avg", "wcp", "rho",
-                  "lrt_RC_dec.y.cb"),
+                  "lrt_RC_dec.y.cb", "KP_y.rc", "swap_y.rc", "inflasjon_y.rc"),
          file = "./Data/forutsetninger.Rdata")
   }
 
